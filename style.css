@@ -1,0 +1,100 @@
+/* 🔹 Style global */
+body {
+    background-color: black;
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 🔹 Texte principal */
+#text {
+    font-size: 2.5rem;
+    font-weight: bold; /* ✅ Ajout du gras */
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    line-height: 1.3;
+    z-index: 2;
+}
+
+/* 🔹 Curseur animé */
+.cursor {
+    display: inline-block;
+    width: 8px;
+    height: 30px;
+    background: white;
+    margin-left: 5px;
+    animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* 🔹 Fond Matrix */
+.matrix {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.matrix span {
+    position: absolute;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: bold; /* ✅ Ajout du gras */
+    opacity: 0;
+    animation: matrixAnim 0.5s linear infinite;
+}
+
+@keyframes matrixAnim {
+    0% { opacity: 0; transform: translateY(0px); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}
+
+/* 🔹 Chiffres aléatoires */
+.matrix-number {
+    position: absolute;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: bold; /* ✅ Ajout du gras */
+    animation: flicker 1s infinite alternate ease-in-out;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+/* 🔹 Responsive */
+@media (max-width: 768px) {
+    #text {
+        font-size: 2rem;
+        max-width: 90%;
+    }
+
+    .cursor {
+        height: 24px;
+    }
+
+    .matrix span {
+        font-size: 1rem;
+    }
+
+    .matrix-number {
+        font-size: 1.2rem;
+    }
+}

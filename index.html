@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <title>Hack Simulation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="text">
+        <span id="content" class="glitch"></span><span class="cursor"></span>
+    </div>
+
+    <script>
+        // 🔹 Effet d'écriture
+        const phrases = [
+            "Attends...",
+            "Tu viens vraiment de scanner ce QR code sans protection ?",
+            "T'as de la chance, je ne vais pas voler tes données aujourd'hui.",
+            "C'est si facile de voler des données, tu devrais les protéger.",
+            "J'ai quelque chose pour toi, regarde ça..."
+        ];
+
+        let index = 0, charIndex = 0;
+        const textElement = document.getElementById("content");
+
+        function typeText() {
+            if (charIndex < phrases[index].length) {
+                textElement.innerHTML += phrases[index].charAt(charIndex);
+                charIndex++;
+                setTimeout(typeText, 50);
+            } else {
+                setTimeout(eraseText, 2500);
+            }
+        }
+
+        function eraseText() {
+            if (charIndex > 0) {
+                textElement.innerHTML = phrases[index].substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(eraseText, 25);
+            } else {
+                index++;
+                if (index < phrases.length) {
+                    setTimeout(typeText, 500);
+                } else {
+                    setTimeout(() => {
+                        window.location.href = "https://www.fr.fnac.be/DigitalServicePack#";
+                    }, 1000);
+                }
+            }
+        }
+
+        typeText();
+
+        // 🔹 Effet Matrix
+        function createMatrixEffect() {
+            const matrix = document.createElement("div");
+            matrix.classList.add("matrix");
+            document.body.appendChild(matrix);
+
+            function spawnNumbers() {
+                matrix.innerHTML = "";
+                for (let i = 0; i < 60; i++) {
+                    let span = document.createElement("span");
+                    span.textContent = Math.floor(Math.random() * 10);
+                    span.style.left = Math.random() * 100 + "vw";
+                    span.style.top = Math.random() * 100 + "vh";
+                    span.style.animationDuration = (Math.random() * 2 + 0.5) + "s";
+                    span.style.animationDelay = (Math.random() * 2) + "s";
+                    span.classList.add("matrix-number");
+
+                    matrix.appendChild(span);
+
+                    // Changement aléatoire des chiffres
+                    setInterval(() => {
+                        span.textContent = Math.floor(Math.random() * 10);
+                    }, Math.random() * 1000 + 500);
+                }
+            }
+
+            spawnNumbers();
+        }
+
+        createMatrixEffect();
+    </script>
+</body>
+</html>
