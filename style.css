@@ -99,6 +99,28 @@ body {
     .matrix-number {
         font-size: 1.2rem;
     }
+    #language-selection {
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        align-items: center;
+    }
+
+    button {
+        width: 100%;
+        max-width: 300px;
+        font-size: 1.2rem;
+        padding: 12px 20px;
+    }
+
+    #text {
+        font-size: 1.8rem;
+    }
+
+    .cursor {
+        height: 20px;
+    }
+
 }
 
 /* 🔹 Logo sans glitch visible au début */
