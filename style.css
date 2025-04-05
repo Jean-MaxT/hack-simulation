@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100dvh; /* ✅ Remplace 100vh par 100dvh */
+    height: 100dvh;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -17,7 +17,7 @@ body {
 /* 🔹 Texte principal */
 #text {
     font-size: 2.5rem;
-    font-weight: bold; /* ✅ Ajout du gras */
+    font-weight: bold;
     position: relative;
     width: 90%;
     max-width: 600px;
@@ -54,7 +54,7 @@ body {
     position: absolute;
     font-size: 1.5rem;
     color: rgba(255, 255, 255, 0.7);
-    font-weight: bold; /* ✅ Ajout du gras */
+    font-weight: bold;
     opacity: 0;
     animation: matrixAnim 0.5s linear infinite;
 }
@@ -70,7 +70,7 @@ body {
     position: absolute;
     font-size: 1.5rem;
     color: rgba(255, 255, 255, 0.6);
-    font-weight: bold; /* ✅ Ajout du gras */
+    font-weight: bold;
     animation: flicker 1s infinite alternate ease-in-out;
 }
 
@@ -85,7 +85,7 @@ body {
     #text {
         font-size: 2rem;
         max-width: 90%;
-        margin-top: 0; /* s’assurer qu’il n’y ait pas de décalage */
+        margin-top: 0;
     }
 
     .cursor {
@@ -101,6 +101,21 @@ body {
     }
 }
 
+/* 🔹 Logo sans glitch visible au début */
+.logo-no-glitch {
+    width: 100px;
+    height: 100px;
+    background-image: url('logo_fnac.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+}
+
+/* 🔹 Animation du logo glitch */
 @keyframes glitchLogo {
     0%, 100% {
         background-image: url('logo_fnac.png');
@@ -124,8 +139,43 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     position: absolute;
-    top: 0px;
+    top: 20px;
     left: 20px;
     z-index: 10;
+    display: none; /* Masqué au départ */
     animation: glitchLogo 2.5s infinite steps(1);
+}
+
+/* 🔹 Boutons de sélection de langue */
+#language-selection {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    z-index: 20;
+}
+
+button {
+    padding: 15px 25px;
+    border: 2px solid white;
+    background-color: transparent;
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 200px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;  /* Ajout de la transition pour le changement de couleur */
+}
+
+/* 🔹 Boutons au survol */
+button:hover {
+    background-color: white;
+    color: black;
 }

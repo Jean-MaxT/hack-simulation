@@ -9,26 +9,82 @@
     <script defer src="https://cloud.umami.is/script.js" data-website-id="4345a72b-c116-474c-925d-13964d6b84f8"></script>
 </head>
 <body>
-    <div id="text">
+    <!-- Zone de sélection de la langue -->
+    <div id="language-selection">
+        <button id="btn-fr">Français</button>
+        <button id="btn-nl">Nederlands</button>
+    </div>
+
+    <!-- Logo sans glitch au départ -->
+    <div class="logo-no-glitch">
+    </div>
+
+    <div id="text" style="display: none;">
         <span id="content" class="glitch"></span><span class="cursor"></span>
     </div>
-    <div class="logo-glitch"></div>
+
+    <div class="logo-glitch" style="display: none;"></div>
+
     <script>
-        // 🔹 Effet d'écriture
-        const phrases = [
-            "Attends...",
-            "Tu viens vraiment de scanner ce QR code sans protection ?",
-            "T'as de la chance, je ne vais pas voler tes données aujourd'hui.",
-            "C'est si facile de voler des données, tu devrais les protéger.",
-            "J'ai quelque chose pour toi, regarde ça..."
-        ];
+        let selectedLang = ''; // Variable pour stocker la langue choisie
+
+        // 🔹 Sélection de la langue
+        document.getElementById('btn-fr').addEventListener('click', () => {
+            selectedLang = 'fr';
+            startAnimation();
+        });
+
+        document.getElementById('btn-nl').addEventListener('click', () => {
+            selectedLang = 'nl';
+            startAnimation();
+        });
+
+        // 🔹 Phrases selon la langue
+        const phrases = {
+            fr: [
+                "Attends...",
+                "Tu viens vraiment de scanner ce QR code sans protection ?",
+                "T'as de la chance, je ne vais pas voler tes données aujourd'hui.",
+                "C'est si facile de voler des données, tu devrais les protéger.",
+                "J'ai quelque chose pour toi, regarde ça..."
+            ],
+            nl: [
+                "Wacht...",
+                "Heb je echt deze QR-code gescand zonder bescherming?",
+                "Je hebt geluk, ik ga je gegevens vandaag niet stelen.",
+                "Het is zo makkelijk om gegevens te stelen, je zou ze moeten beschermen.",
+                "Ik heb iets voor je, kijk hier naar..."
+            ]
+        };
 
         let index = 0, charIndex = 0;
         const textElement = document.getElementById("content");
 
+        // 🔹 Lancer l'animation après le choix de la langue
+        function startAnimation() {
+            // Cache les boutons après sélection
+            document.getElementById('language-selection').style.display = 'none'; 
+            
+            // Affiche les éléments animés
+            document.getElementById('text').style.display = 'block';
+            document.querySelector('.logo-glitch').style.display = 'block';
+            
+            // Démarre l'effet glitch du logo
+            document.querySelector('.logo-glitch').style.animation = 'glitchLogo 2.5s infinite steps(1)';
+            
+            // Masque le logo sans glitch
+            document.querySelector('.logo-no-glitch').style.display = 'none';
+            
+            createMatrixEffect();
+            typeText();
+        }
+
+        // 🔹 Effet d'écriture
         function typeText() {
-            if (charIndex < phrases[index].length) {
-                textElement.innerHTML += phrases[index].charAt(charIndex);
+            const phrase = phrases[selectedLang][index];
+
+            if (charIndex < phrase.length) {
+                textElement.innerHTML += phrase.charAt(charIndex);
                 charIndex++;
                 setTimeout(typeText, 25);
             } else {
@@ -37,23 +93,24 @@
         }
 
         function eraseText() {
+            const phrase = phrases[selectedLang][index];
+
             if (charIndex > 0) {
-                textElement.innerHTML = phrases[index].substring(0, charIndex - 1);
+                textElement.innerHTML = phrase.substring(0, charIndex - 1);
                 charIndex--;
                 setTimeout(eraseText, 10);
             } else {
                 index++;
-                if (index < phrases.length) {
+                if (index < phrases[selectedLang].length) {
                     setTimeout(typeText, 500);
                 } else {
                     setTimeout(() => {
-                        window.location.href = "https://www.fr.fnac.be/DigitalServicePack#";
+                        const url = selectedLang === 'fr' ? "https://www.fr.fnac.be/DigitalServicePack#" : "https://www.nl.fnac.be/DigitalServicePack";
+                        window.location.href = url;
                     }, 1000);
                 }
             }
         }
-
-        typeText();
 
         // 🔹 Effet Matrix
         function createMatrixEffect() {
@@ -83,8 +140,6 @@
 
             spawnNumbers();
         }
-
-        createMatrixEffect();
     </script>
 </body>
 </html>
