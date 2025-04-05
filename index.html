@@ -29,9 +29,9 @@
             if (charIndex < phrases[index].length) {
                 textElement.innerHTML += phrases[index].charAt(charIndex);
                 charIndex++;
-                setTimeout(typeText, 50);
+                setTimeout(typeText, 25);
             } else {
-                setTimeout(eraseText, 2500);
+                setTimeout(eraseText, 1750);
             }
         }
 
@@ -39,7 +39,7 @@
             if (charIndex > 0) {
                 textElement.innerHTML = phrases[index].substring(0, charIndex - 1);
                 charIndex--;
-                setTimeout(eraseText, 25);
+                setTimeout(eraseText, 10);
             } else {
                 index++;
                 if (index < phrases.length) {
