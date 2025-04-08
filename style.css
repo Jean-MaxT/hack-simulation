@@ -82,14 +82,20 @@ body {
 
 /* 🔹 Responsive */
 @media (max-width: 768px) {
+    body {
+        justify-content: flex-start; /* Alignement du contenu au top pour éviter l'espace bas */
+        align-items: flex-start; /* Permet de mieux contrôler l'alignement */
+        padding-top: 20px; /* Ajout d'un padding top pour mieux espacer */
+    }
+
     #text {
-        font-size: 1.8rem; /* Réduit la taille du texte */
+        font-size: 1.8rem; /* Réduction de la taille de police */
         max-width: 90%;
-        margin-top: 0;
+        margin-top: 20px; /* Ajout d'un espacement en haut pour éviter que ça soit trop bas */
     }
 
     .cursor {
-        height: 20px; /* Réduit la taille du curseur */
+        height: 20px;
     }
 
     .matrix span {
@@ -99,16 +105,13 @@ body {
     .matrix-number {
         font-size: 1.2rem;
     }
-    
-    /* Recentre le bloc de sélection de langue */
+
     #language-selection {
-        position: absolute;
-        top: 50%;  /* Centré verticalement */
-        left: 50%;
-        transform: translate(-50%, -50%); /* Centré horizontalement */
-        display: flex;
-        gap: 20px;
-        z-index: 20;
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        align-items: center;
+        margin-top: 30px; /* Espace entre les langues et le texte */
     }
 
     button {
@@ -116,6 +119,10 @@ body {
         max-width: 300px;
         font-size: 1.2rem;
         padding: 12px 20px;
+    }
+
+    #rewardCard {
+        top: 20%; /* Déplacer la carte un peu plus haut sur mobile */
     }
 }
 
@@ -167,9 +174,9 @@ body {
 /* 🔹 Boutons de sélection de langue */
 #language-selection {
     position: absolute;
-    top: 50%;  /* Centré verticalement */
+    top: 50%;  /* Modifié de 40% à 50% pour centrer verticalement */
     left: 50%;
-    transform: translate(-50%, -50%); /* Centré horizontalement */
+    transform: translate(-50%, -50%); /* Ajouté pour un centrage parfait */
     display: flex;
     gap: 20px;
     z-index: 20;
