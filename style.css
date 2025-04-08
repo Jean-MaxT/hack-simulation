@@ -83,13 +83,13 @@ body {
 /* 🔹 Responsive */
 @media (max-width: 768px) {
     #text {
-        font-size: 2rem;
+        font-size: 1.8rem; /* Réduit la taille du texte */
         max-width: 90%;
         margin-top: 0;
     }
 
     .cursor {
-        height: 24px;
+        height: 20px; /* Réduit la taille du curseur */
     }
 
     .matrix span {
@@ -99,11 +99,16 @@ body {
     .matrix-number {
         font-size: 1.2rem;
     }
+    
+    /* Recentre le bloc de sélection de langue */
     #language-selection {
-        flex-direction: column;
-        gap: 10px;
-        width: 90%;
-        align-items: center;
+        position: absolute;
+        top: 50%;  /* Centré verticalement */
+        left: 50%;
+        transform: translate(-50%, -50%); /* Centré horizontalement */
+        display: flex;
+        gap: 20px;
+        z-index: 20;
     }
 
     button {
@@ -112,15 +117,6 @@ body {
         font-size: 1.2rem;
         padding: 12px 20px;
     }
-
-    #text {
-        font-size: 1.8rem;
-    }
-
-    .cursor {
-        height: 20px;
-    }
-
 }
 
 /* 🔹 Logo sans glitch visible au début */
@@ -171,9 +167,9 @@ body {
 /* 🔹 Boutons de sélection de langue */
 #language-selection {
     position: absolute;
-    top: 50%;  /* Modifié de 40% à 50% pour centrer verticalement */
+    top: 50%;  /* Centré verticalement */
     left: 50%;
-    transform: translate(-50%, -50%); /* Ajouté pour un centrage parfait */
+    transform: translate(-50%, -50%); /* Centré horizontalement */
     display: flex;
     gap: 20px;
     z-index: 20;
