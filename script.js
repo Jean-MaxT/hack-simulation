@@ -48,35 +48,41 @@ function startAnimation() {
 
 function typeText() {
     const phrase = phrases[selectedLang][index];
+
     if (charIndex < phrase.length) {
         textElement.innerHTML += phrase.charAt(charIndex);
         charIndex++;
         setTimeout(typeText, 25);
     } else {
-        setTimeout(eraseText, 1750);
+        // Attends un petit moment avant de lancer l'effacement
+        setTimeout(() => {
+            eraseText(); // → ne lance qu'une fois la phrase finie
+        }, 1750);
     }
 }
 
-function eraseText() {
-    const phrase = phrases[selectedLang][index];
 
-    if (charIndex > 0) {
-        textElement.innerHTML = phrase.substring(0, charIndex - 1);
-        charIndex--;
-        setTimeout(eraseText, 10);
-    } else {
+function eraseText() {
+    textElement.classList.add('fade-out');
+    charIndex = 0; // ← important pour la prochaine phrase
+
+    setTimeout(() => {
+        textElement.innerHTML = '';
+        textElement.classList.remove('fade-out');
+
         index++;
         if (index < phrases[selectedLang].length) {
-            setTimeout(typeText, 500);
+            setTimeout(typeText, 300); // petite pause avant d'enchaîner
         } else {
             setTimeout(() => {
                 document.querySelector('.cursor').style.display = 'none';
                 const rewardCard = document.getElementById('rewardCard');
                 rewardCard.style.display = 'flex';
-                rewardCard.classList.add('show');  // Ajouter la classe 'show' pour le fondu
-            }, 1000);
+                rewardCard.classList.add('show');
+                updateCardText(); // n'oublie pas d’avoir cette fonction pour gérer NL/FR
+            }, 800);
         }
-    }
+    }, 600); // temps pour laisser l'effet de fondu
 }
 
 function createMatrixEffect() {
