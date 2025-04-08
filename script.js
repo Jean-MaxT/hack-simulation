@@ -105,4 +105,6 @@ function createMatrixEffect() {
 // Activation du retournement de la carte
 document.getElementById('cardInner').addEventListener('click', () => {
     document.getElementById('cardInner').classList.toggle('flipped');
+    // Ajout de la classe 'rotate-border' pour appliquer la bordure lumineuse continue pendant le retournement
+    document.getElementById('rewardCard').classList.add('rotate-border');
 });

@@ -203,19 +203,18 @@ button:hover {
     color: black;
 }
 
-/* 🔹 Carte finale */
 #rewardCard {
     display: none;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Centre la carte */
+    transform: translate(-50%, -50%);
     opacity: 0; /* La carte commence invisible */
     z-index: 10;
     perspective: 1000px;
 }
 
-/* 🔹 Animation fade-in (avec fondu sans mouvement) */
+/* 🔹 Animation fade-in */
 @keyframes fade-in {
     0% {
         opacity: 0;
@@ -225,21 +224,20 @@ button:hover {
     }
 }
 
-/* 🔹 Ajout de l'animation à l'apparition */
 #rewardCard.show {
-    display: flex; /* La carte devient visible */
-    animation: fade-in 1s ease-out forwards; /* Application de l'animation sans mouvement */
+    display: flex;
+    animation: fade-in 1s ease-out forwards;
 }
 
-/* 🔹 Conteneur de la carte qui va permettre la rotation */
+/* 🔹 Conteneur de la carte */
 #cardInner {
     width: 300px;
     height: 180px;
-    transform-style: preserve-3d; /* Permet de garder la perspective 3D */
+    transform-style: preserve-3d;
     transition: transform 0.8s ease;
     cursor: pointer;
     position: relative;
-    transform-origin: center; /* Rotation centrée */
+    transform-origin: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -248,8 +246,8 @@ button:hover {
 /* 🔹 Carte (face avant et arrière) */
 .card {
     position: absolute;
-    width: 300px; /* Largeur de la carte */
-    height: 180px; /* Hauteur de la carte */
+    width: 300px;
+    height: 180px;
     background: white;
     border-radius: 12px;
     font-family: 'Bebas Neue', sans-serif;
@@ -258,7 +256,7 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    backface-visibility: hidden; /* Cache l'arrière de la carte quand elle est retournée */
+    backface-visibility: hidden;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     padding: 20px;
     text-align: center;
@@ -267,20 +265,62 @@ button:hover {
 /* 🔹 Carte avant */
 .card-front {
     background-color: #fff;
-    z-index: 2; /* Face avant visible en premier */
-    font-size: 30px;
+    font-size: 34px;
+    font-weight: bold;
+    color: #ffffff;
+    z-index: 2;
 }
 
 /* 🔹 Carte arrière */
 .card-back {
     background-color: #fff;
-    transform: rotateY(180deg); /* Positionne la carte arrière à 180° */
-    font-size: 46px; /* Augmente la taille de la police pour la carte arrière */
+    transform: rotateY(180deg);
+    font-size: 56px;
     font-weight: bold;
-    z-index: 1; /* Cache la carte arrière lorsque la face avant est visible */
+    color: #fff;
+    z-index: 1;
 }
 
 /* 🔹 Effet de rotation */
 #cardInner.flipped {
-    transform: rotateY(180deg); /* Effectue la rotation complète sur l'axe Y */
+    transform: rotateY(180deg);
+}
+
+/* 🔹 Animation de bordure */
+@property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.card::after,
+.card::before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-image: conic-gradient(from var(--angle), #ff4545, #00ff99, #006aff, #ff0095, #ff4545);
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: -1;
+    padding: 3px;
+    border-radius: 12px; /* Garde les bords arrondis de la carte */
+    animation: 10s spin linear infinite;
+    opacity: 0.1;
+}
+
+.card::before {
+    filter: blur(2rem);
+    opacity: 0.5;
+}
+
+/* 🔹 Animation de rotation de la bordure */
+@keyframes spin {
+    from {
+        --angle: 0deg;
+    }
+    to {
+        --angle: 360deg;
+    }
 }
