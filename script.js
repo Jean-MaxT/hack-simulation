@@ -64,7 +64,7 @@ function typeText() {
 
 function eraseText() {
     textElement.classList.add('fade-out');
-    charIndex = 0; // ← important pour la prochaine phrase
+    charIndex = 0; // important pour la prochaine phrase
 
     setTimeout(() => {
         textElement.innerHTML = '';
@@ -72,14 +72,14 @@ function eraseText() {
 
         index++;
         if (index < phrases[selectedLang].length) {
-            setTimeout(typeText, 300); // petite pause avant d'enchaîner
+            setTimeout(typeText, 200); // petite pause avant d'enchaîner
         } else {
             setTimeout(() => {
                 document.querySelector('.cursor').style.display = 'none';
                 const rewardCard = document.getElementById('rewardCard');
                 rewardCard.style.display = 'flex';
                 rewardCard.classList.add('show');
-                updateCardText(); // n'oublie pas d’avoir cette fonction pour gérer NL/FR
+                updateCardText();
             }, 800);
         }
     }, 600); // temps pour laisser l'effet de fondu
