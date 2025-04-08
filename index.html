@@ -3,143 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <title>Hack Simulation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="4345a72b-c116-474c-925d-13964d6b84f8"></script>
 </head>
 <body>
-    <!-- Zone de sélection de la langue -->
+
+    <!-- Choix de langue -->
     <div id="language-selection">
         <button id="btn-fr">Français</button>
         <button id="btn-nl">Nederlands</button>
     </div>
 
-    <!-- Logo sans glitch au départ -->
-    <div class="logo-no-glitch">
-    </div>
+    <!-- Logo sans glitch (visible au début) -->
+    <div class="logo-no-glitch"></div>
 
+    <!-- Texte animé -->
     <div id="text" style="display: none;">
         <span id="content" class="glitch"></span><span class="cursor"></span>
     </div>
 
+    <!-- Logo glitch (affiché pendant l'animation) -->
     <div class="logo-glitch" style="display: none;"></div>
 
-    <script>
-        let selectedLang = ''; // Variable pour stocker la langue choisie
+    <!-- Carte finale -->
+    <div id="rewardCard" style="display: none;">
+        <div id="cardInner">
+            <div class="card card-front">
+                Clique ici et présente cette carte à un vendeur
+            </div>
+            <div class="card card-back">
+                PASS ACCESS DSP
+            </div>
+        </div>
+    </div>
 
-        // 🔹 Sélection de la langue
-        document.getElementById('btn-fr').addEventListener('click', () => {
-            selectedLang = 'fr';
-            startAnimation();
-        });
-
-        document.getElementById('btn-nl').addEventListener('click', () => {
-            selectedLang = 'nl';
-            startAnimation();
-        });
-
-        // 🔹 Phrases selon la langue
-        const phrases = {
-            fr: [
-                "Attends...",
-                "Tu viens vraiment de scanner ce QR code sans protection ?",
-                "T'as de la chance, je ne vais pas voler tes données aujourd'hui.",
-                "C'est si facile de voler des données, tu devrais les protéger.",
-                "J'ai quelque chose pour toi, regarde ça..."
-            ],
-            nl: [
-                "Wacht...",
-                "Heb je echt deze QR-code gescand zonder bescherming?",
-                "Je hebt geluk, ik ga je gegevens vandaag niet stelen.",
-                "Het is zo makkelijk om gegevens te stelen, je zou ze moeten beschermen.",
-                "Ik heb iets voor je, kijk hier naar..."
-            ]
-        };
-
-        let index = 0, charIndex = 0;
-        const textElement = document.getElementById("content");
-
-        // 🔹 Lancer l'animation après le choix de la langue
-        function startAnimation() {
-            // Cache les boutons après sélection
-            document.getElementById('language-selection').style.display = 'none'; 
-            
-            // Affiche les éléments animés
-            document.getElementById('text').style.display = 'block';
-            document.querySelector('.logo-glitch').style.display = 'block';
-            
-            // Démarre l'effet glitch du logo
-            document.querySelector('.logo-glitch').style.animation = 'glitchLogo 2.5s infinite steps(1)';
-            
-            // Masque le logo sans glitch
-            document.querySelector('.logo-no-glitch').style.display = 'none';
-            
-            createMatrixEffect();
-            typeText();
-        }
-
-        // 🔹 Effet d'écriture
-        function typeText() {
-            const phrase = phrases[selectedLang][index];
-
-            if (charIndex < phrase.length) {
-                textElement.innerHTML += phrase.charAt(charIndex);
-                charIndex++;
-                setTimeout(typeText, 25);
-            } else {
-                setTimeout(eraseText, 1750);
-            }
-        }
-
-        function eraseText() {
-            const phrase = phrases[selectedLang][index];
-
-            if (charIndex > 0) {
-                textElement.innerHTML = phrase.substring(0, charIndex - 1);
-                charIndex--;
-                setTimeout(eraseText, 10);
-            } else {
-                index++;
-                if (index < phrases[selectedLang].length) {
-                    setTimeout(typeText, 500);
-                } else {
-                    setTimeout(() => {
-                        const url = selectedLang === 'fr' ? "https://www.fr.fnac.be/DigitalServicePack#" : "https://www.nl.fnac.be/DigitalServicePack";
-                        window.location.href = url;
-                    }, 1000);
-                }
-            }
-        }
-
-        // 🔹 Effet Matrix
-        function createMatrixEffect() {
-            const matrix = document.createElement("div");
-            matrix.classList.add("matrix");
-            document.body.appendChild(matrix);
-
-            function spawnNumbers() {
-                matrix.innerHTML = "";
-                for (let i = 0; i < 60; i++) {
-                    let span = document.createElement("span");
-                    span.textContent = Math.floor(Math.random() * 10);
-                    span.style.left = Math.random() * 100 + "vw";
-                    span.style.top = Math.random() * 100 + "vh";
-                    span.style.animationDuration = (Math.random() * 2 + 0.5) + "s";
-                    span.style.animationDelay = (Math.random() * 2) + "s";
-                    span.classList.add("matrix-number");
-
-                    matrix.appendChild(span);
-
-                    // Changement aléatoire des chiffres
-                    setInterval(() => {
-                        span.textContent = Math.floor(Math.random() * 10);
-                    }, Math.random() * 1000 + 500);
-                }
-            }
-
-            spawnNumbers();
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

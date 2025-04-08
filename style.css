@@ -7,7 +7,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100dvh;
+    height: 100vh; /* Utilisation de 100vh pour la hauteur de la page */
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -171,14 +171,15 @@ body {
 /* 🔹 Boutons de sélection de langue */
 #language-selection {
     position: absolute;
-    top: 40%;
+    top: 50%;  /* Modifié de 40% à 50% pour centrer verticalement */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%); /* Ajouté pour un centrage parfait */
     display: flex;
     gap: 20px;
     z-index: 20;
 }
 
+/* 🔹 Style des boutons */
 button {
     padding: 15px 25px;
     border: 2px solid white;
@@ -193,11 +194,93 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;  /* Ajout de la transition pour le changement de couleur */
+    transition: all 0.3s ease;
 }
 
 /* 🔹 Boutons au survol */
 button:hover {
     background-color: white;
     color: black;
+}
+
+/* 🔹 Carte finale */
+#rewardCard {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centre la carte */
+    opacity: 0; /* La carte commence invisible */
+    z-index: 10;
+    perspective: 1000px;
+}
+
+/* 🔹 Animation fade-in (avec fondu sans mouvement) */
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* 🔹 Ajout de l'animation à l'apparition */
+#rewardCard.show {
+    display: flex; /* La carte devient visible */
+    animation: fade-in 1s ease-out forwards; /* Application de l'animation sans mouvement */
+}
+
+/* 🔹 Conteneur de la carte qui va permettre la rotation */
+#cardInner {
+    width: 300px;
+    height: 180px;
+    transform-style: preserve-3d; /* Permet de garder la perspective 3D */
+    transition: transform 0.8s ease;
+    cursor: pointer;
+    position: relative;
+    transform-origin: center; /* Rotation centrée */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 🔹 Carte (face avant et arrière) */
+.card {
+    position: absolute;
+    width: 300px; /* Largeur de la carte */
+    height: 180px; /* Hauteur de la carte */
+    background: white;
+    border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backface-visibility: hidden; /* Cache l'arrière de la carte quand elle est retournée */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+/* 🔹 Carte avant */
+.card-front {
+    background-color: #fff;
+    z-index: 2; /* Face avant visible en premier */
+    font-size: 30px;
+}
+
+/* 🔹 Carte arrière */
+.card-back {
+    background-color: #fff;
+    transform: rotateY(180deg); /* Positionne la carte arrière à 180° */
+    font-size: 46px; /* Augmente la taille de la police pour la carte arrière */
+    font-weight: bold;
+    z-index: 1; /* Cache la carte arrière lorsque la face avant est visible */
+}
+
+/* 🔹 Effet de rotation */
+#cardInner.flipped {
+    transform: rotateY(180deg); /* Effectue la rotation complète sur l'axe Y */
 }
