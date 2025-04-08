@@ -3,14 +3,17 @@ let selectedLang = '';
 // Sélection de la langue
 document.getElementById('btn-fr').addEventListener('click', () => {
     selectedLang = 'fr';
+    updateCardText();
     startAnimation();
 });
 
 document.getElementById('btn-nl').addEventListener('click', () => {
     selectedLang = 'nl';
+    updateCardText();
     startAnimation();
 });
 
+// Phrases pour les animations
 const phrases = {
     fr: [
         "Attends...",
@@ -32,6 +35,7 @@ let index = 0, charIndex = 0;
 const textElement = document.getElementById("content");
 
 function startAnimation() {
+    // Masque les boutons et autres éléments
     document.getElementById('language-selection').style.display = 'none';
     document.getElementById('text').style.display = 'block';
     document.querySelector('.logo-glitch').style.display = 'block';
@@ -108,3 +112,14 @@ document.getElementById('cardInner').addEventListener('click', () => {
     // Ajout de la classe 'rotate-border' pour appliquer la bordure lumineuse continue pendant le retournement
     document.getElementById('rewardCard').classList.add('rotate-border');
 });
+
+// Fonction pour changer le texte de la carte en fonction de la langue sélectionnée
+function updateCardText() {
+    const cardText = document.getElementById('card-text');
+    
+    if (selectedLang === 'nl') {
+        cardText.textContent = 'Klik hier en toon deze kaart aan een verkoper';
+    } else {
+        cardText.textContent = 'Clique ici et présente cette carte à un vendeur';
+    }
+}

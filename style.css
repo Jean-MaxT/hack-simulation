@@ -82,20 +82,14 @@ body {
 
 /* 🔹 Responsive */
 @media (max-width: 768px) {
-    body {
-        justify-content: flex-start; /* Alignement du contenu au top pour éviter l'espace bas */
-        align-items: flex-start; /* Permet de mieux contrôler l'alignement */
-        padding-top: 20px; /* Ajout d'un padding top pour mieux espacer */
-    }
-
     #text {
-        font-size: 1.8rem; /* Réduction de la taille de police */
+        font-size: 2rem;
         max-width: 90%;
-        margin-top: 20px; /* Ajout d'un espacement en haut pour éviter que ça soit trop bas */
+        margin-top: 0;
     }
 
     .cursor {
-        height: 20px;
+        height: 24px;
     }
 
     .matrix span {
@@ -105,13 +99,11 @@ body {
     .matrix-number {
         font-size: 1.2rem;
     }
-
     #language-selection {
         flex-direction: column;
         gap: 10px;
         width: 90%;
         align-items: center;
-        margin-top: 30px; /* Espace entre les langues et le texte */
     }
 
     button {
@@ -121,9 +113,14 @@ body {
         padding: 12px 20px;
     }
 
-    #rewardCard {
-        top: 20%; /* Déplacer la carte un peu plus haut sur mobile */
+    #text {
+        font-size: 1.8rem;
     }
+
+    .cursor {
+        height: 20px;
+    }
+
 }
 
 /* 🔹 Logo sans glitch visible au début */
