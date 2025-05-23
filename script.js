@@ -1,131 +1,169 @@
-let selectedLang = '';
+let selectedLang = 'fr'; // Par défaut
 
-// Sélection de la langue
-document.getElementById('btn-fr').addEventListener('click', () => {
-    selectedLang = 'fr';
-    updateCardText();
-    startAnimation();
-});
+const phrasesFR = [
+    "Et voilà, on sait déjà qui tu es.",
+    "Et si c’était tes mots de passe ?",
+    "Ou ta carte bancaire ?",
+    "Ton téléphone, c’est une porte ouverte."
+];
 
-document.getElementById('btn-nl').addEventListener('click', () => {
-    selectedLang = 'nl';
-    updateCardText();
-    startAnimation();
-});
+const phrasesNL = [
+    "En zo weten we al wie je bent.",
+    "En als het je wachtwoorden waren?",
+    "Of je bankkaart?",
+    "Je telefoon is een open deur."
+];
 
-// Phrases pour les animations
-const phrases = {
-    fr: [
-        "Attends...",
-        "Tu viens vraiment de scanner ce QR code sans protection ?",
-        "T'as de la chance, je ne vais pas voler tes données aujourd'hui.",
-        "C'est si facile de voler des données, tu devrais les protéger.",
-        "J'ai quelque chose pour toi, regarde ça..."
-    ],
-    nl: [
-        "Wacht...",
-        "Heb je echt deze QR-code gescand zonder bescherming?",
-        "Je hebt geluk, ik ga je gegevens vandaag niet stelen.",
-        "Het is zo makkelijk om gegevens te stelen, je zou ze moeten beschermen.",
-        "Ik heb iets voor je, kijk hier naar..."
-    ]
-};
-
-let index = 0, charIndex = 0;
 const textElement = document.getElementById("content");
 
-function startAnimation() {
-    // Masque les boutons et autres éléments
-    document.getElementById('language-selection').style.display = 'none';
-    document.getElementById('text').style.display = 'block';
-    document.querySelector('.logo-glitch').style.display = 'block';
-    document.querySelector('.logo-glitch').style.animation = 'glitchLogo 2.5s infinite steps(1)';
-    document.querySelector('.logo-no-glitch').style.display = 'none';
+function getDeviceInfo() {
+    const parser = new UAParser();
+    const result = parser.getResult();
 
-    createMatrixEffect();
-    typeText();
+    const device = result.device.model || result.device.vendor || "Appareil inconnu";
+    const os = result.os.name ? `${result.os.name} ${result.os.version || ""}` : "Système inconnu";
+    const browser = result.browser.name ? `${result.browser.name} ${result.browser.version || ""}` : "Navigateur inconnu";
+
+    return { device, os, browser };
 }
 
-function typeText() {
-    const phrase = phrases[selectedLang][index];
+// Typing effect qui ajoute ligne par ligne (sans saut de ligne final sur la dernière)
+function typeTextAppendLine(text, isLastLine, callback) {
+    let index = 0;
+    let currentContent = textElement.innerHTML.replace(/<br>/g, "\n");
 
-    if (charIndex < phrase.length) {
-        textElement.innerHTML += phrase.charAt(charIndex);
-        charIndex++;
-        setTimeout(typeText, 25);
-    } else {
-        // Attends un petit moment avant de lancer l'effacement
-        setTimeout(() => {
-            eraseText(); // → ne lance qu'une fois la phrase finie
-        }, 1750);
+    function typeChar() {
+        if (index < text.length) {
+            currentContent += text[index];
+            textElement.innerHTML = currentContent.replace(/\n/g, "<br>");
+            index++;
+            setTimeout(typeChar, 30);
+        } else {
+            if (!isLastLine) {
+                currentContent += "\n";
+                textElement.innerHTML = currentContent.replace(/\n/g, "<br>");
+            }
+            callback();
+        }
     }
+
+    typeChar();
 }
 
+// Typing effect classique (efface avant de taper)
+function typeText(text, callback) {
+    let index = 0;
+    textElement.style.opacity = 1;
+    textElement.textContent = "";
+    const interval = setInterval(() => {
+        textElement.textContent = text.slice(0, index);
+        index++;
+        if (index > text.length) {
+            clearInterval(interval);
+            callback();
+        }
+    }, 30);
+}
 
-function eraseText() {
-    textElement.classList.add('fade-out');
-    charIndex = 0; // important pour la prochaine phrase
+// Effet fondu pour effacer texte (passe opacity à 0)
+function fadeOutText(callback) {
+    textElement.style.transition = "opacity 0.5s ease";
+    textElement.style.opacity = 0;
+    setTimeout(() => {
+        textElement.textContent = "";
+        textElement.style.transition = "";
+        textElement.style.opacity = 1;
+        callback();
+    }, 500);
+}
+
+function showAnimation() {
+    const { device, browser, os } = getDeviceInfo();
+
+    const infoLines = [
+        `Appareil détecté : ${device}`,
+        `Système : ${os}`,
+        `Navigateur : ${browser}`
+    ];
+
+    const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
+
+    function showInfoLines(index) {
+        if (index >= infoLines.length) {
+            // Ajout du fondu avant de passer aux phrases
+            setTimeout(() => {
+                fadeOutText(() => {
+                    showPhrases(0);
+                });
+            }, 1000);
+            return;
+        }
+
+        typeTextAppendLine(infoLines[index], index === infoLines.length -1, () => {
+            setTimeout(() => {
+                showInfoLines(index + 1);
+            }, 900);
+        });
+    }
+
+
+    function showPhrases(i) {
+        if (i >= phrases.length) {
+            showCard();
+            return;
+        }
+
+        typeText(phrases[i], () => {
+            setTimeout(() => {
+                fadeOutText(() => {
+                    showPhrases(i + 1);
+                });
+            }, 
+            1200);
+        });
+    }
+
+    showInfoLines(0);
+}
+
+function showCard() {
+    const textDiv = document.getElementById("text");
+    const cardDiv = document.getElementById("rewardCard");
+
+    textDiv.style.display = "none";
+    cardDiv.style.display = "flex";
 
     setTimeout(() => {
-        textElement.innerHTML = '';
-        textElement.classList.remove('fade-out');
+        cardDiv.classList.add("show");
+    }, 100);
 
-        index++;
-        if (index < phrases[selectedLang].length) {
-            setTimeout(typeText, 200); // petite pause avant d'enchaîner
-        } else {
-            setTimeout(() => {
-                document.querySelector('.cursor').style.display = 'none';
-                const rewardCard = document.getElementById('rewardCard');
-                rewardCard.style.display = 'flex';
-                rewardCard.classList.add('show');
-                updateCardText();
-            }, 800);
-        }
-    }, 600); // temps pour laisser l'effet de fondu
+    const cardInner = document.getElementById("cardInner");
+    cardInner.addEventListener("click", () => {
+        cardInner.classList.toggle("flipped");
+    });
 }
 
-function createMatrixEffect() {
-    const matrix = document.createElement("div");
-    matrix.classList.add("matrix");
-    document.body.appendChild(matrix);
+function setupLanguageButtons() {
+    document.getElementById("btn-fr").addEventListener("click", () => {
+        selectedLang = 'fr';
+        startAnimation();
+    });
 
-    function spawnNumbers() {
-        matrix.innerHTML = "";
-        for (let i = 0; i < 60; i++) {
-            let span = document.createElement("span");
-            span.textContent = Math.floor(Math.random() * 10);
-            span.style.left = Math.random() * 100 + "vw";
-            span.style.top = Math.random() * 100 + "vh";
-            span.style.animationDuration = (Math.random() * 2 + 0.5) + "s";
-            span.style.animationDelay = (Math.random() * 2) + "s";
-            span.classList.add("matrix-number");
-
-            matrix.appendChild(span);
-
-            setInterval(() => {
-                span.textContent = Math.floor(Math.random() * 10);
-            }, Math.random() * 1000 + 500);
-        }
-    }
-
-    spawnNumbers();
+    document.getElementById("btn-nl").addEventListener("click", () => {
+        selectedLang = 'nl';
+        startAnimation();
+    });
 }
 
-// Activation du retournement de la carte
-document.getElementById('cardInner').addEventListener('click', () => {
-    document.getElementById('cardInner').classList.toggle('flipped');
-    // Ajout de la classe 'rotate-border' pour appliquer la bordure lumineuse continue pendant le retournement
-    document.getElementById('rewardCard').classList.add('rotate-border');
-});
-
-// Fonction pour changer le texte de la carte en fonction de la langue sélectionnée
-function updateCardText() {
-    const cardText = document.getElementById('card-text');
-    
-    if (selectedLang === 'nl') {
-        cardText.textContent = 'Klik hier en toon deze kaart aan een verkoper';
-    } else {
-        cardText.textContent = 'Clique ici et présente cette carte à un vendeur';
-    }
+function startAnimation() {
+    document.getElementById("language-selection").style.display = "none";
+    document.getElementById("text").style.display = "block";
+    document.getElementById("rewardCard").style.display = "none";
+    document.getElementById("rewardCard").classList.remove("show");
+    document.getElementById("cardInner").classList.remove("flipped");
+    textElement.innerHTML = "";
+    showAnimation();
 }
+
+// Initialisation
+setupLanguageButtons();

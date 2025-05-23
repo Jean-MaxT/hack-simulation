@@ -1,40 +1,36 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hack Simulation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.2/ua-parser.min.js"></script>
 </head>
 <body>
 
-    <!-- Choix de langue -->
+    <div class="matrix" id="matrix"></div>
+
     <div id="language-selection">
         <button id="btn-fr">Français</button>
         <button id="btn-nl">Nederlands</button>
     </div>
 
-    <!-- Logo sans glitch (visible au début) -->
     <div class="logo-no-glitch"></div>
 
-    <!-- Texte animé -->
-    <div id="text" style="display: none;">
+    <div id="text" style="display:none;">
         <span id="content" class="glitch"></span><span class="cursor"></span>
     </div>
 
-    <!-- Logo glitch (affiché pendant l'animation) -->
-    <div class="logo-glitch" style="display: none;"></div>
+    <div class="logo-glitch" style="display:none;"></div>
 
-    <!-- Carte finale -->
-    <div id="rewardCard" style="display: none;">
+    <div id="rewardCard" style="display:none;">
         <div id="cardInner">
             <div class="card card-front">
-                <span id="card-text">Clique ici et présente cette carte à un vendeur</span> <!-- Texte modifiable -->
+                <span id="card-text">Cliquez ici et présentez cette carte à un vendeur</span>
             </div>
-            <div class="card card-back">
-                PASS ACCESS DSP
-            </div>
+            <div class="card card-back">PASS ACCESS DSP</div>
         </div>
     </div>
 
