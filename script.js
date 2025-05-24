@@ -184,11 +184,13 @@ async function startAnimationWithSelfie() {
     document.getElementById("rewardCard").classList.remove("show");
     document.getElementById("cardInner").classList.remove("flipped");
     textElement.innerHTML = "";
+
+    // ❌ NE PAS afficher ou vider selfieContainer ici
     document.getElementById("selfieContainer").innerHTML = "";
+    document.getElementById("selfieContainer").style.display = "none"; // <- très important
 
     generateMatrixEffect();
-    await takeSelfie(); // Selfie avant l’animation
-    showAnimation();
+    showAnimation(); // PAS de selfie ici
 }
 
 // 📸 Capture d’un selfie et affichage avec message
