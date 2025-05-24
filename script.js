@@ -59,42 +59,61 @@ function fadeOutText(callback) {
 async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
-    const introLines = selectedLang === 'fr'
+    const introBeforePhoto = selectedLang === 'fr'
         ? [
             "Tu penses être protégé ? Voilà ce qu’on a trouvé :",
             `Appareil : ${device}`,
             `Système : ${os}`,
-            `Navigateur : ${browser}`,
-            "Un hacker mettrait 30 secondes à faire pire.",
-            "C’est pour ça qu’on a créé le Digital Service Pack."
+            `Navigateur : ${browser}`
         ]
         : [
             "Denk je dat je beschermd bent? Dit hebben we gevonden:",
             `Apparaat: ${device}`,
             `Systeem: ${os}`,
-            `Browser: ${browser}`,
+            `Browser: ${browser}`
+        ];
+
+    const introAfterPhoto = selectedLang === 'fr'
+        ? [
+            "Un hacker mettrait 30 secondes à faire pire.",
+            "C’est pour ça qu’on a créé le Digital Service Pack."
+        ]
+        : [
             "Een hacker zou erger doen in 30 seconden.",
             "Daarom hebben we de Digital Service Pack ontwikkeld."
         ];
 
-    function showIntro(index) {
-        if (index >= introLines.length) {
-            setTimeout(() => {
-                fadeOutText(() => {
-                    showCard();
-                });
-            }, 1000);
+    function showLines(lines, index, onComplete) {
+        if (index >= lines.length) {
+            onComplete();
             return;
         }
 
-        typeText(introLines[index], () => {
+        typeText(lines[index], () => {
             setTimeout(() => {
-                showIntro(index + 1);
+                showLines(lines, index + 1, onComplete);
             }, 1000);
         });
     }
 
-    showIntro(0);
+    showLines(introBeforePhoto, 0, () => {
+        fadeOutText(() => {
+            // Affiche le message + photo
+            document.getElementById("text").style.display = "none";
+            document.getElementById("selfieContainer").style.display = "block";
+            setTimeout(() => {
+                document.getElementById("text").style.display = "block";
+                textElement.textContent = "";
+                showLines(introAfterPhoto, 0, () => {
+                    setTimeout(() => {
+                        fadeOutText(() => {
+                            showCard();
+                        });
+                    }, 1000);
+                });
+            }, 2000);
+        });
+    });
 }
 
 function showCard() {
