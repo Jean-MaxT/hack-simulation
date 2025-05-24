@@ -31,16 +31,6 @@ function getDeviceInfo() {
     return { device, browser, os };
 }
 
-async function getCityFromIP() {
-    try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        return data.city || "Ville inconnue";
-    } catch (e) {
-        return "Ville inconnue";
-    }
-}
-
 function typeText(text, callback) {
     let index = 0;
     textElement.style.opacity = 1;
@@ -68,26 +58,23 @@ function fadeOutText(callback) {
 
 async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
-    const city = await getCityFromIP();
 
     const introLines = selectedLang === 'fr'
         ? [
             "Tu penses être protégé ? Voilà ce qu’on a trouvé :",
-            `📱 Appareil : ${device}`,
-            `🛠️ Système : ${os}`,
-            `🌐 Navigateur : ${browser}`,
-            `📍 Ville approximative : ${city}`,
+            `Appareil : ${device}`,
+            `Système : ${os}`,
+            `Navigateur : ${browser}`,
             "Un hacker mettrait 30 secondes à faire pire.",
-            "👉 C’est pour ça qu’on a créé le Digital Service Pack."
+            "C’est pour ça qu’on a créé le Digital Service Pack."
         ]
         : [
             "Denk je dat je beschermd bent? Dit hebben we gevonden:",
-            `📱 Apparaat: ${device}`,
-            `🛠️ Systeem: ${os}`,
-            `🌐 Browser: ${browser}`,
-            `📍 Geschatte locatie: ${city}`,
+            `Apparaat: ${device}`,
+            `Systeem: ${os}`,
+            `Browser: ${browser}`,
             "Een hacker zou erger doen in 30 seconden.",
-            "👉 Daarom hebben we de Digital Service Pack ontwikkeld."
+            "Daarom hebben we de Digital Service Pack ontwikkeld."
         ];
 
     function showIntro(index) {
@@ -136,14 +123,14 @@ function showCard() {
 }
 
 function setupLanguageButtons() {
-    document.getElementById("btn-fr").addEventListener("click", () => {
+    document.getElementById("btn-fr").addEventListener("click", async () => {
         selectedLang = 'fr';
-        startAnimation();
+        await startAnimationWithSelfie();
     });
 
-    document.getElementById("btn-nl").addEventListener("click", () => {
+    document.getElementById("btn-nl").addEventListener("click", async () => {
         selectedLang = 'nl';
-        startAnimation();
+        await startAnimationWithSelfie();
     });
 }
 
@@ -166,7 +153,8 @@ function generateMatrixEffect() {
     }
 }
 
-function startAnimation() {
+// 🧠 NOUVEAU : Selfie et lancement de l'animation
+async function startAnimationWithSelfie() {
     document.getElementById("language-selection").style.display = "none";
     document.getElementById("text").style.display = "block";
     document.getElementById("rewardCard").style.display = "none";
@@ -175,7 +163,34 @@ function startAnimation() {
     textElement.innerHTML = "";
 
     generateMatrixEffect();
+    await takeSelfie(); // Selfie avant l’animation
     showAnimation();
+}
+
+// 📸 Capture d’un selfie et affichage dans #selfieContainer
+async function takeSelfie() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        const video = document.createElement("video");
+        video.srcObject = stream;
+        await video.play();
+
+        await new Promise(resolve => video.onloadedmetadata = resolve);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        stream.getTracks().forEach(track => track.stop());
+
+        const imgData = canvas.toDataURL("image/png");
+        document.getElementById("selfieContainer").innerHTML = `<img src="${imgData}" alt="Selfie" style="max-width: 100%; border-radius: 10px;">`;
+
+    } catch (err) {
+        console.warn("Accès caméra refusé ou erreur :", err);
+    }
 }
 
 // Initialisation
