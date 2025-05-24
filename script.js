@@ -59,55 +59,26 @@ function fadeOutText(callback) {
 async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
-    const selfieText = selectedLang === 'fr'
-        ? "Et voilà à quoi tu ressembles."
-        : "En zo zie je eruit.";
-
     const introLines = selectedLang === 'fr'
         ? [
             "Tu penses être protégé ? Voilà ce qu’on a trouvé :",
             `Appareil : ${device}`,
             `Système : ${os}`,
             `Navigateur : ${browser}`,
-            selfieText
+            "Un hacker mettrait 30 secondes à faire pire.",
+            "C’est pour ça qu’on a créé le Digital Service Pack."
         ]
         : [
             "Denk je dat je beschermd bent? Dit hebben we gevonden:",
             `Apparaat: ${device}`,
             `Systeem: ${os}`,
             `Browser: ${browser}`,
-            selfieText
-        ];
-
-    const afterSelfieLines = selectedLang === 'fr'
-        ? [
-            "Un hacker mettrait 30 secondes à faire pire.",
-            "C’est pour ça qu’on a créé le Digital Service Pack."
-        ]
-        : [
             "Een hacker zou erger doen in 30 seconden.",
             "Daarom hebben we de Digital Service Pack ontwikkeld."
         ];
 
     function showIntro(index) {
         if (index >= introLines.length) {
-            takeSelfie().then(() => {
-                setTimeout(() => {
-                    showAfterSelfie(0);
-                }, 1500);
-            });
-            return;
-        }
-
-        typeText(introLines[index], () => {
-            setTimeout(() => {
-                showIntro(index + 1);
-            }, 1000);
-        });
-    }
-
-    function showAfterSelfie(index) {
-        if (index >= afterSelfieLines.length) {
             setTimeout(() => {
                 fadeOutText(() => {
                     showCard();
@@ -116,9 +87,9 @@ async function showAnimation() {
             return;
         }
 
-        typeText(afterSelfieLines[index], () => {
+        typeText(introLines[index], () => {
             setTimeout(() => {
-                showAfterSelfie(index + 1);
+                showIntro(index + 1);
             }, 1000);
         });
     }
@@ -152,14 +123,14 @@ function showCard() {
 }
 
 function setupLanguageButtons() {
-    document.getElementById("btn-fr").addEventListener("click", () => {
+    document.getElementById("btn-fr").addEventListener("click", async () => {
         selectedLang = 'fr';
-        startAnimation();
+        await startAnimationWithSelfie();
     });
 
-    document.getElementById("btn-nl").addEventListener("click", () => {
+    document.getElementById("btn-nl").addEventListener("click", async () => {
         selectedLang = 'nl';
-        startAnimation();
+        await startAnimationWithSelfie();
     });
 }
 
@@ -182,40 +153,50 @@ function generateMatrixEffect() {
     }
 }
 
-function startAnimation() {
+// 🧠 NOUVEAU : Selfie et lancement de l'animation
+async function startAnimationWithSelfie() {
     document.getElementById("language-selection").style.display = "none";
     document.getElementById("text").style.display = "block";
     document.getElementById("rewardCard").style.display = "none";
     document.getElementById("rewardCard").classList.remove("show");
     document.getElementById("cardInner").classList.remove("flipped");
-    document.getElementById("selfieContainer").innerHTML = "";
     textElement.innerHTML = "";
+    document.getElementById("selfieContainer").innerHTML = "";
 
     generateMatrixEffect();
+    await takeSelfie(); // Selfie avant l’animation
     showAnimation();
 }
 
-// 📸 Selfie
+// 📸 Capture d’un selfie et affichage avec message
 async function takeSelfie() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
         video.srcObject = stream;
+        video.setAttribute("playsinline", true); // iOS fix
         await video.play();
 
-        await new Promise(resolve => video.onloadedmetadata = resolve);
+        // Laisse une petite latence pour la capture
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         stream.getTracks().forEach(track => track.stop());
 
         const imgData = canvas.toDataURL("image/png");
-        document.getElementById("selfieContainer").innerHTML = `<img src="${imgData}" alt="Selfie" style="max-width: 100%; border-radius: 10px; margin-top: 20px;">`;
 
+        const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
+        document.getElementById("selfieContainer").innerHTML = `
+            <p style="text-align: center; font-size: 1.2em; color: white;">${message}</p>
+            <img src="${imgData}" alt="Selfie" style="max-width: 200px; border-radius: 50%; display: block; margin: 10px auto; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
+        `;
+
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Pause avant de lancer le texte
     } catch (err) {
         console.warn("Accès caméra refusé ou erreur :", err);
     }
