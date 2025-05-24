@@ -14,26 +14,52 @@ const phrasesNL = [
     "Je telefoon is een open deur."
 ];
 
-const infoLabelsFR = ["Appareil détecté :", "Système :", "Navigateur :"];
-const infoLabelsNL = ["Apparaat gedetecteerd:", "Systeem:", "Browser:"];
-
 const textElement = document.getElementById("content");
 
+// Fonction avancée pour récupérer device, browser, os avec userAgentData + UAParser fallback
 function getDeviceInfo() {
-    const parser = new UAParser();
-    const result = parser.getResult();
+    if (navigator.userAgentData) {
+        // API moderne Chrome, Edge, etc.
+        const uaData = navigator.userAgentData;
+        const brands = uaData.brands.map(b => b.brand).join(", ");
+        const platform = uaData.platform || "Plateforme inconnue";
+        const deviceType = uaData.mobile ? "Mobile Device" : "Desktop Device";
 
-    let device = "Appareil inconnu";
-    if(result.device.model) {
-        device = result.device.vendor ? `${result.device.vendor} ${result.device.model}` : result.device.model;
-    } else if (result.os.name) {
-        device = `${result.os.name} Device`;
+        return uaData.getHighEntropyValues(["platformVersion", "model", "architecture"]).then(info => {
+            const model = info.model || "Modèle inconnu";
+            const osVersion = info.platformVersion || "Version OS inconnue";
+            const architecture = info.architecture || "Architecture inconnue";
+
+            return {
+                device: `${deviceType} - ${model} (${brands})`,
+                browser: navigator.userAgent,
+                os: `${platform} ${osVersion} (${architecture})`
+            };
+        }).catch(() => {
+            // Si getHighEntropyValues plante, fallback simple
+            return Promise.resolve({
+                device: deviceType,
+                browser: navigator.userAgent,
+                os: platform
+            });
+        });
+    } else {
+        // Fallback UAParser synchronique mais promisifié pour uniformité
+        const parser = new UAParser();
+        const result = parser.getResult();
+
+        let device = "Appareil inconnu";
+        if(result.device.model) {
+            device = result.device.vendor ? `${result.device.vendor} ${result.device.model}` : result.device.model;
+        } else if (result.os.name) {
+            device = `${result.os.name} Device`;
+        }
+
+        const browser = result.browser.name || "Navigateur inconnu";
+        const os = result.os.name || "Système inconnu";
+
+        return Promise.resolve({ device, browser, os });
     }
-
-    const browser = result.browser.name || "Navigateur inconnu";
-    const os = result.os.name || "Système inconnu";
-
-    return { device, browser, os };
 }
 
 // Typing effect qui ajoute ligne par ligne (sans saut de ligne final sur la dernière)
@@ -86,52 +112,51 @@ function fadeOutText(callback) {
     }, 500);
 }
 
+// Animation principale
 function showAnimation() {
-    const { device, browser, os } = getDeviceInfo();
+    getDeviceInfo().then(({ device, browser, os }) => {
+        const infoLines = [
+            `Appareil détecté : ${device}`,
+            `Système : ${os}`,
+            `Navigateur : ${browser}`
+        ];
 
-    const infoLabels = selectedLang === 'fr' ? infoLabelsFR : infoLabelsNL;
+        const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
 
-    const infoLines = [
-        `${infoLabels[0]} ${device}`,
-        `${infoLabels[1]} ${os}`,
-        `${infoLabels[2]} ${browser}`
-    ];
+        function showInfoLines(index) {
+            if (index >= infoLines.length) {
+                setTimeout(() => {
+                    fadeOutText(() => {
+                        showPhrases(0);
+                    });
+                }, 1000);
+                return;
+            }
 
-    const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
-
-    function showInfoLines(index) {
-        if (index >= infoLines.length) {
-            setTimeout(() => {
-                fadeOutText(() => {
-                    showPhrases(0);
-                });
-            }, 1000);
-            return;
+            typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
+                setTimeout(() => {
+                    showInfoLines(index + 1);
+                }, 900);
+            });
         }
 
-        typeTextAppendLine(infoLines[index], index === infoLines.length -1, () => {
-            setTimeout(() => {
-                showInfoLines(index + 1);
-            }, 900);
-        });
-    }
+        function showPhrases(i) {
+            if (i >= phrases.length) {
+                showCard();
+                return;
+            }
 
-    function showPhrases(i) {
-        if (i >= phrases.length) {
-            showCard();
-            return;
+            typeText(phrases[i], () => {
+                setTimeout(() => {
+                    fadeOutText(() => {
+                        showPhrases(i + 1);
+                    });
+                }, 1200);
+            });
         }
 
-        typeText(phrases[i], () => {
-            setTimeout(() => {
-                fadeOutText(() => {
-                    showPhrases(i + 1);
-                });
-            }, 1200);
-        });
-    }
-
-    showInfoLines(0);
+        showInfoLines(0);
+    });
 }
 
 function showCard() {
@@ -154,16 +179,8 @@ function showCard() {
     cardInner.addEventListener("click", () => {
         cardInner.classList.toggle("flipped");
 
-        const noGlitchLogo = document.querySelector('.logo-no-glitch');
-        const glitchLogo = document.querySelector('.logo-glitch');
-
-        if (glitchLogo.style.display === 'block' || glitchLogo.style.display === '') {
-            glitchLogo.style.display = 'none';
-            noGlitchLogo.style.display = 'block';
-        } else {
-            glitchLogo.style.display = 'block';
-            noGlitchLogo.style.display = 'none';
-        }
+        document.querySelector('.logo-no-glitch').style.display = 'block';
+        document.querySelector('.logo-glitch').style.display = 'none';
     });
 }
 
@@ -182,6 +199,7 @@ function setupLanguageButtons() {
 function generateMatrixEffect() {
     const matrixContainer = document.getElementById("matrix-container");
 
+    // Vide au cas où
     matrixContainer.innerHTML = "";
 
     const characters = "01";
@@ -205,12 +223,7 @@ function startAnimation() {
     document.getElementById("rewardCard").style.display = "none";
     document.getElementById("rewardCard").classList.remove("show");
     document.getElementById("cardInner").classList.remove("flipped");
-
     textElement.innerHTML = "";
-
-    // Affiche le logo glitch au démarrage
-    document.querySelector('.logo-no-glitch').style.display = 'none';
-    document.querySelector('.logo-glitch').style.display = 'block';
 
     generateMatrixEffect();
     showAnimation();
