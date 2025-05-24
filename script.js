@@ -96,22 +96,26 @@ async function showAnimation() {
         });
     }
 
+    // 1. Afficher les infos techniques
     showLines(introBeforePhoto, 0, () => {
-        fadeOutText(() => {
-            // Affiche le message + photo
-            document.getElementById("text").style.display = "none";
-            document.getElementById("selfieContainer").style.display = "block";
-            setTimeout(() => {
-                document.getElementById("text").style.display = "block";
-                textElement.textContent = "";
-                showLines(introAfterPhoto, 0, () => {
-                    setTimeout(() => {
-                        fadeOutText(() => {
-                            showCard();
-                        });
-                    }, 1000);
-                });
-            }, 2000);
+        fadeOutText(async () => {
+            // 2. Prendre la photo une fois le texte disparu
+            await takeSelfie(); // affiche photo + message
+
+            // 3. Attendre un peu et cacher la photo
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            document.getElementById("selfieContainer").style.display = "none";
+
+            // 4. Reprendre l'animation avec le texte final
+            document.getElementById("text").style.display = "block";
+            textElement.textContent = "";
+            showLines(introAfterPhoto, 0, () => {
+                setTimeout(() => {
+                    fadeOutText(() => {
+                        showCard();
+                    });
+                }, 1000);
+            });
         });
     });
 }
@@ -190,6 +194,7 @@ async function startAnimationWithSelfie() {
 // 📸 Capture d’un selfie et affichage avec message
 async function takeSelfie() {
     try {
+        document.getElementById("selfieContainer").style.display = "block";
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
         video.srcObject = stream;
