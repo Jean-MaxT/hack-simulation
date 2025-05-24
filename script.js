@@ -1,4 +1,4 @@
-let selectedLang = 'fr'; // Par défaut
+let selectedLang = 'fr'; // Langue par défaut
 
 const phrasesFR = [
     "Et voilà, on sait déjà qui tu es.",
@@ -20,14 +20,20 @@ function getDeviceInfo() {
     const parser = new UAParser();
     const result = parser.getResult();
 
-    const device = result.device.model || result.device.vendor || "Appareil inconnu";
-    const os = result.os.name ? `${result.os.name} ${result.os.version || ""}` : "Système inconnu";
-    const browser = result.browser.name ? `${result.browser.name} ${result.browser.version || ""}` : "Navigateur inconnu";
+    let device = "Appareil inconnu";
+    if (result.device.model) {
+        device = result.device.vendor ? `${result.device.vendor} ${result.device.model}` : result.device.model;
+    } else if (result.os.name) {
+        device = `${result.os.name} Device`;
+    }
 
-    return { device, os, browser };
+    const browser = result.browser.name || "Navigateur inconnu";
+    const os = result.os.name || "Système inconnu";
+
+    return { device, browser, os };
 }
 
-// Typing effect qui ajoute ligne par ligne (sans saut de ligne final sur la dernière)
+// Écriture ligne par ligne avec saut de ligne sauf à la fin
 function typeTextAppendLine(text, isLastLine, callback) {
     let index = 0;
     let currentContent = textElement.innerHTML.replace(/<br>/g, "\n");
@@ -50,7 +56,7 @@ function typeTextAppendLine(text, isLastLine, callback) {
     typeChar();
 }
 
-// Typing effect classique (efface avant de taper)
+// Écriture classique (efface avant)
 function typeText(text, callback) {
     let index = 0;
     textElement.style.opacity = 1;
@@ -65,7 +71,7 @@ function typeText(text, callback) {
     }, 30);
 }
 
-// Effet fondu pour effacer texte (passe opacity à 0)
+// Fondu pour effacer le texte
 function fadeOutText(callback) {
     textElement.style.transition = "opacity 0.5s ease";
     textElement.style.opacity = 0;
@@ -80,17 +86,23 @@ function fadeOutText(callback) {
 function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
-    const infoLines = [
+    const infoLines = selectedLang === 'fr'
+    ? [
         `Appareil détecté : ${device}`,
         `Système : ${os}`,
         `Navigateur : ${browser}`
+    ]
+    : [
+        `Gedetecteerd apparaat: ${device}`,
+        `Systeem: ${os}`,
+        `Browser: ${browser}`
     ];
+
 
     const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
 
     function showInfoLines(index) {
         if (index >= infoLines.length) {
-            // Ajout du fondu avant de passer aux phrases
             setTimeout(() => {
                 fadeOutText(() => {
                     showPhrases(0);
@@ -99,13 +111,12 @@ function showAnimation() {
             return;
         }
 
-        typeTextAppendLine(infoLines[index], index === infoLines.length -1, () => {
+        typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
             setTimeout(() => {
                 showInfoLines(index + 1);
             }, 900);
         });
     }
-
 
     function showPhrases(i) {
         if (i >= phrases.length) {
@@ -118,8 +129,7 @@ function showAnimation() {
                 fadeOutText(() => {
                     showPhrases(i + 1);
                 });
-            }, 
-            1200);
+            }, 1200);
         });
     }
 
@@ -137,9 +147,17 @@ function showCard() {
         cardDiv.classList.add("show");
     }, 100);
 
+    const cardText = document.getElementById("card-text");
+    cardText.textContent = selectedLang === 'fr'
+        ? "Clique ici et présente cette carte à un vendeur"
+        : "Klik hier en toon deze kaart aan een verkoper";
+
     const cardInner = document.getElementById("cardInner");
     cardInner.addEventListener("click", () => {
         cardInner.classList.toggle("flipped");
+
+        document.querySelector('.logo-no-glitch').style.display = 'block';
+        document.querySelector('.logo-glitch').style.display = 'none';
     });
 }
 
@@ -155,6 +173,26 @@ function setupLanguageButtons() {
     });
 }
 
+function generateMatrixEffect() {
+    const matrixContainer = document.getElementById("matrix-container");
+
+    matrixContainer.innerHTML = "";
+
+    const characters = "01";
+    const totalChars = 150;
+
+    for (let i = 0; i < totalChars; i++) {
+        const span = document.createElement("span");
+        span.classList.add("matrix-number");
+        span.textContent = characters[Math.floor(Math.random() * characters.length)];
+        span.style.left = `${Math.random() * 100}%`;
+        span.style.top = `${Math.random() * 100}%`;
+        span.style.animationDelay = `${Math.random() * 2}s`;
+        span.style.animationDuration = `${Math.random() * 3 + 1}s`;
+        matrixContainer.appendChild(span);
+    }
+}
+
 function startAnimation() {
     document.getElementById("language-selection").style.display = "none";
     document.getElementById("text").style.display = "block";
@@ -162,8 +200,10 @@ function startAnimation() {
     document.getElementById("rewardCard").classList.remove("show");
     document.getElementById("cardInner").classList.remove("flipped");
     textElement.innerHTML = "";
+
+    generateMatrixEffect();
     showAnimation();
 }
 
-// Initialisation
+// Lancement initial
 setupLanguageButtons();

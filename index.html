@@ -1,36 +1,46 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hack Simulation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FNAC Reward</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="66d9339e-9b63-40c9-907e-46eb659c0a4b"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/1.0.2/ua-parser.min.js"></script>
+    <link rel="preload" as="image" href="logo_fnac_glitch1.png">
+    <link rel="preload" as="image" href="logo_fnac_glitch2.png">
+    <link rel="preload" as="image" href="logo_fnac_glitch3.png">
 </head>
 <body>
-
-    <div class="matrix" id="matrix"></div>
-
+    <div class="matrix" id="matrix-container"></div>
+    <!-- Choix de langue -->
     <div id="language-selection">
-        <button id="btn-fr">Français</button>
-        <button id="btn-nl">Nederlands</button>
+        <button id="btn-fr" aria-label="Français">Français</button>
+        <button id="btn-nl" aria-label="Nederlands">Nederlands</button>
+
     </div>
 
+    <!-- Logo sans glitch (visible au début) -->
     <div class="logo-no-glitch"></div>
 
-    <div id="text" style="display:none;">
+    <!-- Texte animé -->
+    <div id="text" style="display: none;">
         <span id="content" class="glitch"></span><span class="cursor"></span>
     </div>
 
-    <div class="logo-glitch" style="display:none;"></div>
+    <!-- Logo glitch (affiché pendant l'animation) -->
+    <div class="logo-glitch" style="display: none;"></div>
 
-    <div id="rewardCard" style="display:none;">
+    <!-- Carte finale -->
+    <div id="rewardCard" style="display: none;">
         <div id="cardInner">
             <div class="card card-front">
-                <span id="card-text">Cliquez ici et présentez cette carte à un vendeur</span>
+                <span id="card-text">Clique ici et présente cette carte à un vendeur</span> <!-- Texte modifiable -->
             </div>
-            <div class="card card-back">PASS ACCESS DSP</div>
+            <div class="card card-back">
+                PASS ACCESS DSP
+            </div>
         </div>
     </div>
 
