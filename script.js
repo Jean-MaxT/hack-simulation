@@ -1,4 +1,4 @@
-let selectedLang = 'fr'; // Langue par défaut
+let selectedLang = 'fr'; // Par défaut
 
 const phrasesFR = [
     "Et voilà, on sait déjà qui tu es.",
@@ -14,6 +14,9 @@ const phrasesNL = [
     "Je telefoon is een open deur."
 ];
 
+const infoLabelsFR = ["Appareil détecté :", "Système :", "Navigateur :"];
+const infoLabelsNL = ["Apparaat gedetecteerd:", "Systeem:", "Browser:"];
+
 const textElement = document.getElementById("content");
 
 function getDeviceInfo() {
@@ -21,7 +24,7 @@ function getDeviceInfo() {
     const result = parser.getResult();
 
     let device = "Appareil inconnu";
-    if (result.device.model) {
+    if(result.device.model) {
         device = result.device.vendor ? `${result.device.vendor} ${result.device.model}` : result.device.model;
     } else if (result.os.name) {
         device = `${result.os.name} Device`;
@@ -33,7 +36,7 @@ function getDeviceInfo() {
     return { device, browser, os };
 }
 
-// Écriture ligne par ligne avec saut de ligne sauf à la fin
+// Typing effect qui ajoute ligne par ligne (sans saut de ligne final sur la dernière)
 function typeTextAppendLine(text, isLastLine, callback) {
     let index = 0;
     let currentContent = textElement.innerHTML.replace(/<br>/g, "\n");
@@ -56,7 +59,7 @@ function typeTextAppendLine(text, isLastLine, callback) {
     typeChar();
 }
 
-// Écriture classique (efface avant)
+// Typing effect classique (efface avant de taper)
 function typeText(text, callback) {
     let index = 0;
     textElement.style.opacity = 1;
@@ -71,7 +74,7 @@ function typeText(text, callback) {
     }, 30);
 }
 
-// Fondu pour effacer le texte
+// Effet fondu pour effacer texte (passe opacity à 0)
 function fadeOutText(callback) {
     textElement.style.transition = "opacity 0.5s ease";
     textElement.style.opacity = 0;
@@ -86,18 +89,13 @@ function fadeOutText(callback) {
 function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
-    const infoLines = selectedLang === 'fr'
-    ? [
-        `Appareil détecté : ${device}`,
-        `Système : ${os}`,
-        `Navigateur : ${browser}`
-    ]
-    : [
-        `Gedetecteerd apparaat: ${device}`,
-        `Systeem: ${os}`,
-        `Browser: ${browser}`
-    ];
+    const infoLabels = selectedLang === 'fr' ? infoLabelsFR : infoLabelsNL;
 
+    const infoLines = [
+        `${infoLabels[0]} ${device}`,
+        `${infoLabels[1]} ${os}`,
+        `${infoLabels[2]} ${browser}`
+    ];
 
     const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
 
@@ -111,7 +109,7 @@ function showAnimation() {
             return;
         }
 
-        typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
+        typeTextAppendLine(infoLines[index], index === infoLines.length -1, () => {
             setTimeout(() => {
                 showInfoLines(index + 1);
             }, 900);
@@ -148,16 +146,24 @@ function showCard() {
     }, 100);
 
     const cardText = document.getElementById("card-text");
-    cardText.textContent = selectedLang === 'fr'
-        ? "Clique ici et présente cette carte à un vendeur"
+    cardText.textContent = selectedLang === 'fr' 
+        ? "Clique ici et présente cette carte à un vendeur" 
         : "Klik hier en toon deze kaart aan een verkoper";
 
     const cardInner = document.getElementById("cardInner");
     cardInner.addEventListener("click", () => {
         cardInner.classList.toggle("flipped");
 
-        document.querySelector('.logo-no-glitch').style.display = 'block';
-        document.querySelector('.logo-glitch').style.display = 'none';
+        const noGlitchLogo = document.querySelector('.logo-no-glitch');
+        const glitchLogo = document.querySelector('.logo-glitch');
+
+        if (glitchLogo.style.display === 'block' || glitchLogo.style.display === '') {
+            glitchLogo.style.display = 'none';
+            noGlitchLogo.style.display = 'block';
+        } else {
+            glitchLogo.style.display = 'block';
+            noGlitchLogo.style.display = 'none';
+        }
     });
 }
 
@@ -199,11 +205,16 @@ function startAnimation() {
     document.getElementById("rewardCard").style.display = "none";
     document.getElementById("rewardCard").classList.remove("show");
     document.getElementById("cardInner").classList.remove("flipped");
+
     textElement.innerHTML = "";
+
+    // Affiche le logo glitch au démarrage
+    document.querySelector('.logo-no-glitch').style.display = 'none';
+    document.querySelector('.logo-glitch').style.display = 'block';
 
     generateMatrixEffect();
     showAnimation();
 }
 
-// Lancement initial
+// Initialisation
 setupLanguageButtons();
