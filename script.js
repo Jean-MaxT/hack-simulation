@@ -16,35 +16,48 @@ const phrasesNL = [
 
 const textElement = document.getElementById("content");
 
-// Fonction simple avec UAParser pour récupérer device, browser, os avec versions
+function getDeviceName(result) {
+    const rawModel = result.device.model || "";
+    const rawVendor = result.device.vendor || "";
+
+    if (rawModel.length > 2 && !/^[A-Z]$/.test(rawModel)) {
+        if (rawVendor && rawVendor !== rawModel) {
+            return `${rawVendor} ${rawModel}`;
+        }
+        return rawModel;
+    }
+
+    if (rawVendor) {
+        return rawVendor + " Device";
+    }
+
+    if (result.os.name) {
+        if (result.os.name.toLowerCase().includes("android")) {
+            return `Android Device`;
+        } else if (result.os.name.toLowerCase().includes("ios")) {
+            return `iPhone`;
+        } else if (result.os.name.toLowerCase().includes("windows")) {
+            return `Windows Device`;
+        } else if (result.os.name.toLowerCase().includes("mac os")) {
+            return `Mac Device`;
+        }
+        return `${result.os.name} Device`;
+    }
+
+    return "Appareil inconnu";
+}
+
 function getDeviceInfo() {
     const parser = new UAParser();
     const result = parser.getResult();
 
-    // Device : si on a modèle et constructeur on les combine, sinon fallback
-    let device = "Appareil inconnu";
-    if(result.device.model) {
-        device = result.device.vendor 
-            ? `${result.device.vendor} ${result.device.model}` 
-            : result.device.model;
-    } else if(result.os.name) {
-        device = `${result.os.name} Device`;
-    }
+    const device = getDeviceName(result);
+    const browser = result.browser.name || "Navigateur inconnu";
+    const os = result.os.name ? `${result.os.name} ${result.os.version || ""}`.trim() : "Système inconnu";
 
-    // OS avec version
-    const osName = result.os.name || "Système inconnu";
-    const osVersion = result.os.version ? `v${result.os.version}` : "";
-    const os = osVersion ? `${osName} ${osVersion}` : osName;
-
-    // Navigateur avec version
-    const browserName = result.browser.name || "Navigateur inconnu";
-    const browserVersion = result.browser.version ? `v${result.browser.version}` : "";
-    const browser = browserVersion ? `${browserName} ${browserVersion}` : browserName;
-
-    return { device, os, browser };
+    return { device, browser, os };
 }
 
-// Typing effect qui ajoute ligne par ligne (sans saut de ligne final sur la dernière)
 function typeTextAppendLine(text, isLastLine, callback) {
     let index = 0;
     let currentContent = textElement.innerHTML.replace(/<br>/g, "\n");
@@ -67,7 +80,6 @@ function typeTextAppendLine(text, isLastLine, callback) {
     typeChar();
 }
 
-// Typing effect classique (efface avant de taper)
 function typeText(text, callback) {
     let index = 0;
     textElement.style.opacity = 1;
@@ -82,7 +94,6 @@ function typeText(text, callback) {
     }, 30);
 }
 
-// Effet fondu pour effacer texte (passe opacity à 0)
 function fadeOutText(callback) {
     textElement.style.transition = "opacity 0.5s ease";
     textElement.style.opacity = 0;
@@ -95,13 +106,19 @@ function fadeOutText(callback) {
 }
 
 function showAnimation() {
-    const { device, os, browser } = getDeviceInfo();
+    const { device, browser, os } = getDeviceInfo();
 
-    const infoLines = [
-        `Appareil détecté : ${device}`,
-        `Système : ${os}`,
-        `Navigateur : ${browser}`
-    ];
+    const infoLines = selectedLang === 'fr'
+        ? [
+            `Appareil détecté : ${device}`,
+            `Système : ${os}`,
+            `Navigateur : ${browser}`
+        ]
+        : [
+            `Apparaat gedetecteerd: ${device}`,
+            `Systeem: ${os}`,
+            `Browser: ${browser}`
+        ];
 
     const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
 
@@ -115,7 +132,7 @@ function showAnimation() {
             return;
         }
 
-        typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
+        typeTextAppendLine(infoLines[index], index === infoLines.length -1, () => {
             setTimeout(() => {
                 showInfoLines(index + 1);
             }, 900);
@@ -179,8 +196,6 @@ function setupLanguageButtons() {
 
 function generateMatrixEffect() {
     const matrixContainer = document.getElementById("matrix-container");
-
-    // Vide au cas où
     matrixContainer.innerHTML = "";
 
     const characters = "01";
@@ -211,4 +226,4 @@ function startAnimation() {
 }
 
 // Initialisation
-setupLanguageButtons(); 
+setupLanguageButtons();
