@@ -16,50 +16,32 @@ const phrasesNL = [
 
 const textElement = document.getElementById("content");
 
-// Fonction avancée pour récupérer device, browser, os avec userAgentData + UAParser fallback
+// Fonction simple avec UAParser pour récupérer device, browser, os avec versions
 function getDeviceInfo() {
-    if (navigator.userAgentData) {
-        // API moderne Chrome, Edge, etc.
-        const uaData = navigator.userAgentData;
-        const brands = uaData.brands.map(b => b.brand).join(", ");
-        const platform = uaData.platform || "Plateforme inconnue";
-        const deviceType = uaData.mobile ? "Mobile Device" : "Desktop Device";
+    const parser = new UAParser();
+    const result = parser.getResult();
 
-        return uaData.getHighEntropyValues(["platformVersion", "model", "architecture"]).then(info => {
-            const model = info.model || "Modèle inconnu";
-            const osVersion = info.platformVersion || "Version OS inconnue";
-            const architecture = info.architecture || "Architecture inconnue";
-
-            return {
-                device: `${deviceType} - ${model} (${brands})`,
-                browser: navigator.userAgent,
-                os: `${platform} ${osVersion} (${architecture})`
-            };
-        }).catch(() => {
-            // Si getHighEntropyValues plante, fallback simple
-            return Promise.resolve({
-                device: deviceType,
-                browser: navigator.userAgent,
-                os: platform
-            });
-        });
-    } else {
-        // Fallback UAParser synchronique mais promisifié pour uniformité
-        const parser = new UAParser();
-        const result = parser.getResult();
-
-        let device = "Appareil inconnu";
-        if(result.device.model) {
-            device = result.device.vendor ? `${result.device.vendor} ${result.device.model}` : result.device.model;
-        } else if (result.os.name) {
-            device = `${result.os.name} Device`;
-        }
-
-        const browser = result.browser.name || "Navigateur inconnu";
-        const os = result.os.name || "Système inconnu";
-
-        return Promise.resolve({ device, browser, os });
+    // Device : si on a modèle et constructeur on les combine, sinon fallback
+    let device = "Appareil inconnu";
+    if(result.device.model) {
+        device = result.device.vendor 
+            ? `${result.device.vendor} ${result.device.model}` 
+            : result.device.model;
+    } else if(result.os.name) {
+        device = `${result.os.name} Device`;
     }
+
+    // OS avec version
+    const osName = result.os.name || "Système inconnu";
+    const osVersion = result.os.version ? `v${result.os.version}` : "";
+    const os = osVersion ? `${osName} ${osVersion}` : osName;
+
+    // Navigateur avec version
+    const browserName = result.browser.name || "Navigateur inconnu";
+    const browserVersion = result.browser.version ? `v${result.browser.version}` : "";
+    const browser = browserVersion ? `${browserName} ${browserVersion}` : browserName;
+
+    return { device, os, browser };
 }
 
 // Typing effect qui ajoute ligne par ligne (sans saut de ligne final sur la dernière)
@@ -112,51 +94,50 @@ function fadeOutText(callback) {
     }, 500);
 }
 
-// Animation principale
 function showAnimation() {
-    getDeviceInfo().then(({ device, browser, os }) => {
-        const infoLines = [
-            `Appareil détecté : ${device}`,
-            `Système : ${os}`,
-            `Navigateur : ${browser}`
-        ];
+    const { device, os, browser } = getDeviceInfo();
 
-        const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
+    const infoLines = [
+        `Appareil détecté : ${device}`,
+        `Système : ${os}`,
+        `Navigateur : ${browser}`
+    ];
 
-        function showInfoLines(index) {
-            if (index >= infoLines.length) {
-                setTimeout(() => {
-                    fadeOutText(() => {
-                        showPhrases(0);
-                    });
-                }, 1000);
-                return;
-            }
+    const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
 
-            typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
-                setTimeout(() => {
-                    showInfoLines(index + 1);
-                }, 900);
-            });
+    function showInfoLines(index) {
+        if (index >= infoLines.length) {
+            setTimeout(() => {
+                fadeOutText(() => {
+                    showPhrases(0);
+                });
+            }, 1000);
+            return;
         }
 
-        function showPhrases(i) {
-            if (i >= phrases.length) {
-                showCard();
-                return;
-            }
+        typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
+            setTimeout(() => {
+                showInfoLines(index + 1);
+            }, 900);
+        });
+    }
 
-            typeText(phrases[i], () => {
-                setTimeout(() => {
-                    fadeOutText(() => {
-                        showPhrases(i + 1);
-                    });
-                }, 1200);
-            });
+    function showPhrases(i) {
+        if (i >= phrases.length) {
+            showCard();
+            return;
         }
 
-        showInfoLines(0);
-    });
+        typeText(phrases[i], () => {
+            setTimeout(() => {
+                fadeOutText(() => {
+                    showPhrases(i + 1);
+                });
+            }, 1200);
+        });
+    }
+
+    showInfoLines(0);
 }
 
 function showCard() {
@@ -230,4 +211,4 @@ function startAnimation() {
 }
 
 // Initialisation
-setupLanguageButtons();
+setupLanguageButtons(); 
