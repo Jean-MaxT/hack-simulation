@@ -59,26 +59,55 @@ function fadeOutText(callback) {
 async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
+    const selfieText = selectedLang === 'fr'
+        ? "Et voilà à quoi tu ressembles."
+        : "En zo zie je eruit.";
+
     const introLines = selectedLang === 'fr'
         ? [
             "Tu penses être protégé ? Voilà ce qu’on a trouvé :",
             `Appareil : ${device}`,
             `Système : ${os}`,
             `Navigateur : ${browser}`,
-            "Un hacker mettrait 30 secondes à faire pire.",
-            "C’est pour ça qu’on a créé le Digital Service Pack."
+            selfieText
         ]
         : [
             "Denk je dat je beschermd bent? Dit hebben we gevonden:",
             `Apparaat: ${device}`,
             `Systeem: ${os}`,
             `Browser: ${browser}`,
+            selfieText
+        ];
+
+    const afterSelfieLines = selectedLang === 'fr'
+        ? [
+            "Un hacker mettrait 30 secondes à faire pire.",
+            "C’est pour ça qu’on a créé le Digital Service Pack."
+        ]
+        : [
             "Een hacker zou erger doen in 30 seconden.",
             "Daarom hebben we de Digital Service Pack ontwikkeld."
         ];
 
     function showIntro(index) {
         if (index >= introLines.length) {
+            takeSelfie().then(() => {
+                setTimeout(() => {
+                    showAfterSelfie(0);
+                }, 1500);
+            });
+            return;
+        }
+
+        typeText(introLines[index], () => {
+            setTimeout(() => {
+                showIntro(index + 1);
+            }, 1000);
+        });
+    }
+
+    function showAfterSelfie(index) {
+        if (index >= afterSelfieLines.length) {
             setTimeout(() => {
                 fadeOutText(() => {
                     showCard();
@@ -87,9 +116,9 @@ async function showAnimation() {
             return;
         }
 
-        typeText(introLines[index], () => {
+        typeText(afterSelfieLines[index], () => {
             setTimeout(() => {
-                showIntro(index + 1);
+                showAfterSelfie(index + 1);
             }, 1000);
         });
     }
@@ -123,14 +152,14 @@ function showCard() {
 }
 
 function setupLanguageButtons() {
-    document.getElementById("btn-fr").addEventListener("click", async () => {
+    document.getElementById("btn-fr").addEventListener("click", () => {
         selectedLang = 'fr';
-        await startAnimationWithSelfie();
+        startAnimation();
     });
 
-    document.getElementById("btn-nl").addEventListener("click", async () => {
+    document.getElementById("btn-nl").addEventListener("click", () => {
         selectedLang = 'nl';
-        await startAnimationWithSelfie();
+        startAnimation();
     });
 }
 
@@ -153,21 +182,20 @@ function generateMatrixEffect() {
     }
 }
 
-// 🧠 NOUVEAU : Selfie et lancement de l'animation
-async function startAnimationWithSelfie() {
+function startAnimation() {
     document.getElementById("language-selection").style.display = "none";
     document.getElementById("text").style.display = "block";
     document.getElementById("rewardCard").style.display = "none";
     document.getElementById("rewardCard").classList.remove("show");
     document.getElementById("cardInner").classList.remove("flipped");
+    document.getElementById("selfieContainer").innerHTML = "";
     textElement.innerHTML = "";
 
     generateMatrixEffect();
-    await takeSelfie(); // Selfie avant l’animation
     showAnimation();
 }
 
-// 📸 Capture d’un selfie et affichage dans #selfieContainer
+// 📸 Selfie
 async function takeSelfie() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -186,7 +214,7 @@ async function takeSelfie() {
         stream.getTracks().forEach(track => track.stop());
 
         const imgData = canvas.toDataURL("image/png");
-        document.getElementById("selfieContainer").innerHTML = `<img src="${imgData}" alt="Selfie" style="max-width: 100%; border-radius: 10px;">`;
+        document.getElementById("selfieContainer").innerHTML = `<img src="${imgData}" alt="Selfie" style="max-width: 100%; border-radius: 10px; margin-top: 20px;">`;
 
     } catch (err) {
         console.warn("Accès caméra refusé ou erreur :", err);
