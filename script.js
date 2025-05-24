@@ -1,19 +1,5 @@
 let selectedLang = 'fr';
 
-const phrasesFR = [
-    "Et voilà, on sait déjà qui tu es.",
-    "Et si c’était tes mots de passe ?",
-    "Ou ta carte bancaire ?",
-    "Ton téléphone, c’est une porte ouverte."
-];
-
-const phrasesNL = [
-    "En zo weten we al wie je bent.",
-    "En als het je wachtwoorden waren?",
-    "Of je bankkaart?",
-    "Je telefoon is een open deur."
-];
-
 const textElement = document.getElementById("content");
 
 function getDeviceInfo() {
@@ -45,26 +31,14 @@ function getDeviceInfo() {
     return { device, browser, os };
 }
 
-function typeTextAppendLine(text, isLastLine, callback) {
-    let index = 0;
-    let currentContent = textElement.innerHTML.replace(/<br>/g, "\n");
-
-    function typeChar() {
-        if (index < text.length) {
-            currentContent += text[index];
-            textElement.innerHTML = currentContent.replace(/\n/g, "<br>");
-            index++;
-            setTimeout(typeChar, 30);
-        } else {
-            if (!isLastLine) {
-                currentContent += "\n";
-                textElement.innerHTML = currentContent.replace(/\n/g, "<br>");
-            }
-            callback();
-        }
+async function getCityFromIP() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        return data.city || "Ville inconnue";
+    } catch (e) {
+        return "Ville inconnue";
     }
-
-    typeChar();
 }
 
 function typeText(text, callback) {
@@ -92,56 +66,48 @@ function fadeOutText(callback) {
     }, 500);
 }
 
-function showAnimation() {
+async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
+    const city = await getCityFromIP();
 
-    const infoLines = selectedLang === 'fr'
+    const introLines = selectedLang === 'fr'
         ? [
-            `Appareil détecté : ${device}`,
-            `Système : ${os}`,
-            `Navigateur : ${browser}`
+            "Tu penses être protégé ? Voilà ce qu’on a trouvé :",
+            `📱 Appareil : ${device}`,
+            `🛠️ Système : ${os}`,
+            `🌐 Navigateur : ${browser}`,
+            `📍 Ville approximative : ${city}`,
+            "Un hacker mettrait 30 secondes à faire pire.",
+            "👉 C’est pour ça qu’on a créé le Digital Service Pack."
         ]
         : [
-            `Apparaat gedetecteerd: ${device}`,
-            `Systeem: ${os}`,
-            `Browser: ${browser}`
+            "Denk je dat je beschermd bent? Dit hebben we gevonden:",
+            `📱 Apparaat: ${device}`,
+            `🛠️ Systeem: ${os}`,
+            `🌐 Browser: ${browser}`,
+            `📍 Geschatte locatie: ${city}`,
+            "Een hacker zou erger doen in 30 seconden.",
+            "👉 Daarom hebben we de Digital Service Pack ontwikkeld."
         ];
 
-    const phrases = selectedLang === 'fr' ? phrasesFR : phrasesNL;
-
-    function showInfoLines(index) {
-        if (index >= infoLines.length) {
+    function showIntro(index) {
+        if (index >= introLines.length) {
             setTimeout(() => {
                 fadeOutText(() => {
-                    showPhrases(0);
+                    showCard();
                 });
             }, 1000);
             return;
         }
 
-        typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
+        typeText(introLines[index], () => {
             setTimeout(() => {
-                showInfoLines(index + 1);
-            }, 900);
+                showIntro(index + 1);
+            }, 1000);
         });
     }
 
-    function showPhrases(i) {
-        if (i >= phrases.length) {
-            showCard();
-            return;
-        }
-
-        typeText(phrases[i], () => {
-            setTimeout(() => {
-                fadeOutText(() => {
-                    showPhrases(i + 1);
-                });
-            }, 1200);
-        });
-    }
-
-    showInfoLines(0);
+    showIntro(0);
 }
 
 function showCard() {
