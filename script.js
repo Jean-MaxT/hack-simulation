@@ -1,4 +1,4 @@
-let selectedLang = 'fr'; // Par défaut
+let selectedLang = 'fr';
 
 const phrasesFR = [
     "Et voilà, on sait déjà qui tu es.",
@@ -16,44 +16,31 @@ const phrasesNL = [
 
 const textElement = document.getElementById("content");
 
-function getDeviceName(result) {
-    const rawModel = result.device.model || "";
-    const rawVendor = result.device.vendor || "";
-
-    if (rawModel.length > 2 && !/^[A-Z]$/.test(rawModel)) {
-        if (rawVendor && rawVendor !== rawModel) {
-            return `${rawVendor} ${rawModel}`;
-        }
-        return rawModel;
-    }
-
-    if (rawVendor) {
-        return rawVendor + " Device";
-    }
-
-    if (result.os.name) {
-        if (result.os.name.toLowerCase().includes("android")) {
-            return `Android Device`;
-        } else if (result.os.name.toLowerCase().includes("ios")) {
-            return `iPhone`;
-        } else if (result.os.name.toLowerCase().includes("windows")) {
-            return `Windows Device`;
-        } else if (result.os.name.toLowerCase().includes("mac os")) {
-            return `Mac Device`;
-        }
-        return `${result.os.name} Device`;
-    }
-
-    return "Appareil inconnu";
-}
-
 function getDeviceInfo() {
     const parser = new UAParser();
     const result = parser.getResult();
 
-    const device = getDeviceName(result);
-    const browser = result.browser.name || "Navigateur inconnu";
+    let device = "Appareil inconnu";
+    if (result.device.vendor && result.device.model) {
+        device = `${result.device.vendor} ${result.device.model}`;
+    } else if (result.device.model) {
+        device = result.device.model;
+    } else if (result.os.name) {
+        if (result.os.name.toLowerCase().includes("android")) {
+            device = "Appareil Android";
+        } else if (result.os.name.toLowerCase().includes("ios")) {
+            device = "iPhone";
+        } else if (result.os.name.toLowerCase().includes("windows")) {
+            device = "Appareil Windows";
+        } else if (result.os.name.toLowerCase().includes("mac os")) {
+            device = "Mac";
+        } else {
+            device = `${result.os.name}`;
+        }
+    }
+
     const os = result.os.name ? `${result.os.name} ${result.os.version || ""}`.trim() : "Système inconnu";
+    const browser = result.browser.name || "Navigateur inconnu";
 
     return { device, browser, os };
 }
@@ -132,7 +119,7 @@ function showAnimation() {
             return;
         }
 
-        typeTextAppendLine(infoLines[index], index === infoLines.length -1, () => {
+        typeTextAppendLine(infoLines[index], index === infoLines.length - 1, () => {
             setTimeout(() => {
                 showInfoLines(index + 1);
             }, 900);
@@ -169,8 +156,8 @@ function showCard() {
     }, 100);
 
     const cardText = document.getElementById("card-text");
-    cardText.textContent = selectedLang === 'fr' 
-        ? "Clique ici et présente cette carte à un vendeur" 
+    cardText.textContent = selectedLang === 'fr'
+        ? "Clique ici et présente cette carte à un vendeur"
         : "Klik hier en toon deze kaart aan een verkoper";
 
     const cardInner = document.getElementById("cardInner");
