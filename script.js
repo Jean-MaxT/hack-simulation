@@ -196,14 +196,21 @@ async function startAnimationWithSelfie() {
 // 📸 Capture d’un selfie et affichage avec message
 async function takeSelfie() {
     try {
-        document.getElementById("selfieContainer").style.display = "block";
+        const container = document.getElementById("selfieContainer");
+        // Mise en forme flex centrée (horizontal + vertical)
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.alignItems = "center";
+        container.style.justifyContent = "center";
+        container.style.color = "white";
+        container.style.minHeight = "250px"; // optionnel pour éviter que container soit trop petit
+
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
         video.srcObject = stream;
         video.setAttribute("playsinline", true); // iOS fix
         await video.play();
 
-        // Laisse une petite latence pour la capture
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         const canvas = document.createElement("canvas");
@@ -216,17 +223,17 @@ async function takeSelfie() {
 
         const imgData = canvas.toDataURL("image/png");
 
-        const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
-        document.getElementById("selfieContainer").innerHTML = `
-            <p style="text-align: center; font-size: 1.2em; color: white;">${message}</p>
-            <img src="${imgData}" alt="Selfie" style="max-width: 200px; border-radius: 50%; display: block; margin: 10px auto; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
+        const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";        
+        container.innerHTML = `
+            <p style="font-size: 1.2em; margin: 0 0 15px 0;">${message}</p>
+            <img src="${imgData}" alt="Selfie" style="max-width: 200px; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
         `;
 
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Pause avant de lancer le texte
+        await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
         console.warn("Accès caméra refusé ou erreur :", err);
     }
 }
 
 // Initialisation
-setupLanguageButtons();
+setupLanguageButtons(); 
