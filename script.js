@@ -198,7 +198,7 @@ async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
 
-        // Centrage plein écran garanti
+        // Styles de centrage + fond sombre
         container.style.cssText = `
             position: fixed;
             top: 0;
@@ -213,12 +213,18 @@ async function takeSelfie() {
             color: white;
             z-index: 9999;
             text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         `;
+
+        // Forcer le reflow pour activer la transition
+        void container.offsetWidth;
+        container.style.opacity = '1';
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
         video.srcObject = stream;
-        video.setAttribute("playsinline", true); // iOS fix
+        video.setAttribute("playsinline", true);
         await video.play();
 
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -237,14 +243,22 @@ async function takeSelfie() {
         container.innerHTML = `
             <p style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
             <img src="${imgData}" alt="Selfie" style="
-                max-width: 250px;
+                max-width: 300px;
                 width: 80%;
                 height: auto;
-                border-radius: 50%;
-                box-shadow: 0 0 25px rgba(255,255,255,0.3);
-                border: 4px solid white;
+                border-radius: 20px;
+                box-shadow: 0 8px 40px rgba(255,255,255,0.2);
+                border: 3px solid white;
+                transition: opacity 1s ease-in-out;
+                opacity: 0;
             ">
         `;
+
+        // Forcer un petit délai pour le fondu d’image
+        requestAnimationFrame(() => {
+            const img = container.querySelector("img");
+            img.style.opacity = "1";
+        });
 
         await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
