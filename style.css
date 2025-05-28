@@ -336,7 +336,6 @@ button:hover {
 }
 
 #selfieContainer {
-#selfieContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
