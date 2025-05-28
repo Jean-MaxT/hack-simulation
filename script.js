@@ -95,17 +95,18 @@ async function showLinesSequentially(lines) {
     }
 }
 
+// MODIFIÉ: Diminution du délai final
 async function typeMultiLines(lines) {
     for (let i = 0; i < lines.length; i++) {
         await new Promise(resolve => {
             typeText(lines[i], resolve, i === 0);
         });
         if (i < lines.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            textElement.innerHTML += '<br>';
+            await new Promise(resolve => setTimeout(resolve, 500)); // Pause entre la frappe des lignes
+            textElement.innerHTML += '<br>'; // Ajoute un retour à la ligne
         }
     }
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500)); // MODIFIÉ: Délai réduit de 1500ms à 500ms
 }
 
 async function showAnimation() {
@@ -129,7 +130,8 @@ async function showAnimation() {
 
     await typeMultiLines(deviceInfoPhrases);
     await new Promise(resolve => fadeOutText(resolve));
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // MODIFIÉ: Suppression du délai de 500ms ici
+    // await new Promise(resolve => setTimeout(resolve, 500)); // Ancien délai supprimé
 
     const selfieDisplayed = await takeSelfie();
 
@@ -244,7 +246,7 @@ async function takeSelfie() {
         video.setAttribute("playsinline", true);
         await video.play();
 
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Laisse le temps à la vidéo de se charger/démarrer
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;

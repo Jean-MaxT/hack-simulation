@@ -335,36 +335,31 @@ button:hover {
     }
 }
 
-/* NOUVEAU: Styles pour le conteneur du selfie (JS gère le positionnement fixe) */
+
 #selfieContainer {
-    /* Le positionnement, display: flex, z-index est géré par JS dans takeSelfie() */
-    /* Ces styles sont ici pour le cas où tu aurais des styles non-critiques pour le layout */
-    /* ou si tu veux définir des propriétés flexbox génériques pour ses enfants */
     flex-direction: column;
-    align-items: center; /* Centre horizontalement les éléments flex en colonne */
-    justify-content: center; /* Centre verticalement les éléments flex en colonne */
-    color: white; /* Couleur du texte pour les éléments enfants */
-    text-align: center; /* Centre le texte à l'intérieur */
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center; 
 }
 
-/* NOUVEAU: Styles pour le message au-dessus du selfie */
+
 .selfie-message {
-    font-size: 1.5em; /* Taille de police du message */
-    margin-bottom: 20px; /* Espace sous le message */
-    color: white; /* Couleur du texte (si non défini par le conteneur #selfieContainer) */
-    text-align: center; /* Centrage du texte */
-    opacity: 0; /* Caché par défaut */
-    animation: fade-in 1s ease-out forwards; /* Animation d'apparition */
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+    opacity: 0;
+    animation: fade-in 1s ease-out forwards;
 }
 
-/* NOUVEAU: Styles pour l'image du selfie elle-même */
 .selfie-image {
     max-width: 250px;
-    width: 80%; /* S'adapte à la largeur du conteneur */
-    height: auto; /* Maintient le ratio d'aspect */
-    border-radius: 16px; /* Bords arrondis */
-    border: none; /* Pas de bordure */
-    /* Lueur jaune-orange */
+    width: 80%;
+    height: auto;
+    border-radius: 16px;
+    border: none;
     box-shadow: 0 0 15px #ebb300,
                 0 0 30px rgba(235, 179, 0, 0.6),
                 0 0 60px rgba(235, 179, 0, 0.2);
