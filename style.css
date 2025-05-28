@@ -212,6 +212,7 @@ button:hover {
     color: black;
 }
 
+/* 🔹 Carte de récompense */
 #rewardCard {
     display: none;
     position: absolute;
@@ -223,7 +224,7 @@ button:hover {
     perspective: 1000px;
 }
 
-/* 🔹 Animation fade-in */
+/* 🔹 Animation fade-in (utilisée aussi pour la carte et le selfie) */
 @keyframes fade-in {
     0% {
         opacity: 0;
@@ -276,7 +277,7 @@ button:hover {
     background-color: #fff;
     font-size: 34px;
     font-weight: bold;
-    color: #ffffff;
+    color: #ffffff; /* Le texte de la carte avant sera blanc (à ajuster si tu veux une autre couleur) */
     z-index: 2;
 }
 
@@ -286,7 +287,7 @@ button:hover {
     transform: rotateY(180deg);
     font-size: 56px;
     font-weight: bold;
-    color: #fff;
+    color: #fff; /* Le texte de la carte arrière sera blanc (à ajuster si tu veux une autre couleur) */
     z-index: 1;
 }
 
@@ -334,45 +335,44 @@ button:hover {
     }
 }
 
+/* NOUVEAU: Styles pour le conteneur du selfie (JS gère le positionnement fixe) */
 #selfieContainer {
-    /* Ces styles sont gérés en JS pour le positionnement fixe, mais les garder ici comme référence est bien */
-    /* Les styles Flexbox ici servent de fallback si le JS ne s'applique pas parfaitement */
-    display: flex;
+    /* Le positionnement, display: flex, z-index est géré par JS dans takeSelfie() */
+    /* Ces styles sont ici pour le cas où tu aurais des styles non-critiques pour le layout */
+    /* ou si tu veux définir des propriétés flexbox génériques pour ses enfants */
     flex-direction: column;
     align-items: center; /* Centre horizontalement les éléments flex en colonne */
-    justify-content: center;
+    justify-content: center; /* Centre verticalement les éléments flex en colonne */
     color: white; /* Couleur du texte pour les éléments enfants */
-    z-index: 9999; /* Assure qu'il est au-dessus de tout */
     text-align: center; /* Centre le texte à l'intérieur */
 }
 
-/* Texte au-dessus de la photo */
-#selfieContainer p {
-    text-align: center;
-    width: 100%;
-    margin-bottom: 20px; /* Conserve le spacing du texte */
+/* NOUVEAU: Styles pour le message au-dessus du selfie */
+.selfie-message {
+    font-size: 1.5em; /* Taille de police du message */
+    margin-bottom: 20px; /* Espace sous le message */
+    color: white; /* Couleur du texte (si non défini par le conteneur #selfieContainer) */
+    text-align: center; /* Centrage du texte */
+    opacity: 0; /* Caché par défaut */
+    animation: fade-in 1s ease-out forwards; /* Animation d'apparition */
 }
 
-/* Image du selfie (MODIFIÉ AVEC LA COULEUR JAUNE-ORANGE ET SANS BORDURE) */
-#selfieContainer img {
+/* NOUVEAU: Styles pour l'image du selfie elle-même */
+.selfie-image {
     max-width: 250px;
-    width: 100%; /* Rend l'image responsive dans sa max-width */
+    width: 80%; /* S'adapte à la largeur du conteneur */
     height: auto; /* Maintient le ratio d'aspect */
-    border-radius: 16px; /* Coins arrondis */
-    margin-top: 15px; /* Marge au-dessus de l'image */
-    animation: fade-in 1s ease-out forwards; /* Animation d'apparition */
-    opacity: 0; /* Commence invisible pour l'animation */
-
-    /* Cadre et lueur en jaune-orange, sans bordure */
-    border: none; /* AUCUNE BORDURE */
-    box-shadow: 0 0 15px #ebb300, /* Lueur interne */
-                0 0 30px rgba(235, 179, 0, 0.6), /* Lueur moyenne, plus diffuse */
-                0 0 60px rgba(235, 179, 0, 0.2); /* Lueur externe très douce */
+    border-radius: 16px; /* Bords arrondis */
+    border: none; /* Pas de bordure */
+    /* Lueur jaune-orange */
+    box-shadow: 0 0 15px #ebb300,
+                0 0 30px rgba(235, 179, 0, 0.6),
+                0 0 60px rgba(235, 179, 0, 0.2);
     background-color: transparent; /* Fond transparent pour la lueur */
     padding: 0; /* Aucun padding nécessaire sans bordure */
-
-    /* Centrage de l'image elle-même dans son conteneur */
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+    display: block; /* S'assure qu'elle prend sa propre ligne et peut être centrée par margin */
+    margin: 0 auto; /* Centre l'image horizontalement */
+    opacity: 0; /* Caché par défaut */
+    animation: fade-in 1s ease-out forwards; /* Animation d'apparition */
+    animation-delay: 0.5s; /* Délai pour apparaître après le message */
 }

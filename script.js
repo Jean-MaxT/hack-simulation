@@ -25,13 +25,23 @@ function getDeviceInfo() {
     return { device, browser, os };
 }
 
-function typeText(text, callback) {
+function typeText(textToType, callback, clearBefore = true) {
     let index = 0;
+    let initialContent = "";
+    if (!clearBefore) {
+        initialContent = textElement.innerHTML;
+    } else {
+        textElement.innerHTML = "";
+    }
+
     textElement.style.opacity = 1;
-    textElement.textContent = "";
+
+    const cursor = document.querySelector('.cursor');
+    if (cursor) cursor.style.display = 'inline-block';
+
     const interval = setInterval(() => {
-        textElement.textContent = text.slice(0, index++);
-        if (index > text.length) {
+        textElement.innerHTML = initialContent + textToType.slice(0, index++);
+        if (index > textToType.length) {
             clearInterval(interval);
             callback();
         }
@@ -39,65 +49,101 @@ function typeText(text, callback) {
 }
 
 function fadeOutText(callback) {
-    textElement.style.transition = "opacity 0.5s ease";
+    textElement.style.transition = "opacity 0.6s ease-out";
     textElement.style.opacity = 0;
     setTimeout(() => {
-        textElement.textContent = "";
-        textElement.style.transition = ""; // Réinitialise la transition pour éviter les interférences
-        textElement.style.opacity = 1; // Remet l'opacité à 1 pour la prochaine saisie
+        const cursor = document.querySelector('.cursor');
+        if (cursor) cursor.style.display = 'none';
+        textElement.innerHTML = "";
+        textElement.style.transition = "";
+        textElement.style.opacity = 1;
         callback();
-    }, 500);
+    }, 600);
+}
+
+function fadeOutElement(elementId, callback) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        callback();
+        return;
+    }
+    element.style.transition = "opacity 0.6s ease-out";
+    element.style.opacity = 0;
+    setTimeout(() => {
+        element.style.display = "none";
+        element.style.transition = "";
+        element.style.opacity = 1;
+        callback();
+    }, 600);
+}
+
+async function showLinesSequentially(lines) {
+    for (let i = 0; i < lines.length; i++) {
+        await new Promise(resolve => {
+            typeText(lines[i], async () => {
+                await new Promise(readDelay => setTimeout(readDelay, 1500));
+                if (i < lines.length - 1) {
+                    fadeOutText(resolve);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        if (i < lines.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+    }
+}
+
+async function typeMultiLines(lines) {
+    for (let i = 0; i < lines.length; i++) {
+        await new Promise(resolve => {
+            typeText(lines[i], resolve, i === 0);
+        });
+        if (i < lines.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            textElement.innerHTML += '<br>';
+        }
+    }
+    await new Promise(resolve => setTimeout(resolve, 1500));
 }
 
 async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
-    const introBefore = selectedLang === 'fr'
-        ? ["Tu penses être protégé ?", `Voilà ce qu’on a trouvé :`, `Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
-        : ["Denk je dat je beschermd bent?", `Dit hebben we gevonden:`, `Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${result.browser.name}`];
+    const initialPhrases = selectedLang === 'fr'
+        ? ["Tu penses être protégé ?", "Voilà ce qu’on a trouvé :"]
+        : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
-    const introAfter = selectedLang === 'fr'
+    const deviceInfoPhrases = selectedLang === 'fr'
+        ? [`Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
+        : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
+
+    const introAfterPhrases = selectedLang === 'fr'
         ? ["Un hacker mettrait 30 secondes à faire pire.", "C’est pour ça qu’on a créé le Digital Service Pack."]
         : ["Een hacker zou erger doen in 30 seconden.", "Daarom hebben we de Digital Service Pack ontwikkeld."];
 
-    async function showLinesSequentially(lines) {
-        for (let i = 0; i < lines.length; i++) {
-            await new Promise(resolve => {
-                typeText(lines[i], async () => { // Ajout de 'async' ici
-                    // Délai pour lire la phrase avant qu'elle ne commence à disparaître
-                    await new Promise(readDelay => setTimeout(readDelay, 900)); // Temps de lecture : 1.5 secondes (ajuste si besoin)
+    await showLinesSequentially(initialPhrases);
+    await new Promise(resolve => fadeOutText(resolve));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-                    if (i < lines.length - 1) {
-                        fadeOutText(resolve);
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-            // Petit délai après le fondu pour un écran "vide" avant la prochaine saisie
-            if (i < lines.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-        }
+    await typeMultiLines(deviceInfoPhrases);
+    await new Promise(resolve => fadeOutText(resolve));
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const selfieDisplayed = await takeSelfie();
+
+    if (selfieDisplayed) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => fadeOutElement("selfieContainer", resolve));
+    } else {
+        document.getElementById("selfieContainer").style.display = "none";
     }
 
-    // Affiche la première séquence de lignes
-    await showLinesSequentially(introBefore);
-
-    // Fade out le dernier texte de introBefore avant de prendre le selfie
-    await new Promise(resolve => fadeOutText(resolve));
-    await new Promise(resolve => setTimeout(resolve, 500)); // Petit délai après le fondu
-
-    await takeSelfie();
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Délai après le selfie
-    document.getElementById("selfieContainer").style.display = "none";
     document.getElementById("text").style.display = "block";
-    textElement.textContent = "";
+    textElement.innerHTML = "";
 
-    // Affiche la deuxième séquence de lignes
-    await showLinesSequentially(introAfter);
-
-    // Fade out le dernier texte de introAfter avant de montrer la carte
+    await showLinesSequentially(introAfterPhrases);
     await new Promise(resolve => setTimeout(() => fadeOutText(showCard), 1000));
 }
 
@@ -162,28 +208,36 @@ async function startAnimationWithSelfie() {
     document.getElementById("cardInner").classList.remove("flipped");
     textElement.innerHTML = "";
 
-    document.getElementById("selfieContainer").innerHTML = "";
-    document.getElementById("selfieContainer").style.display = "none";
+    const selfieContainer = document.getElementById("selfieContainer");
+    selfieContainer.style.display = "none";
+    selfieContainer.style.opacity = 1;
 
     generateMatrixEffect();
     showAnimation();
 }
 
+// MODIFIÉ: takeSelfie sans styles inline pour l'image
 async function takeSelfie() {
-    try {
-        const container = document.getElementById("selfieContainer");
+    const container = document.getElementById("selfieContainer");
+    let selfieTaken = false;
 
-        // Styles de positionnement et de z-index gérés ici en JS
-        // Les autres styles de centrage et le cadre de l'image sont dans style.css
+    try {
         container.style.cssText = `
-            position: fixed; /* Positionne le conteneur par rapport à la fenêtre */
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100vw; /* Prend toute la largeur de la fenêtre */
-            height: 100vh; /* Prend toute la hauteur de la fenêtre */
-            z-index: 9999; /* Assure que le conteneur est au-dessus de tout */
-            /* Suppression des styles de flexbox et de texte ici car ils sont gérés dans style.css */
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
         `;
+        container.style.display = "flex";
+        container.style.opacity = 1;
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
@@ -204,18 +258,19 @@ async function takeSelfie() {
         const imgData = canvas.toDataURL("image/png");
 
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
-        // L'HTML injecté n'a plus besoin de styles inline pour l'image et le paragraphe,
-        // car ces styles sont maintenant dans style.css
+        // NOUVEAU: Ajout de classes CSS pour le style, plus de styles inline
         container.innerHTML = `
-            <p class="fade-text">${message}</p>
-            <img src="${imgData}" alt="Selfie" class="fade-img">
+            <p class="selfie-message">${message}</p>
+            <img src="${imgData}" alt="Selfie" class="selfie-image">
         `;
+        selfieTaken = true;
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
         console.warn("Accès caméra refusé ou erreur :", err);
+        container.innerHTML = "";
+        container.style.display = "none";
     }
+    return selfieTaken;
 }
 
-// Lancer les boutons au chargement
 setupLanguageButtons();
