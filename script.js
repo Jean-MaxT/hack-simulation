@@ -216,7 +216,6 @@ async function startAnimationWithSelfie() {
     showAnimation();
 }
 
-// MODIFIÉ: takeSelfie sans styles inline pour l'image
 async function takeSelfie() {
     const container = document.getElementById("selfieContainer");
     let selfieTaken = false;
@@ -245,7 +244,7 @@ async function takeSelfie() {
         video.setAttribute("playsinline", true);
         await video.play();
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Laisse le temps à la vidéo de se charger/démarrer
 
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
@@ -258,11 +257,16 @@ async function takeSelfie() {
         const imgData = canvas.toDataURL("image/png");
 
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
-        // NOUVEAU: Ajout de classes CSS pour le style, plus de styles inline
         container.innerHTML = `
             <p class="selfie-message">${message}</p>
             <img src="${imgData}" alt="Selfie" class="selfie-image">
         `;
+
+        const selfieImage = container.querySelector('.selfie-image');
+        if (selfieImage) {
+            void selfieImage.offsetWidth;
+        }
+
         selfieTaken = true;
 
     } catch (err) {
