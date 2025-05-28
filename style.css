@@ -334,47 +334,45 @@ button:hover {
     }
 }
 
-/* --- Styles pour le Selfie (MODIFIÉ) --- */
 #selfieContainer {
+    /* Ces styles sont gérés en JS pour le positionnement fixe, mais les garder ici comme référence est bien */
+    /* Les styles Flexbox ici servent de fallback si le JS ne s'applique pas parfaitement */
     display: flex;
     flex-direction: column;
     align-items: center; /* Centre horizontalement les éléments flex en colonne */
     justify-content: center;
-    margin-top: 20px;
+    color: white; /* Couleur du texte pour les éléments enfants */
+    z-index: 9999; /* Assure qu'il est au-dessus de tout */
     text-align: center; /* Centre le texte à l'intérieur */
-    width: 100%; /* S'assure que le conteneur prend toute la largeur disponible pour un meilleur centrage */
-    max-width: 600px; /* Limite sa largeur pour qu'il ne soit pas trop grand sur les écrans larges */
-    margin-left: auto; /* Centre le conteneur lui-même si le parent n'est pas flex ou si il n'y a pas assez de place */
-    margin-right: auto; /* Centre le conteneur lui-même */
-    z-index: 5; /* Assure qu'il est au-dessus de l'effet Matrix */
 }
 
 /* Texte au-dessus de la photo */
 #selfieContainer p {
-    text-align: center; /* Au cas où la flexbox ne suffit pas pour le texte */
-    width: 100%; /* S'assure que le paragraphe prend toute la largeur pour centrer son contenu */
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px; /* Conserve le spacing du texte */
 }
 
-/* Image du selfie (MODIFIÉ) */
+/* Image du selfie (MODIFIÉ AVEC LA COULEUR JAUNE-ORANGE ET SANS BORDURE) */
 #selfieContainer img {
     max-width: 250px;
     width: 100%; /* Rend l'image responsive dans sa max-width */
     height: auto; /* Maintient le ratio d'aspect */
     border-radius: 16px; /* Coins arrondis */
-    margin-top: 15px;
-    animation: fade-in 1s ease-out forwards;
-    opacity: 0;
+    margin-top: 15px; /* Marge au-dessus de l'image */
+    animation: fade-in 1s ease-out forwards; /* Animation d'apparition */
+    opacity: 0; /* Commence invisible pour l'animation */
 
-    /* NOUVEAUTÉS POUR LE CADRE ET LE CENTRAGE */
-    display: block; /* Très important : fait de l'image un élément de bloc pour que margin: auto fonctionne */
-    margin-left: auto; /* Centre l'image horizontalement dans son conteneur */
-    margin-right: auto; /* Centre l'image horizontalement dans son conteneur */
+    /* Cadre et lueur en jaune-orange, sans bordure */
+    border: none; /* AUCUNE BORDURE */
+    box-shadow: 0 0 15px #ebb300, /* Lueur interne */
+                0 0 30px rgba(235, 179, 0, 0.6), /* Lueur moyenne, plus diffuse */
+                0 0 60px rgba(235, 179, 0, 0.2); /* Lueur externe très douce */
+    background-color: transparent; /* Fond transparent pour la lueur */
+    padding: 0; /* Aucun padding nécessaire sans bordure */
 
-    /* Effet de cadre moderne (bleu/vert néon, inspiré de Matrix) */
-    border: 2px solid rgba(0, 200, 255, 0.6); /* Bordure fine et lumineuse */
-    box-shadow: 0 0 15px rgba(0, 200, 255, 0.7), /* Lueur interne */
-                0 0 30px rgba(0, 200, 255, 0.4), /* Lueur moyenne */
-                0 0 60px rgba(0, 200, 255, 0.1); /* Lueur externe douce */
-    background-color: #1a1a1a; /* Fond sombre derrière l'image si elle est transparente ou pour un effet de profondeur */
-    padding: 3px; /* Petite marge entre la bordure et l'image */
+    /* Centrage de l'image elle-même dans son conteneur */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

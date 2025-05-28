@@ -173,30 +173,25 @@ async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
 
-        // Centrage plein écran garanti SANS fond opaque
+        // Styles de positionnement et de z-index gérés ici en JS
+        // Les autres styles de centrage et le cadre de l'image sont dans style.css
         container.style.cssText = `
             position: fixed; /* Positionne le conteneur par rapport à la fenêtre */
             top: 0;
             left: 0;
             width: 100vw; /* Prend toute la largeur de la fenêtre */
             height: 100vh; /* Prend toute la hauteur de la fenêtre */
-            /* background-color: rgba(0, 0, 0, 0.85); <-- C'est cette ligne qui est supprimée ! */
-            display: flex; /* Utilise Flexbox pour centrer le contenu */
-            flex-direction: column; /* Organise les éléments en colonne */
-            align-items: center; /* Centre horizontalement les éléments enfants (texte et image) */
-            justify-content: center; /* Centre verticalement les éléments enfants */
-            color: white; /* Couleur du texte */
             z-index: 9999; /* Assure que le conteneur est au-dessus de tout */
-            text-align: center; /* Centre le texte à l'intérieur du paragraphe */
+            /* Suppression des styles de flexbox et de texte ici car ils sont gérés dans style.css */
         `;
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
         video.srcObject = stream;
-        video.setAttribute("playsinline", true); // Fix pour iOS
+        video.setAttribute("playsinline", true);
         await video.play();
 
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Laisse le temps à la caméra de s'activer
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
@@ -204,36 +199,19 @@ async function takeSelfie() {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        stream.getTracks().forEach(track => track.stop()); // Arrête le flux de la caméra
+        stream.getTracks().forEach(track => track.stop());
 
-        const imgData = canvas.toDataURL("image/png"); // Récupère l'image en base64
+        const imgData = canvas.toDataURL("image/png");
 
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
+        // L'HTML injecté n'a plus besoin de styles inline pour l'image et le paragraphe,
+        // car ces styles sont maintenant dans style.css
         container.innerHTML = `
-            <p class="fade-text" style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
-            <img src="${imgData}" alt="Selfie" class="fade-img" style="
-                max-width: 250px;
-                width: 80%; /* Rend l'image responsive dans sa max-width */
-                height: auto; /* Maintient le ratio d'aspect */
-                border-radius: 16px; /* Coins arrondis (comme précédemment) */
-                /* Les styles de cadre moderne que nous avions ajoutés */
-                border: 2px solid rgba(0, 200, 255, 0.6); /* Bordure fine et lumineuse */
-                box-shadow: 0 0 15px rgba(0, 200, 255, 0.7), /* Lueur interne */
-                            0 0 30px rgba(0, 200, 255, 0.4), /* Lueur moyenne */
-                            0 0 60px rgba(0, 200, 255, 0.1); /* Lueur externe douce */
-                background-color: #1a1a1a; /* Fond sombre derrière l'image */
-                padding: 3px; /* Petite marge entre la bordure et l'image */
-                display: block; /* S'assure que l'image est un bloc pour le centrage auto si besoin */
-                margin: 0 auto; /* Centre l'image si elle est plus petite que son conteneur */
-            ">
+            <p class="fade-text">${message}</p>
+            <img src="${imgData}" alt="Selfie" class="fade-img">
         `;
 
-        // L'animation de fade-in est gérée par la classe fade-img et le CSS
-        // requestAnimationFrame(() => {
-        //     container.querySelector(".fade-img").style.opacity = "1";
-        // });
-
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Durée d'affichage du selfie
+        await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
         console.warn("Accès caméra refusé ou erreur :", err);
     }
