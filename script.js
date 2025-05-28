@@ -198,28 +198,16 @@ async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
 
-        // Styles de centrage + fond sombre
+        // Applique uniquement le centrage, sans modifier le fond
         container.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
-            z-index: 9999;
+            min-height: 250px;
             text-align: center;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
         `;
-
-        // Forcer le reflow pour activer la transition
-        void container.offsetWidth;
-        container.style.opacity = '1';
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
@@ -240,25 +228,41 @@ async function takeSelfie() {
         const imgData = canvas.toDataURL("image/png");
 
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
+
+        // Contenu HTML avec effet de fondu
         container.innerHTML = `
-            <p style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
-            <img src="${imgData}" alt="Selfie" style="
+            <p class="fade-text" style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
+            <img src="${imgData}" alt="Selfie" class="fade-img" style="
                 max-width: 300px;
                 width: 80%;
                 height: auto;
                 border-radius: 20px;
                 box-shadow: 0 8px 40px rgba(255,255,255,0.2);
                 border: 3px solid white;
-                transition: opacity 1s ease-in-out;
                 opacity: 0;
+                transition: opacity 1s ease-in-out;
             ">
         `;
 
-        // Forcer un petit délai pour le fondu d’image
+        // Déclenche le fondu de l’image
         requestAnimationFrame(() => {
-            const img = container.querySelector("img");
+            const img = container.querySelector(".fade-img");
             img.style.opacity = "1";
         });
+
+        // Si tu avais un effet de fade-out/in sur les phrases précédentes, ajoute ou conserve ceci dans ton CSS global :
+        // (à inclure dans un <style> ou fichier CSS)
+        /*
+        .fade-text {
+            opacity: 0;
+            animation: fadeInText 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeInText {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        */
 
         await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
