@@ -198,12 +198,12 @@ async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
         // Mise en forme flex centrée (horizontal + vertical)
-        container.style.display = "flex";
-        container.style.flexDirection = "column";
-        container.style.alignItems = "center";
-        container.style.justifyContent = "center";
-        container.style.color = "white";
-        container.style.minHeight = "250px"; // optionnel pour éviter que container soit trop petit
+        container.style.display = flex;
+        container.style.flexDirection = column;
+        container.style.alignItems = center;
+        container.style.justifyContent = center;
+        container.style.color = white;
+        container.style.minHeight = 250; // optionnel pour éviter que container soit trop petit
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
@@ -225,8 +225,8 @@ async function takeSelfie() {
 
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";        
         container.innerHTML = `
-            <p style="font-size: 1.2em; margin: 0 0 15px 0;">${message}</p>
-            <img src="${imgData}" alt="Selfie" style="max-width: 200px; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
+            <p style="font-size: 1.2em; margin: 0 0 5px 0;">${message}</p>
+            <img src="${imgData}" alt="Selfie" style="max-width: 200px; border-radius: 10%; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
         `;
 
         await new Promise(resolve => setTimeout(resolve, 2000));
