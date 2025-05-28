@@ -1,5 +1,4 @@
 let selectedLang = 'fr';
-
 const textElement = document.getElementById("content");
 
 function getDeviceInfo() {
@@ -12,17 +11,12 @@ function getDeviceInfo() {
     } else if (result.device.model) {
         device = result.device.model;
     } else if (result.os.name) {
-        if (result.os.name.toLowerCase().includes("android")) {
-            device = "Appareil Android";
-        } else if (result.os.name.toLowerCase().includes("ios")) {
-            device = "iPhone";
-        } else if (result.os.name.toLowerCase().includes("windows")) {
-            device = "Appareil Windows";
-        } else if (result.os.name.toLowerCase().includes("mac os")) {
-            device = "Mac";
-        } else {
-            device = `${result.os.name}`;
-        }
+        const osName = result.os.name.toLowerCase();
+        if (osName.includes("android")) device = "Appareil Android";
+        else if (osName.includes("ios")) device = "iPhone";
+        else if (osName.includes("windows")) device = "Appareil Windows";
+        else if (osName.includes("mac os")) device = "Mac";
+        else device = result.os.name;
     }
 
     const os = result.os.name ? `${result.os.name} ${result.os.version || ""}`.trim() : "Système inconnu";
@@ -36,8 +30,7 @@ function typeText(text, callback) {
     textElement.style.opacity = 1;
     textElement.textContent = "";
     const interval = setInterval(() => {
-        textElement.textContent = text.slice(0, index);
-        index++;
+        textElement.textContent = text.slice(0, index++);
         if (index > text.length) {
             clearInterval(interval);
             callback();
@@ -59,62 +52,30 @@ function fadeOutText(callback) {
 async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
-    const introBeforePhoto = selectedLang === 'fr'
-        ? [
-            "Tu penses être protégé ? Voilà ce qu’on a trouvé :",
-            `Appareil : ${device}`,
-            `Système : ${os}`,
-            `Navigateur : ${browser}`
-        ]
-        : [
-            "Denk je dat je beschermd bent? Dit hebben we gevonden:",
-            `Apparaat: ${device}`,
-            `Systeem: ${os}`,
-            `Browser: ${browser}`
-        ];
+    const introBefore = selectedLang === 'fr'
+        ? ["Tu penses être protégé ? Voilà ce qu’on a trouvé :", `Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
+        : ["Denk je dat je beschermd bent? Dit hebben we gevonden:", `Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
-    const introAfterPhoto = selectedLang === 'fr'
-        ? [
-            "Un hacker mettrait 30 secondes à faire pire.",
-            "C’est pour ça qu’on a créé le Digital Service Pack."
-        ]
-        : [
-            "Een hacker zou erger doen in 30 seconden.",
-            "Daarom hebben we de Digital Service Pack ontwikkeld."
-        ];
+    const introAfter = selectedLang === 'fr'
+        ? ["Un hacker mettrait 30 secondes à faire pire.", "C’est pour ça qu’on a créé le Digital Service Pack."]
+        : ["Een hacker zou erger doen in 30 seconden.", "Daarom hebben we de Digital Service Pack ontwikkeld."];
 
     function showLines(lines, index, onComplete) {
-        if (index >= lines.length) {
-            onComplete();
-            return;
-        }
-
+        if (index >= lines.length) return onComplete();
         typeText(lines[index], () => {
-            setTimeout(() => {
-                showLines(lines, index + 1, onComplete);
-            }, 1000);
+            setTimeout(() => showLines(lines, index + 1, onComplete), 1000);
         });
     }
 
-    // 1. Afficher les infos techniques
-    showLines(introBeforePhoto, 0, () => {
+    showLines(introBefore, 0, () => {
         fadeOutText(async () => {
-            // 2. Prendre la photo une fois le texte disparu
-            await takeSelfie(); // affiche photo + message
-
-            // 3. Attendre un peu et cacher la photo
+            await takeSelfie();
             await new Promise(resolve => setTimeout(resolve, 2000));
             document.getElementById("selfieContainer").style.display = "none";
-
-            // 4. Reprendre l'animation avec le texte final
             document.getElementById("text").style.display = "block";
             textElement.textContent = "";
-            showLines(introAfterPhoto, 0, () => {
-                setTimeout(() => {
-                    fadeOutText(() => {
-                        showCard();
-                    });
-                }, 1000);
+            showLines(introAfter, 0, () => {
+                setTimeout(() => fadeOutText(showCard), 1000);
             });
         });
     });
@@ -127,9 +88,7 @@ function showCard() {
     textDiv.style.display = "none";
     cardDiv.style.display = "flex";
 
-    setTimeout(() => {
-        cardDiv.classList.add("show");
-    }, 100);
+    setTimeout(() => cardDiv.classList.add("show"), 100);
 
     const cardText = document.getElementById("card-text");
     cardText.textContent = selectedLang === 'fr'
@@ -139,7 +98,6 @@ function showCard() {
     const cardInner = document.getElementById("cardInner");
     cardInner.addEventListener("click", () => {
         cardInner.classList.toggle("flipped");
-
         document.querySelector('.logo-no-glitch').style.display = 'block';
         document.querySelector('.logo-glitch').style.display = 'none';
     });
@@ -176,7 +134,6 @@ function generateMatrixEffect() {
     }
 }
 
-// 🧠 NOUVEAU : Selfie et lancement de l'animation
 async function startAnimationWithSelfie() {
     document.getElementById("language-selection").style.display = "none";
     document.getElementById("text").style.display = "block";
@@ -185,20 +142,16 @@ async function startAnimationWithSelfie() {
     document.getElementById("cardInner").classList.remove("flipped");
     textElement.innerHTML = "";
 
-    // ❌ NE PAS afficher ou vider selfieContainer ici
     document.getElementById("selfieContainer").innerHTML = "";
-    document.getElementById("selfieContainer").style.display = "none"; // <- très important
+    document.getElementById("selfieContainer").style.display = "none";
 
     generateMatrixEffect();
-    showAnimation(); // PAS de selfie ici
+    showAnimation();
 }
 
-// 📸 Capture d’un selfie et affichage avec message
 async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
-
-        // Applique uniquement le centrage, sans modifier le fond
         container.style.cssText = `
             display: flex;
             flex-direction: column;
@@ -220,55 +173,26 @@ async function takeSelfie() {
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+        canvas.getContext("2d").drawImage(video, 0, 0);
         stream.getTracks().forEach(track => track.stop());
 
         const imgData = canvas.toDataURL("image/png");
-
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
 
-        // Contenu HTML avec effet de fondu
         container.innerHTML = `
             <p class="fade-text" style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
-            <img src="${imgData}" alt="Selfie" class="fade-img" style="
-                max-width: 300px;
-                width: 80%;
-                height: auto;
-                border-radius: 20px;
-                box-shadow: 0 8px 40px rgba(255,255,255,0.2);
-                border: 3px solid white;
-                opacity: 0;
-                transition: opacity 1s ease-in-out;
-            ">
+            <img src="${imgData}" alt="Selfie" class="fade-img">
         `;
 
-        // Déclenche le fondu de l’image
         requestAnimationFrame(() => {
-            const img = container.querySelector(".fade-img");
-            img.style.opacity = "1";
+            container.querySelector(".fade-img").style.opacity = "1";
         });
-
-        // Si tu avais un effet de fade-out/in sur les phrases précédentes, ajoute ou conserve ceci dans ton CSS global :
-        // (à inclure dans un <style> ou fichier CSS)
-        /*
-        .fade-text {
-            opacity: 0;
-            animation: fadeInText 1s ease-in-out forwards;
-        }
-
-        @keyframes fadeInText {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        */
 
         await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
-        console.warn("Accès caméra refusé ou erreur :", err);
+        console.warn("Erreur accès caméra :", err);
     }
 }
 
-// Initialisation
-setupLanguageButtons(); 
+// Lancer les boutons au chargement
+setupLanguageButtons();
