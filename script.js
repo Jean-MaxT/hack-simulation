@@ -197,13 +197,18 @@ async function startAnimationWithSelfie() {
 async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
-        // Mise en forme flex centrée (horizontal + vertical)
-        container.style.display = flex;
-        container.style.flexDirection = column;
-        container.style.alignItems = center;
-        container.style.justifyContent = center;
-        container.style.color = white;
-        container.style.minHeight = 250; // optionnel pour éviter que container soit trop petit
+
+        // Ajout direct du style pour éviter les interférences CSS
+        container.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            min-height: 250px;
+            text-align: center;
+            padding: 20px;
+        `;
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
@@ -223,10 +228,12 @@ async function takeSelfie() {
 
         const imgData = canvas.toDataURL("image/png");
 
-        const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";        
+        const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
         container.innerHTML = `
-            <p style="font-size: 1.2em; margin: 0 0 5px 0;">${message}</p>
-            <img src="${imgData}" alt="Selfie" style="max-width: 200px; border-radius: 10%; box-shadow: 0 0 20px rgba(255,255,255,0.2);">
+            <p style="font-size: 1.2em; margin-bottom: 10px;">${message}</p>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 20px;">
+                <img src="${imgData}" alt="Selfie" style="max-width: 200px; width: 100%; height: auto; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.3);">
+            </div>
         `;
 
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -234,6 +241,7 @@ async function takeSelfie() {
         console.warn("Accès caméra refusé ou erreur :", err);
     }
 }
+
 
 // Initialisation
 setupLanguageButtons(); 
