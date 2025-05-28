@@ -172,14 +172,20 @@ async function startAnimationWithSelfie() {
 async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
+        // MODIFICATION ICI: Ajout de width et margin pour un centrage robuste du conteneur
         container.style.cssText = `
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* Centre les éléments flex en colonne (horizontalement) */
             justify-content: center;
             color: white;
             min-height: 250px;
             text-align: center;
+            width: 100%; /* Assure que le conteneur prend toute la largeur */
+            max-width: 600px; /* Limite la largeur du conteneur, similaire au texte */
+            margin: 0 auto; /* Centre le conteneur lui-même sur la page */
+            position: relative; /* Au cas où pour des éléments positionnés à l'intérieur */
+            z-index: 5; /* Assure qu'il est au-dessus du fond Matrix */
         `;
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -199,6 +205,7 @@ async function takeSelfie() {
         const imgData = canvas.toDataURL("image/png");
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
 
+        // Le HTML injecté ici est correct car il n'ajoute pas de styles qui entrent en conflit
         container.innerHTML = `
             <p class="fade-text" style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
             <img src="${imgData}" alt="Selfie" class="fade-img">
