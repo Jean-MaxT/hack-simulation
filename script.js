@@ -43,8 +43,8 @@ function fadeOutText(callback) {
     textElement.style.opacity = 0;
     setTimeout(() => {
         textElement.textContent = "";
-        textElement.style.transition = "";
-        textElement.style.opacity = 1;
+        textElement.style.transition = ""; // Réinitialise la transition pour éviter les interférences
+        textElement.style.opacity = 1; // Remet l'opacité à 1 pour la prochaine saisie
         callback();
     }, 500);
 }
@@ -53,32 +53,52 @@ async function showAnimation() {
     const { device, browser, os } = getDeviceInfo();
 
     const introBefore = selectedLang === 'fr'
-        ? ["Tu penses être protégé ? Voilà ce qu’on a trouvé :", `Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
-        : ["Denk je dat je beschermd bent? Dit hebben we gevonden:", `Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
+        ? ["Tu penses être protégé ?", `Voilà ce qu’on a trouvé :`, `Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
+        : ["Denk je dat je beschermd bent?", `Dit hebben we gevonden:`, `Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${result.browser.name}`];
 
     const introAfter = selectedLang === 'fr'
         ? ["Un hacker mettrait 30 secondes à faire pire.", "C’est pour ça qu’on a créé le Digital Service Pack."]
         : ["Een hacker zou erger doen in 30 seconden.", "Daarom hebben we de Digital Service Pack ontwikkeld."];
 
-    function showLines(lines, index, onComplete) {
-        if (index >= lines.length) return onComplete();
-        typeText(lines[index], () => {
-            setTimeout(() => showLines(lines, index + 1, onComplete), 1000);
-        });
+    async function showLinesSequentially(lines) {
+        for (let i = 0; i < lines.length; i++) {
+            await new Promise(resolve => {
+                typeText(lines[i], async () => { // Ajout de 'async' ici
+                    // Délai pour lire la phrase avant qu'elle ne commence à disparaître
+                    await new Promise(readDelay => setTimeout(readDelay, 900)); // Temps de lecture : 1.5 secondes (ajuste si besoin)
+
+                    if (i < lines.length - 1) {
+                        fadeOutText(resolve);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+            // Petit délai après le fondu pour un écran "vide" avant la prochaine saisie
+            if (i < lines.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
     }
 
-    showLines(introBefore, 0, () => {
-        fadeOutText(async () => {
-            await takeSelfie();
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            document.getElementById("selfieContainer").style.display = "none";
-            document.getElementById("text").style.display = "block";
-            textElement.textContent = "";
-            showLines(introAfter, 0, () => {
-                setTimeout(() => fadeOutText(showCard), 1000);
-            });
-        });
-    });
+    // Affiche la première séquence de lignes
+    await showLinesSequentially(introBefore);
+
+    // Fade out le dernier texte de introBefore avant de prendre le selfie
+    await new Promise(resolve => fadeOutText(resolve));
+    await new Promise(resolve => setTimeout(resolve, 500)); // Petit délai après le fondu
+
+    await takeSelfie();
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Délai après le selfie
+    document.getElementById("selfieContainer").style.display = "none";
+    document.getElementById("text").style.display = "block";
+    textElement.textContent = "";
+
+    // Affiche la deuxième séquence de lignes
+    await showLinesSequentially(introAfter);
+
+    // Fade out le dernier texte de introAfter avant de montrer la carte
+    await new Promise(resolve => setTimeout(() => fadeOutText(showCard), 1000));
 }
 
 function showCard() {

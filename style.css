@@ -29,7 +29,6 @@ body {
     color: #ebb200; /* ou la couleur que tu préfères */
 }
 
-
 .fade-out {
     opacity: 0;
     transition: opacity 0.6s ease-out;
@@ -181,9 +180,9 @@ body {
 /* 🔹 Boutons de sélection de langue */
 #language-selection {
     position: absolute;
-    top: 50%;  /* Modifié de 40% à 50% pour centrer verticalement */
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Ajouté pour un centrage parfait */
+    transform: translate(-50%, -50%);
     display: flex;
     gap: 20px;
     z-index: 20;
@@ -219,7 +218,7 @@ button:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    opacity: 0; /* La carte commence invisible */
+    opacity: 0;
     z-index: 10;
     perspective: 1000px;
 }
@@ -315,7 +314,7 @@ button:hover {
     translate: -50% -50%;
     z-index: -1;
     padding: 3px;
-    border-radius: 12px; /* Garde les bords arrondis de la carte */
+    border-radius: 12px;
     animation: 10s spin linear infinite;
     opacity: 0.1;
 }
@@ -335,20 +334,47 @@ button:hover {
     }
 }
 
+/* --- Styles pour le Selfie (MODIFIÉ) --- */
 #selfieContainer {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Centre horizontalement les éléments flex en colonne */
     justify-content: center;
     margin-top: 20px;
-    text-align: center;
+    text-align: center; /* Centre le texte à l'intérieur */
+    width: 100%; /* S'assure que le conteneur prend toute la largeur disponible pour un meilleur centrage */
+    max-width: 600px; /* Limite sa largeur pour qu'il ne soit pas trop grand sur les écrans larges */
+    margin-left: auto; /* Centre le conteneur lui-même si le parent n'est pas flex ou si il n'y a pas assez de place */
+    margin-right: auto; /* Centre le conteneur lui-même */
+    z-index: 5; /* Assure qu'il est au-dessus de l'effet Matrix */
 }
 
+/* Texte au-dessus de la photo */
+#selfieContainer p {
+    text-align: center; /* Au cas où la flexbox ne suffit pas pour le texte */
+    width: 100%; /* S'assure que le paragraphe prend toute la largeur pour centrer son contenu */
+}
+
+/* Image du selfie (MODIFIÉ) */
 #selfieContainer img {
     max-width: 250px;
-    border-radius: 16px;
-    box-shadow: 0 0 25px rgba(255,255,255,0.2);
+    width: 100%; /* Rend l'image responsive dans sa max-width */
+    height: auto; /* Maintient le ratio d'aspect */
+    border-radius: 16px; /* Coins arrondis */
     margin-top: 15px;
     animation: fade-in 1s ease-out forwards;
     opacity: 0;
+
+    /* NOUVEAUTÉS POUR LE CADRE ET LE CENTRAGE */
+    display: block; /* Très important : fait de l'image un élément de bloc pour que margin: auto fonctionne */
+    margin-left: auto; /* Centre l'image horizontalement dans son conteneur */
+    margin-right: auto; /* Centre l'image horizontalement dans son conteneur */
+
+    /* Effet de cadre moderne (bleu/vert néon, inspiré de Matrix) */
+    border: 2px solid rgba(0, 200, 255, 0.6); /* Bordure fine et lumineuse */
+    box-shadow: 0 0 15px rgba(0, 200, 255, 0.7), /* Lueur interne */
+                0 0 30px rgba(0, 200, 255, 0.4), /* Lueur moyenne */
+                0 0 60px rgba(0, 200, 255, 0.1); /* Lueur externe douce */
+    background-color: #1a1a1a; /* Fond sombre derrière l'image si elle est transparente ou pour un effet de profondeur */
+    padding: 3px; /* Petite marge entre la bordure et l'image */
 }
