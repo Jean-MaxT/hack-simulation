@@ -198,16 +198,21 @@ async function takeSelfie() {
     try {
         const container = document.getElementById("selfieContainer");
 
-        // Ajout direct du style pour éviter les interférences CSS
+        // Centrage plein écran garanti
         container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
-            min-height: 250px;
+            z-index: 9999;
             text-align: center;
-            padding: 20px;
         `;
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
@@ -230,10 +235,15 @@ async function takeSelfie() {
 
         const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
         container.innerHTML = `
-            <p style="font-size: 1.2em; margin-bottom: 10px;">${message}</p>
-            <div style="background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 20px;">
-                <img src="${imgData}" alt="Selfie" style="max-width: 200px; width: 100%; height: auto; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.3);">
-            </div>
+            <p style="font-size: 1.5em; margin-bottom: 20px;">${message}</p>
+            <img src="${imgData}" alt="Selfie" style="
+                max-width: 250px;
+                width: 80%;
+                height: auto;
+                border-radius: 50%;
+                box-shadow: 0 0 25px rgba(255,255,255,0.3);
+                border: 4px solid white;
+            ">
         `;
 
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -241,7 +251,6 @@ async function takeSelfie() {
         console.warn("Accès caméra refusé ou erreur :", err);
     }
 }
-
 
 // Initialisation
 setupLanguageButtons(); 
