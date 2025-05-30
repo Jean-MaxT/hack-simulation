@@ -151,7 +151,7 @@ async function showAnimation() {
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
+        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
@@ -162,12 +162,10 @@ async function showAnimation() {
     await new Promise(resolve => fadeOutText(resolve));
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const selfiePromise = takeSelfie(); 
-
     await typeMultiLines(deviceInfoPhrases);
-    await new Promise(resolve => fadeOutText(resolve));
+    await new Promise(resolve => fadeOutText(resolve)); // Attend que les infos de l'appareil s'affichent et disparaissent
 
-    const selfieDisplayed = await selfiePromise;
+    const selfieDisplayed = await takeSelfie(); // La prise de selfie ne commence qu'après
 
     if (selfieDisplayed) {
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -175,7 +173,6 @@ async function showAnimation() {
     } else {
         document.getElementById("selfieContainer").style.display = "none";
     }
-
 
     document.getElementById("text").style.display = "block";
     textElement.innerHTML = "";
