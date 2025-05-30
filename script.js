@@ -187,7 +187,7 @@ async function showChoices() {
 // Fonctions de gestion des choix
 async function handleIgnore() {
     console.log("handleIgnore: Choix Ignorer sélectionné");
-    
+
     fadeOutElement(choiceSelection, async () => { // Masquer les boutons de choix
         console.log("handleIgnore: choiceSelection masqué.");
         const symbol = '&#x2620;'; // Symbole de la tête de mort
@@ -196,8 +196,8 @@ async function handleIgnore() {
         document.getElementById('choice-result-symbol').innerHTML = symbol;
         document.getElementById('choice-result-symbol').style.color = 'red'; // Couleur rouge pour la tête de mort
         document.getElementById('choice-result-message').textContent = message;
-        
-        choiceResult.classList.remove('success', 'failure'); 
+
+        choiceResult.classList.remove('success', 'failure');
 
         choiceResult.style.display = 'flex'; // Assurer que le conteneur est en flex pour le layout
         choiceResult.classList.add('show'); // Afficher le résultat avec transition
@@ -207,7 +207,7 @@ async function handleIgnore() {
 
 async function handleProtect() {
     console.log("handleProtect: Choix Protéger sélectionné");
-    
+
     fadeOutElement(choiceSelection, async () => { // Masquer les boutons de choix
         console.log("handleProtect: choiceSelection masqué.");
         const symbol = '&#x1F6E1;'; // Symbole du bouclier (unicode emoji)
@@ -216,7 +216,7 @@ async function handleProtect() {
         document.getElementById('choice-result-symbol').innerHTML = symbol;
         document.getElementById('choice-result-symbol').style.color = 'green'; // Couleur verte pour le bouclier
         document.getElementById('choice-result-message').textContent = message;
-        
+
         choiceResult.classList.remove('success', 'failure');
 
         choiceResult.style.display = 'flex'; // Assurer que le conteneur est en flex pour le layout
@@ -235,23 +235,26 @@ async function showAnimation() {
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
+        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
         ? ["Un hacker mettrait 30 secondes à faire pire.", "C’est pour ça qu’on a créé le Digital Service Pack."]
         : ["Een hacker zou erger doen in 30 seconden.", "Daarom hebben we de Digital Service Pack ontwikkeld."];
 
-    textContainer.style.display = "block"; // S'assurer que le conteneur de texte est visible au début
+    // S'assurer que le conteneur de texte est visible au début de chaque séquence de texte
+    textContainer.style.display = "block";
+    textElement.innerHTML = ""; // Vider le contenu pour la première séquence
 
     await showLinesSequentially(initialPhrases);
     await new Promise(resolve => fadeOutText(resolve));
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    textContainer.style.display = "block"; // S'assurer qu'il est visible pour la suite
     await typeMultiLines(deviceInfoPhrases);
     await new Promise(resolve => fadeOutText(resolve));
 
-    const selfieContainer = document.getElementById("selfieContainer"); // Obtenir la référence ici
+    const selfieContainer = document.getElementById("selfieContainer");
     const selfieDisplayed = await takeSelfie();
 
     if (selfieDisplayed) {
@@ -314,17 +317,17 @@ function generateMatrixEffect() {
 
 async function startAnimation() {
     console.log("startAnimation: Démarrage (nettoyage précédent)");
-    
+
     // Réinitialiser la visibilité des conteneurs
     textContainer.style.display = "none";
-    textElement.innerHTML = ""; 
+    textElement.innerHTML = "";
 
     choiceSelection.classList.remove('show');
     choiceSelection.style.display = "none";
 
     choiceResult.classList.remove('show', 'success', 'failure');
     choiceResult.style.display = "none";
-    
+
     const selfieContainer = document.getElementById("selfieContainer");
     if (selfieContainer) {
         selfieContainer.style.display = "none";
@@ -340,8 +343,9 @@ async function takeSelfie() {
     const container = document.getElementById("selfieContainer");
     let selfieTaken = false;
 
-    container.innerHTML = "";
-
+    // Nettoyer le conteneur avant de commencer
+    container.innerHTML = ""; // AJOUTÉ POUR NETTOYER LE CONTENEUR
+    
     try {
         container.style.cssText = `
             position: fixed;
@@ -365,8 +369,7 @@ async function takeSelfie() {
         video.autoplay = true;
         video.playsInline = true;
         video.srcObject = stream;
-        video.style.maxWidth = "90vw";
-        video.style.borderRadius = "15px";
+        // Styles pour la vidéo gérés par le CSS (retiré d'ici)
         container.appendChild(video);
 
         await new Promise(resolve => {
@@ -393,8 +396,7 @@ async function takeSelfie() {
 
         const img = document.createElement("img");
         img.src = imageUrl;
-        img.style.maxWidth = "90vw";
-        img.style.borderRadius = "15px";
+        // Styles pour l'image gérés par le CSS (retiré d'ici)
         container.appendChild(img);
 
         selfieTaken = true;
