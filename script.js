@@ -5,69 +5,59 @@ async function getDeviceInfo() {
     let device = "Appareil inconnu";
     let os = "Système inconnu";
     let browser = "Navigateur inconnu";
-    let ipAddress = "N/A"; // Valeurs non encore utilisées
-    let batteryStatus = "N/A"; // Valeurs non encore utilisées
+
+    if (navigator.userAgentData) {
+        try {
+            const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['platformVersion', 'model']);
+
+            if (highEntropyValues.platform) {
+                os = `${highEntropyValues.platform} ${highEntropyValues.platformVersion || ""}`.trim();
+            }
+            if (highEntropyValues.model) {
+                device = highEntropyValues.model;
+            }
+
+            if (navigator.userAgentData.brands && navigator.userAgentData.brands.length > 0) {
+                const mainBrand = navigator.userAgentData.brands.find(brand => !brand.brand.includes('Chromium')) || navigator.userAgentData.brands[0];
+                browser = `${mainBrand.brand} ${mainBrand.version || ""}`.trim();
+            } else if (navigator.userAgentData.ua) {
+                const parser = new UAParser();
+                const result = parser.getResult();
+                browser = result.browser.name || "Navigateur inconnu";
+            }
+
+            if (device !== "Appareil inconnu" || os !== "Système inconnu") {
+                console.log("Infos appareil via Client Hints :", { device, os, browser });
+                return { device, browser, os };
+            }
+
+        } catch (error) {
+            console.warn("Erreur lors de la récupération des User-Agent Client Hints (tentative de fallback) :", error);
+        }
+    }
 
     const parser = new UAParser();
     const result = parser.getResult();
 
-    // Gestion de la marque ou du nom générique de l'appareil
-    if (result.device.vendor) {
-        const lowerVendor = result.device.vendor.toLowerCase();
-        if (lowerVendor.includes("apple")) {
-            device = "iPhone";
-        } else if (lowerVendor.includes("samsung")) {
-            device = "Samsung";
-        } else if (lowerVendor.includes("google")) {
-            device = "Google Pixel";
-        } else if (lowerVendor.includes("huawei")) {
-            device = "Huawei";
-        } else if (lowerVendor.includes("xiaomi") || lowerVendor.includes("redmi")) {
-            device = "Xiaomi";
-        } else if (lowerVendor.includes("oneplus")) {
-            device = "OnePlus";
-        } else if (lowerVendor.includes("oppo")) {
-            device = "Oppo";
-        } else if (lowerVendor.includes("vivo")) {
-            device = "Vivo";
-        } else if (lowerVendor.includes("lg")) {
-            device = "LG";
-        } else if (lowerVendor.includes("motorola")) {
-            device = "Motorola";
-        } else if (lowerVendor.includes("sony")) {
-            device = "Sony Xperia";
-        } else if (lowerVendor.includes("htc")) {
-            device = "HTC";
-        } else if (lowerVendor.includes("nokia")) {
-            device = "Nokia";
-        }
-        else {
-            device = result.device.vendor;
-        }
+    if (result.device.vendor && result.device.model) {
+        device = `${result.device.vendor} ${result.device.model}`;
+    } else if (result.device.model) {
+        device = result.device.model;
     } else if (result.os.name) {
         const osName = result.os.name.toLowerCase();
-        if (osName.includes("android")) {
-            device = "Appareil Android";
-        } else if (osName.includes("ios")) {
-            device = "iPhone";
-        } else if (osName.includes("windows")) {
-            device = "Appareil Windows";
-        } else if (osName.includes("mac os")) {
-            device = "Mac";
-        } else {
-            device = result.os.name;
-        }
+        if (osName.includes("android")) device = "Appareil Android";
+        else if (osName.includes("ios")) device = "iPhone";
+        else if (osName.includes("windows")) device = "Appareil Windows";
+        else if (osName.includes("mac os")) device = "Mac";
+        else device = result.os.name;
     }
 
-    // Détection du système d'exploitation
     os = result.os.name ? `${result.os.name} ${result.os.version || ""}`.trim() : "Système inconnu";
 
-    // Détection du navigateur
     browser = result.browser.name || "Navigateur inconnu";
 
-    // Retourne les informations détectées (sans networkType)
-    console.log("Infos appareil via UAParser.js (marque/générique) :", { device, browser, os, ipAddress, batteryStatus });
-    return { device, browser, os, ipAddress, batteryStatus };
+    console.log("Infos appareil via UAParser.js (fallback) :", { device, browser, os });
+    return { device, browser, os };
 }
 
 function typeText(textToType, callback, clearBefore = true) {
@@ -154,15 +144,14 @@ async function typeMultiLines(lines) {
 }
 
 async function showAnimation() {
-    // Les variables ipAddress et batteryStatus sont toujours retournées mais non affichées pour l'instant.
-    const { device, browser, os, ipAddress, batteryStatus } = await getDeviceInfo();
+    const { device, browser, os } = await getDeviceInfo();
 
     const initialPhrases = selectedLang === 'fr'
         ? ["Tu penses être protégé ?", "Voilà ce qu’on a trouvé :"]
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
+        ? [`Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
