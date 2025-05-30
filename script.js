@@ -147,11 +147,11 @@ async function showAnimation() {
     const { device, browser, os } = await getDeviceInfo();
 
     const initialPhrases = selectedLang === 'fr'
-        ? ["Tu penses être protégé ?", "Voilà ce qu’on a trouvé :"]
+        ? ["Tu penses être protégé ?", "Et pourtant voilà ce qu’on a récupéré de ton appareil…"]
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
+        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
@@ -162,10 +162,13 @@ async function showAnimation() {
     await new Promise(resolve => fadeOutText(resolve));
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    const selfiePromise = takeSelfie();
+
     await typeMultiLines(deviceInfoPhrases);
     await new Promise(resolve => fadeOutText(resolve));
 
-    const selfieDisplayed = await takeSelfie();
+    const selfieDisplayed = await selfiePromise;
+
 
     if (selfieDisplayed) {
         await new Promise(resolve => setTimeout(resolve, 2000));
