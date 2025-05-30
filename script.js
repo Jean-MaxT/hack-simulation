@@ -151,7 +151,7 @@ async function showAnimation() {
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
+        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
