@@ -162,13 +162,12 @@ async function showAnimation() {
     await new Promise(resolve => fadeOutText(resolve));
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const selfiePromise = takeSelfie();
+    const selfiePromise = takeSelfie(); 
 
     await typeMultiLines(deviceInfoPhrases);
     await new Promise(resolve => fadeOutText(resolve));
 
     const selfieDisplayed = await selfiePromise;
-
 
     if (selfieDisplayed) {
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -176,6 +175,7 @@ async function showAnimation() {
     } else {
         document.getElementById("selfieContainer").style.display = "none";
     }
+
 
     document.getElementById("text").style.display = "block";
     textElement.innerHTML = "";
