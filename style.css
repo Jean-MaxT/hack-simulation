@@ -338,7 +338,7 @@ button:hover {
     height: auto;
     border-radius: 16px;
     border: none;
-    box-shadow: 0 0 15px #ffffff,
+    box-shadow: 0 0 15px #ffffff;
     background-color: transparent;
     padding: 0;
     display: block;
