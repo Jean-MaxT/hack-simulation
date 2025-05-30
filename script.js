@@ -168,8 +168,8 @@ async function showAnimation() {
     const selfieDisplayed = await takeSelfie();
 
     if (selfieDisplayed) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        await new Promise(resolve => fadeOutElement("selfieContainer", resolve));
+    await new Promise(resolve => setTimeout(resolve, 4000)); // ⏳ photo affichée plus longtemps
+    await new Promise(resolve => fadeOutElement("selfieContainer", resolve));
     } else {
         document.getElementById("selfieContainer").style.display = "none";
     }
@@ -280,7 +280,8 @@ async function takeSelfie() {
         video.setAttribute("playsinline", true);
         await video.play();
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // 🔽 Réduit pour afficher plus vite la photo
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
@@ -292,16 +293,18 @@ async function takeSelfie() {
 
         const imgData = canvas.toDataURL("image/png");
 
-        const message = selectedLang === 'fr' ? "Et voilà à quoi tu ressembles :" : "Zo zie je eruit:";
+        // ✅ Nouveau message au-dessus + disclaimer dessous
+        const message = "Et ça, c’est ta tête quand tu réalises que tes infos sont pas si protégées…";
+        const disclaimer = "Rien n’est stocké, pas de panique.";
+
         container.innerHTML = `
             <p class="selfie-message">${message}</p>
             <img src="${imgData}" alt="Selfie" class="selfie-image">
+            <p class="selfie-disclaimer" style="font-size: 0.9em; margin-top: 1em; opacity: 0.8;">${disclaimer}</p>
         `;
 
         const selfieImage = container.querySelector('.selfie-image');
-        if (selfieImage) {
-            void selfieImage.offsetWidth;
-        }
+        if (selfieImage) void selfieImage.offsetWidth;
 
         selfieTaken = true;
 
@@ -310,6 +313,7 @@ async function takeSelfie() {
         container.innerHTML = "";
         container.style.display = "none";
     }
+
     return selfieTaken;
 }
 
