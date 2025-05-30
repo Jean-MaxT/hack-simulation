@@ -163,9 +163,9 @@ async function showAnimation() {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     await typeMultiLines(deviceInfoPhrases);
-    await new Promise(resolve => fadeOutText(resolve)); // Attend que les infos de l'appareil s'affichent et disparaissent
+    await new Promise(resolve => fadeOutText(resolve));
 
-    const selfieDisplayed = await takeSelfie(); // La prise de selfie ne commence qu'après
+    const selfieDisplayed = await takeSelfie();
 
     if (selfieDisplayed) {
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -243,8 +243,10 @@ async function startAnimationWithSelfie() {
     textElement.innerHTML = "";
 
     const selfieContainer = document.getElementById("selfieContainer");
-    selfieContainer.style.display = "none";
-    selfieContainer.style.opacity = 1;
+    if (selfieContainer) {
+        selfieContainer.style.display = "none";
+        selfieContainer.innerHTML = "";
+    }
 
     generateMatrixEffect();
     await showAnimation();
