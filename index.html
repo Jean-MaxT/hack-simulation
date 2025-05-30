@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FNAC Reward</title>
+    <title>FNAC Digital Security</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="66d9339e-9b63-40c9-907e-46eb659c0a4b"></script>
@@ -14,29 +14,26 @@
 </head>
 <body>
     <div class="matrix" id="matrix-container"></div>
+    
+    <div class="logo-no-glitch"></div>
+    <div class="logo-glitch" style="display: none;"></div>
+
     <div id="language-selection">
         <button id="btn-fr" aria-label="Français">Français</button>
         <button id="btn-nl" aria-label="Nederlands">Nederlands</button>
     </div>
 
-    <div class="logo-no-glitch"></div>
-
     <div id="text" style="display: none;">
         <span id="content" class="glitch"></span><span class="cursor"></span>
     </div>
-
-    <div class="logo-glitch" style="display: none;"></div>
     
     <div id="selfieContainer" style="margin-top: 20px;"></div>
 
-    <div id="rewardCard" style="display: none;">
-        <div id="cardInner">
-            <div class="card card-front">
-                <span id="card-text">Clique ici et présente cette carte à un vendeur</span> </div>
-            <div class="card card-back">
-                PASS ACCESS DSP
-            </div>
+    <div id="choice-selection">
         </div>
+    <div id="choice-result">
+        <span id="choice-result-symbol"></span>
+        <span id="choice-result-message"></span>
     </div>
 
     <script src="script.js"></script>
