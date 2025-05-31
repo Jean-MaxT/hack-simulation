@@ -288,50 +288,6 @@ body {
     padding: 0 10px;
 }
 
-/* MEDIA QUERIES pour le responsive */
-@media (max-width: 768px) {
-    /* Boutons de langue sur mobile */
-    #language-selection {
-        flex-direction: column;
-        gap: 10px;
-        width: 90%;
-        align-items: center;
-    }
-    #language-selection button {
-        width: 150px;
-        height: 50px;
-        font-size: 1.2rem;
-        padding: 10px 15px;
-    }
-
-    /* Boutons de choix sur mobile */
-    #choice-selection {
-        flex-direction: column;
-        gap: 15px;
-        max-width: unset;
-    }
-    #choice-selection button {
-        width: 100%;
-        max-width: 300px;
-        min-height: 70px;
-        font-size: 1.3rem;
-        padding: 15px 25px;
-    }
-
-    .choice-prompt {
-        font-size: 1.8rem;
-    }
-    #choice-result {
-        font-size: 2.5rem;
-    }
-    #choice-result-symbol {
-        font-size: 5rem;
-    }
-    #choice-result-message {
-        font-size: 1.5rem;
-    }
-}
-
 /* NOUVEAUX STYLES POUR LE SELFIE ET SON CADRE */
 
 /* Styles pour le conteneur de la selfie, qui sert d'overlay plein écran */
@@ -348,7 +304,7 @@ body {
     justify-content: center;
     color: white;
     text-align: center;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: transparent; /* MODIFIÉ: Rend le fond transparent pour voir le matrix */
     opacity: 0;
     transition: opacity 0.8s ease-in-out; /* Transition pour le fade-in/fade-out */
 }
@@ -360,24 +316,29 @@ body {
 
 /* NOUVEAU : Styles pour le cadre intérieur de la selfie (maintenant juste un conteneur de contenu) */
 .selfie-frame {
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.7); /* MODIFIÉ: Le cadre lui-même a un fond sombre */
     padding: 30px;
-    max-width: 600px;
-    width: 90%;
+    max-width: 450px; /* MODIFIÉ: Rétrécit la largeur max */
+    max-height: 450px; /* MODIFIÉ: Ajoute une hauteur max pour le rendre plus carré */
+    width: 80%; /* MODIFIÉ: Ajuste la largeur relative */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 15px;
+    border-radius: 15px; /* MODIFIÉ: Bords un peu plus arrondis */
+    aspect-ratio: 1 / 1; /* AJOUTÉ: FORCE le ratio 1:1 pour un cadre carré */
+    overflow: hidden; /* AJOUTÉ: Cache tout ce qui dépasse si l'image est trop grande */
 }
 
 /* Styles pour l'image à l'intérieur du cadre selfie (maintenant avec le cadre) */
 #selfieContainer img.selfie-image {
     display: block;
     max-width: 100%;
-    height: auto;
-    border-radius: 10px;
+    max-height: 70%; /* MODIFIÉ: Ajuste la hauteur de l'image pour laisser de la place aux textes */
+    object-fit: contain; /* AJOUTÉ: S'assure que l'image s'ajuste sans être coupée */
+    border-radius: 8px; /* MODIFIÉ: Bords arrondis pour l'image */
     margin: 0;
 
     /* Styles du cadre autour de l'image */
@@ -403,19 +364,75 @@ body {
     padding: 0 10px;
 }
 
-/* Media Queries pour le responsive des textes et du cadre de la selfie */
+/* MEDIA QUERIES pour le responsive */
 @media (max-width: 768px) {
+    /* Boutons de langue sur mobile */
+    #language-selection {
+        flex-direction: column; /* Garde en colonne */
+        gap: 10px;
+        width: 90%;
+        align-items: center;
+    }
+    /* S'assurer que le bouton FR est au-dessus du NL */
+    #language-selection button:first-child { /* Cible le premier bouton (FR) */
+        order: -1; /* Le place en premier dans l'ordre flex */
+    }
+    #language-selection button {
+        width: 150px;
+        height: 50px;
+        font-size: 1.2rem;
+        padding: 10px 15px;
+    }
+
+    /* Boutons de choix sur mobile */
+    #choice-selection {
+        flex-direction: column;
+        gap: 15px;
+        max-width: unset;
+    }
+    #choice-selection button {
+        width: 100%; /* S'assure qu'ils prennent toute la largeur disponible */
+        max-width: 300px; /* ou la largeur souhaitée */
+        min-height: 70px;
+        font-size: 1.3rem;
+        padding: 15px 25px;
+        /* AJOUTÉ: Assure que le contenu est bien au centre et que toute la zone est cliquable */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        white-space: normal; /* AJOUTÉ: Permet au texte de passer à la ligne */
+    }
+
+    .choice-prompt {
+        font-size: 1.8rem;
+    }
+    #choice-result {
+        font-size: 2.5rem;
+    }
+    #choice-result-symbol {
+        font-size: 5rem;
+    }
+    #choice-result-message {
+        font-size: 1.5rem;
+    }
+
+    /* Media Queries pour le responsive des textes et du cadre de la selfie */
     .selfie-frame {
         padding: 20px;
         max-width: 95%;
+        max-height: 95vw; /* MODIFIÉ: Ajuste pour les petits écrans */
+        width: 90%;
+        height: 90vw; /* AJOUTÉ: Ajuste la hauteur relative pour un ratio plus carré sur mobile aussi */
     }
     .selfie-message {
-        font-size: 1.8rem;
+        font-size: 1.6rem; /* MODIFIÉ: Légèrement plus petit sur mobile */
     }
     .selfie-disclaimer {
-        font-size: 1rem;
+        font-size: 0.9rem; /* MODIFIÉ: Légèrement plus petit sur mobile */
     }
     #selfieContainer img.selfie-image {
         padding: 3px;
+        max-height: 65%; /* MODIFIÉ: Ajuste la hauteur de l'image sur mobile */
     }
 }
