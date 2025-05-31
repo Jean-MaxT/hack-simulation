@@ -303,22 +303,23 @@ body {
 }
 
 .selfie-frame {
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.7);
     padding: 0;
-    max-width: 500px;
-    max-height: 500px;
+    max-width: 495px;
+    max-height: 495px;
     width: 85%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 0;
     border-radius: 15px;
     aspect-ratio: 1 / 1;
     overflow: hidden;
     box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5);
     transition: box-shadow 0.8s ease-out;
+    position: relative;
 }
 
 #selfieContainer img.selfie-image {
@@ -340,7 +341,7 @@ body {
     margin-bottom: 0;
     padding: 0 10px;
     position: absolute;
-    top: 10%;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -354,7 +355,7 @@ body {
     margin-top: 0;
     padding: 0 10px;
     position: absolute;
-    bottom: 10%;
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -412,19 +413,19 @@ body {
 
     .selfie-frame {
         padding: 0;
-        max-width: 95%;
-        max-height: 95vw;
+        max-width: 90%;
+        max-height: 90vw;
         width: 90%;
         height: 90vw;
         box-shadow: 0 0 30px 15px rgba(255, 255, 255, 0.4);
     }
     .selfie-message {
         font-size: 1.6rem;
-        top: 8%;
+        top: 5%;
     }
     .selfie-disclaimer {
         font-size: 0.9rem;
-        bottom: 8%;
+        bottom: 5%;
     }
     #selfieContainer img.selfie-image {
         padding: 0;
