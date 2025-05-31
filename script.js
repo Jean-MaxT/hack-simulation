@@ -347,7 +347,7 @@ async function showAnimation() {
     const selfieDisplayed = await takeSelfie();
 
     if (selfieDisplayed) {
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         await new Promise(resolve => fadeOutElement(selfieContainer, () => {
             selfieContainer.innerHTML = "";
             resolve();
