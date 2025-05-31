@@ -64,6 +64,12 @@ body {
     animation: matrixAnim 0.5s linear infinite;
 }
 
+@keyframes matrixAnim {
+    0% { opacity: 0; transform: translateY(0px); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}
+
 .matrix-number {
     position: absolute;
     font-size: 1.5rem;
@@ -72,16 +78,37 @@ body {
     animation: flicker 1s infinite alternate ease-in-out;
 }
 
-@keyframes matrixAnim {
-    0% { opacity: 0; transform: translateY(0px); }
-    50% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(20px); }
-}
-
 @keyframes flicker {
     0% { opacity: 0.2; }
     50% { opacity: 1; }
     100% { opacity: 0.2; }
+}
+
+@media (max-width: 768px) {
+    #text {
+        font-size: 2rem;
+        max-width: 90%;
+        margin-top: 0;
+    }
+
+    .cursor {
+        height: 24px;
+    }
+
+    .matrix span {
+        font-size: 1rem;
+    }
+
+    .matrix-number {
+        font-size: 1.2rem;
+    }
+    #text {
+        font-size: 1.8rem;
+    }
+
+    .cursor {
+        height: 20px;
+    }
 }
 
 .logo-no-glitch {
@@ -95,21 +122,6 @@ body {
     top: 20px;
     left: 20px;
     z-index: 10;
-}
-
-.logo-glitch {
-    width: 100px;
-    height: 100px;
-    background-image: url('logo_fnac.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 10;
-    display: none;
-    animation: glitchLogo 2.5s infinite steps(1);
 }
 
 @keyframes glitchLogo {
@@ -127,19 +139,37 @@ body {
     }
 }
 
-#language-selection {
+.logo-glitch {
+    width: 100px;
+    height: 100px;
+    background-image: url('logo_fnac.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    display: none;
+    animation: glitchLogo 2.5s infinite steps(1);
+}
+
+#language-selection,
+#choice-selection {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
-    flex-direction: row;
     gap: 20px;
     z-index: 20;
     padding: 20px;
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
+}
+
+#language-selection {
     opacity: 0;
     transition: opacity 0.5s ease-in;
 }
@@ -148,71 +178,13 @@ body {
     opacity: 1;
 }
 
-#language-selection button {
-    width: 200px;
-    height: 60px;
-    padding: 15px 25px;
-    border: 2px solid white;
-    background-color: transparent;
-    color: white;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-    text-align: center;
-    line-height: 1.2;
-    position: relative;
-    z-index: 21;
-    white-space: nowrap;
-    margin: 5px;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    outline: none;
-}
-
-#language-selection button:hover,
-#language-selection button:active,
-#choice-selection button:hover,
-#choice-selection button:active {
-    background-color: white;
-    color: black;
-}
-
-#language-selection button span {
-    display: block;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+#language-selection {
+    flex-direction: row;
 }
 
 #choice-selection {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 20px;
-    z-index: 20;
-    padding: 20px;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
     max-width: 800px;
 }
 
@@ -220,12 +192,9 @@ body {
     opacity: 1;
 }
 
+#language-selection button,
 #choice-selection button {
-    flex-grow: 1;
-    min-width: 350px;
-    min-height: 90px;
-    max-width: 45%;
-    padding: 20px 30px;
+    padding: 15px 25px;
     border: 2px solid white;
     background-color: transparent;
     color: white;
@@ -241,31 +210,40 @@ body {
     line-height: 1.2;
     position: relative;
     z-index: 21;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    outline: none;
 }
 
-#choice-selection button:hover {
-    background-color: white;
-    color: black;
-}
-
+#language-selection button span,
 #choice-selection button span {
+    pointer-events: none;
     display: block;
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+}
+
+#language-selection button:hover,
+#language-selection button:active,
+#choice-selection button:hover,
+#choice-selection button:active {
+    background-color: white;
+    color: black;
+}
+
+#language-selection button {
+    width: 200px;
+    height: 60px;
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
+#choice-selection button {
+    flex-grow: 1;
+    min-width: 350px;
+    min-height: 90px;
+    max-width: 45%;
+    padding: 20px 30px;
 }
 
 .choice-prompt {
@@ -354,7 +332,6 @@ body {
     gap: 20px;
     border-radius: 15px;
     overflow: visible;
-    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5);
     transition: box-shadow 0.8s ease-out;
     position: relative;
 }
@@ -399,49 +376,27 @@ body {
 }
 
 @media (max-width: 768px) {
-    #text {
-        font-size: 1.8rem;
-        max-width: 90%;
-        margin-top: 0;
-    }
-
-    .cursor {
-        height: 20px;
-    }
-
-    .matrix span {
-        font-size: 1rem;
-    }
-
-    .matrix-number {
-        font-size: 1.2rem;
-    }
-
     #language-selection {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
         width: 90%;
         align-items: center;
-        padding: 30px;
-    }
-    
-    #language-selection button {
-        width: 180px;
-        height: 55px;
-        font-size: 1.2rem;
-        padding: 15px 20px;
-        margin: 8px 0;
-        min-height: 55px;
-        box-sizing: border-box;
     }
     
     #language-selection button:first-child {
         order: -1;
-        margin-bottom: 15px;
     }
     
-    #language-selection button:last-child {
-        margin-top: 15px;
+    #language-selection button {
+        width: 150px;
+        height: 50px;
+        font-size: 1.2rem;
+        padding: 10px 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        white-space: nowrap;
     }
 
     #choice-selection {
@@ -456,6 +411,10 @@ body {
         min-height: 70px;
         font-size: 1.3rem;
         padding: 15px 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
         white-space: normal;
     }
 
@@ -479,7 +438,6 @@ body {
         padding: 0;
         max-width: 95%;
         width: 90%;
-        box-shadow: 0 0 30px 15px rgba(255, 255, 255, 0.4);
         gap: 15px;
     }
     
