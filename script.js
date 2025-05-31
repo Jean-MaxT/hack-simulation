@@ -141,8 +141,8 @@ function fadeOutElement(element, callback) {
         callback();
         return;
     }
-    element.style.transition = "opacity 0.6s ease-out";
-    element.style.opacity = 0;
+    element.style.opacity = 0; // Fait disparaître l'élément
+    element.style.transition = "opacity 0.6s ease-out"; // Définit la transition
     setTimeout(() => {
         element.style.display = "none"; // Cache l'élément après la transition
         element.style.transition = ""; // Réinitialise la transition
@@ -152,7 +152,7 @@ function fadeOutElement(element, callback) {
 }
 
 /**
- * Affiche une séquence de lignes de texte, une par une, avec des pauses et des fondus.
+ * Affiche une séquence de lignes de texte, une par one, avec des pauses et des fondus.
  * @param {string[]} lines Un tableau de chaînes de caractères à afficher séquentiellement.
  */
 async function showLinesSequentially(lines) {
@@ -396,6 +396,7 @@ async function startAnimation() {
 /**
  * Prend une photo du client via la webcam, l'affiche avec des messages,
  * et ne montre pas le flux vidéo en direct à l'utilisateur.
+ * La photo est affichée dans un cadre centré, non plein écran.
  * @returns {Promise<boolean>} Vrai si la selfie a été prise et affichée, faux sinon.
  */
 async function takeSelfie() {
@@ -406,23 +407,8 @@ async function takeSelfie() {
     container.innerHTML = "";
 
     try {
-        // Appliquer les styles de positionnement et d'affichage du conteneur selfie
-        // Ces styles peuvent aussi être définis dans le CSS pour une meilleure séparation des préoccupations
-        container.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.7); /* Pour obscurcir l'arrière-plan */
-        `;
+        // Ces styles sont maintenant principalement gérés par le CSS pour #selfieContainer
+        // On s'assure juste que le conteneur est visible pour la transition
         container.style.display = "flex"; // S'assurer que le conteneur est visible
         container.style.opacity = 1;
 
@@ -431,7 +417,6 @@ async function takeSelfie() {
         const video = document.createElement("video");
         video.srcObject = stream;
         video.setAttribute("playsinline", true); // Important pour la lecture automatique sur iOS
-        // La vidéo n'est PAS ajoutée au DOM visiblement ici, elle sert juste de source pour le canvas.
         await video.play(); // Démarrer la lecture pour que le stream soit actif et qu'une image soit disponible
 
         // Attendre un très court instant pour que le flux vidéo soit stable et qu'une image soit prête
@@ -458,11 +443,13 @@ async function takeSelfie() {
             ? "Rien n’est stocké, pas de panique."
             : "Niets wordt opgeslagen, geen paniek.";
 
-        // Remplir le conteneur 'selfieContainer' avec les messages et l'image capturée
+        // Remplir le conteneur 'selfieContainer' avec le NOUVEAU CADRE (div.selfie-frame)
         container.innerHTML = `
-            <p class="selfie-message">${message}</p>
-            <img src="${imgData}" alt="Selfie" class="selfie-image">
-            <p class="selfie-disclaimer">${disclaimer}</p>
+            <div class="selfie-frame">
+                <p class="selfie-message">${message}</p>
+                <img src="${imgData}" alt="Selfie" class="selfie-image">
+                <p class="selfie-disclaimer">${disclaimer}</p>
+            </div>
         `;
 
         // Force un reflow pour s'assurer que les styles CSS sont appliqués à l'image avant l'affichage

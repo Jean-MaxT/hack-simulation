@@ -331,3 +331,82 @@ body {
         font-size: 1.5rem;
     }
 }
+
+/* --- NOUVEAUX STYLES POUR LE SELFIE ET SON CADRE --- */
+
+/* Styles pour le conteneur de la selfie, qui sert d'overlay plein écran */
+#selfieContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: none;
+    flex-direction: column; /* Pour centrer le cadre verticalement */
+    align-items: center;    /* Pour centrer le cadre horizontalement */
+    justify-content: center; /* Pour centrer le cadre verticalement */
+    color: white;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7); /* Overlay semi-transparent */
+    transition: opacity 0.6s ease-out;
+}
+
+/* NOUVEAU : Styles pour le cadre intérieur de la selfie */
+.selfie-frame {
+    background-color: black; /* Fond du cadre */
+    border: 2px solid white; /* Bordure blanche pour le cadre */
+    border-radius: 15px; /* Bords arrondis pour le cadre */
+    padding: 30px; /* Espacement intérieur du cadre */
+    max-width: 600px; /* Largeur maximale du cadre (similaire au conteneur de texte) */
+    width: 90%; /* Largeur responsive du cadre */
+    box-sizing: border-box; /* Inclut le padding et la bordure dans la largeur/hauteur */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Espace entre les éléments à l'intérieur du cadre (message, image, disclaimer) */
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); /* Ombre plus prononcée pour le cadre */
+}
+
+/* Styles pour l'image à l'intérieur du cadre selfie */
+#selfieContainer img.selfie-image {
+    display: block; /* Supprime l'espace blanc sous l'image */
+    max-width: 100%; /* L'image prend 100% de la largeur de son parent (.selfie-frame) */
+    height: auto; /* Maintient le ratio d'aspect de l'image */
+    border-radius: 10px; /* Bords légèrement arrondis pour l'image elle-même */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Légère ombre pour l'image */
+    margin: 0; /* Réinitialise les marges, le 'gap' du parent gère l'espacement */
+}
+
+/* Styles pour le message au-dessus de la photo */
+.selfie-message {
+    font-size: 2.2rem; /* Grande taille pour le message principal */
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0; /* Le 'gap' du parent gère l'espacement */
+    padding: 0 10px; /* Padding pour éviter que le texte ne touche les bords sur mobile */
+}
+
+/* Styles pour le disclaimer en dessous de la photo */
+.selfie-disclaimer {
+    font-size: 1.2rem; /* Taille plus petite pour le disclaimer */
+    color: rgba(255, 255, 255, 0.8); /* Couleur légèrement estompée */
+    margin-top: 0; /* Le 'gap' du parent gère l'espacement */
+    padding: 0 10px;
+}
+
+/* Media Queries pour le responsive des textes et du cadre de la selfie */
+@media (max-width: 768px) {
+    .selfie-frame {
+        padding: 20px;
+        max-width: 95%; /* Ajuste la largeur max du cadre sur les petits écrans */
+    }
+    .selfie-message {
+        font-size: 1.8rem;
+    }
+    .selfie-disclaimer {
+        font-size: 1rem;
+    }
+    /* L'image s'adaptera automatiquement à la largeur du cadre */
+}
