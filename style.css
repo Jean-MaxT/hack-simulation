@@ -154,7 +154,6 @@ body {
     animation: glitchLogo 2.5s infinite steps(1);
 }
 
-/* Styles des conteneurs de boutons (langue et choix) */
 #language-selection,
 #choice-selection {
     position: absolute;
@@ -170,7 +169,6 @@ body {
     align-items: center;
 }
 
-/* Ajout pour le fondu d'apparition de la sélection de langue */
 #language-selection {
     opacity: 0;
     transition: opacity 0.5s ease-in;
@@ -193,7 +191,6 @@ body {
     opacity: 1;
 }
 
-/* Styles Génériques des boutons */
 #language-selection button,
 #choice-selection button {
     padding: 15px 25px;
@@ -213,22 +210,18 @@ body {
     line-height: 1.2;
 }
 
-/* Hover commun pour tous les boutons */
 #language-selection button:hover,
 #choice-selection button:hover {
     background-color: white;
     color: black;
 }
 
-/* Styles Spécifiques pour les boutons de langue */
 #language-selection button {
     width: 200px;
     height: 60px;
-    white-space: nowrap;
     font-size: 1.5rem;
 }
 
-/* Styles Spécifiques pour les boutons de choix */
 #choice-selection button {
     flex-grow: 1;
     min-width: 350px;
@@ -246,7 +239,6 @@ body {
     width: 100%;
 }
 
-/* Styles pour le résultat après choix */
 #choice-result {
     position: absolute;
     top: 50%;
@@ -288,9 +280,6 @@ body {
     padding: 0 10px;
 }
 
-/* NOUVEAUX STYLES POUR LE SELFIE ET SON CADRE */
-
-/* Styles pour le conteneur de la selfie, qui sert d'overlay plein écran */
 #selfieContainer {
     position: fixed;
     top: 0;
@@ -304,77 +293,84 @@ body {
     justify-content: center;
     color: white;
     text-align: center;
-    background-color: transparent; /* MODIFIÉ: Rend le fond transparent pour voir le matrix */
+    background-color: transparent;
     opacity: 0;
-    transition: opacity 0.8s ease-in-out; /* Transition pour le fade-in/fade-out */
+    transition: opacity 0.8s ease-in-out;
 }
 
-/* Classe pour déclencher le fondu d'apparition du selfieContainer */
 #selfieContainer.show-selfie {
     opacity: 1;
 }
 
-/* NOUVEAU : Styles pour le cadre intérieur de la selfie (maintenant juste un conteneur de contenu) */
 .selfie-frame {
-    background-color: rgba(0, 0, 0, 0.7); /* MODIFIÉ: Le cadre lui-même a un fond sombre */
-    padding: 30px;
-    max-width: 450px; /* MODIFIÉ: Rétrécit la largeur max */
-    max-height: 450px; /* MODIFIÉ: Ajoute une hauteur max pour le rendre plus carré */
-    width: 80%; /* MODIFIÉ: Ajuste la largeur relative */
+    background-color: transparent;
+    padding: 0;
+    max-width: 500px;
+    max-height: 500px;
+    width: 85%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 15px;
-    border-radius: 15px; /* MODIFIÉ: Bords un peu plus arrondis */
-    aspect-ratio: 1 / 1; /* AJOUTÉ: FORCE le ratio 1:1 pour un cadre carré */
-    overflow: hidden; /* AJOUTÉ: Cache tout ce qui dépasse si l'image est trop grande */
+    border-radius: 15px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5);
+    transition: box-shadow 0.8s ease-out;
 }
 
-/* Styles pour l'image à l'intérieur du cadre selfie (maintenant avec le cadre) */
 #selfieContainer img.selfie-image {
     display: block;
-    max-width: 100%;
-    max-height: 70%; /* MODIFIÉ: Ajuste la hauteur de l'image pour laisser de la place aux textes */
-    object-fit: contain; /* AJOUTÉ: S'assure que l'image s'ajuste sans être coupée */
-    border-radius: 8px; /* MODIFIÉ: Bords arrondis pour l'image */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
     margin: 0;
-
-    /* Styles du cadre autour de l'image */
-    border: 2px solid white;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    border: none;
+    box-shadow: none;
+    padding: 0;
 }
 
-/* Styles pour le message au-dessus de la photo */
 .selfie-message {
     font-size: 2.2rem;
     font-weight: bold;
     color: white;
     margin-bottom: 0;
     padding: 0 10px;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    text-shadow: 0 0 10px black;
+    z-index: 10;
 }
 
-/* Styles pour le disclaimer en dessous de la photo */
 .selfie-disclaimer {
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.8);
     margin-top: 0;
     padding: 0 10px;
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    text-shadow: 0 0 10px black;
+    z-index: 10;
 }
 
-/* MEDIA QUERIES pour le responsive */
 @media (max-width: 768px) {
-    /* Boutons de langue sur mobile */
     #language-selection {
-        flex-direction: column; /* Garde en colonne */
+        flex-direction: column;
         gap: 10px;
         width: 90%;
         align-items: center;
     }
-    /* S'assurer que le bouton FR est au-dessus du NL */
-    #language-selection button:first-child { /* Cible le premier bouton (FR) */
-        order: -1; /* Le place en premier dans l'ordre flex */
+    #language-selection button:first-child {
+        order: -1;
     }
     #language-selection button {
         width: 150px;
@@ -383,24 +379,22 @@ body {
         padding: 10px 15px;
     }
 
-    /* Boutons de choix sur mobile */
     #choice-selection {
         flex-direction: column;
         gap: 15px;
         max-width: unset;
     }
     #choice-selection button {
-        width: 100%; /* S'assure qu'ils prennent toute la largeur disponible */
-        max-width: 300px; /* ou la largeur souhaitée */
+        width: 100%;
+        max-width: 300px;
         min-height: 70px;
         font-size: 1.3rem;
         padding: 15px 25px;
-        /* AJOUTÉ: Assure que le contenu est bien au centre et que toute la zone est cliquable */
         display: flex;
         justify-content: center;
         align-items: center;
         text-align: center;
-        white-space: normal; /* AJOUTÉ: Permet au texte de passer à la ligne */
+        white-space: normal;
     }
 
     .choice-prompt {
@@ -416,22 +410,23 @@ body {
         font-size: 1.5rem;
     }
 
-    /* Media Queries pour le responsive des textes et du cadre de la selfie */
     .selfie-frame {
-        padding: 20px;
+        padding: 0;
         max-width: 95%;
-        max-height: 95vw; /* MODIFIÉ: Ajuste pour les petits écrans */
+        max-height: 95vw;
         width: 90%;
-        height: 90vw; /* AJOUTÉ: Ajuste la hauteur relative pour un ratio plus carré sur mobile aussi */
+        height: 90vw;
+        box-shadow: 0 0 30px 15px rgba(255, 255, 255, 0.4);
     }
     .selfie-message {
-        font-size: 1.6rem; /* MODIFIÉ: Légèrement plus petit sur mobile */
+        font-size: 1.6rem;
+        top: 8%;
     }
     .selfie-disclaimer {
-        font-size: 0.9rem; /* MODIFIÉ: Légèrement plus petit sur mobile */
+        font-size: 0.9rem;
+        bottom: 8%;
     }
     #selfieContainer img.selfie-image {
-        padding: 3px;
-        max-height: 65%; /* MODIFIÉ: Ajuste la hauteur de l'image sur mobile */
+        padding: 0;
     }
 }
