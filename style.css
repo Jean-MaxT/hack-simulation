@@ -173,6 +173,7 @@ body {
     opacity: 0;
     transition: opacity 0.5s ease-in;
 }
+
 #language-selection.show {
     opacity: 1;
 }
@@ -206,7 +207,20 @@ body {
     align-items: center;
     transition: all 0.3s ease;
     text-align: center;
-    line-height: 1.2; /* Permet au texte de s'étaler */
+    line-height: 1.2;
+    position: relative;
+    z-index: 21;
+}
+
+#language-selection button span,
+#choice-selection button span {
+    pointer-events: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #language-selection button:hover,
@@ -219,7 +233,7 @@ body {
     width: 200px;
     height: 60px;
     font-size: 1.5rem;
-    white-space: nowrap; /* Ajouté pour les boutons de langue, pour éviter des coupures inattendues sur certains navigateurs. */
+    white-space: nowrap;
 }
 
 #choice-selection button {
@@ -305,63 +319,59 @@ body {
 .selfie-frame {
     background-color: transparent;
     padding: 0;
-    max-width: 500px; /* Taille plus raisonnable pour l'ensemble */
-    max-height: 500px; /* Garde la forme carrée */
+    max-width: 500px;
+    max-height: 500px;
     width: 85%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0;
+    gap: 20px;
     border-radius: 15px;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5); /* Effet de lumière */
+    overflow: visible;
+    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5);
     transition: box-shadow 0.8s ease-out;
-    position: relative; /* Indispensable pour les enfants positionnés absolument */
-}
-
-#selfieContainer img.selfie-image {
-    display: block;
-    width: 100%;
-    height: 100%; /* L'image remplit la totalité du cadre principal */
-    object-fit: cover; /* Recouvre sans bandes noires, peut couper un peu */
-    border-radius: 15px; /* Coins arrondis pour la photo */
-    margin: 0;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    background-color: transparent; /* Assure pas de fond propre à l'image */
+    position: relative;
 }
 
 .selfie-message {
     font-size: 2.2rem;
     font-weight: bold;
     color: white;
-    padding: 10px 20px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Bande noire semi-transparente pour le texte */
-    text-shadow: 0 0 10px black;
+    padding: 15px 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    order: 1;
     z-index: 10;
-    box-sizing: border-box;
+}
+
+#selfieContainer img.selfie-image {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 15px;
+    margin: 0;
+    border: 3px solid white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    order: 2;
 }
 
 .selfie-disclaimer {
     font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    padding: 10px 20px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Bande noire semi-transparente pour le texte */
-    text-shadow: 0 0 10px black;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    margin-top: 10px;
+    order: 3;
     z-index: 10;
-    box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
@@ -371,9 +381,11 @@ body {
         width: 90%;
         align-items: center;
     }
+    
     #language-selection button:first-child {
         order: -1;
     }
+    
     #language-selection button {
         width: 150px;
         height: 50px;
@@ -383,7 +395,7 @@ body {
         justify-content: center;
         align-items: center;
         text-align: center;
-        white-space: nowrap; /* Ajouté pour les boutons de langue sur mobile aussi */
+        white-space: nowrap;
     }
 
     #choice-selection {
@@ -391,6 +403,7 @@ body {
         gap: 15px;
         max-width: unset;
     }
+    
     #choice-selection button {
         width: 100%;
         max-width: 300px;
@@ -407,12 +420,15 @@ body {
     .choice-prompt {
         font-size: 1.8rem;
     }
+    
     #choice-result {
         font-size: 2.5rem;
     }
+    
     #choice-result-symbol {
         font-size: 5rem;
     }
+    
     #choice-result-message {
         font-size: 1.5rem;
     }
@@ -420,20 +436,22 @@ body {
     .selfie-frame {
         padding: 0;
         max-width: 95%;
-        max-height: 95vw;
         width: 90%;
-        height: 90vw;
         box-shadow: 0 0 30px 15px rgba(255, 255, 255, 0.4);
+        gap: 15px;
     }
+    
     .selfie-message {
         font-size: 1.6rem;
-        padding: 8px 15px;
+        padding: 12px 15px;
     }
+    
     .selfie-disclaimer {
         font-size: 0.9rem;
-        padding: 8px 15px;
+        padding: 8px 12px;
     }
+    
     #selfieContainer img.selfie-image {
-        padding: 0;
+        max-width: 300px;
     }
 }
