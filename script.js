@@ -119,16 +119,17 @@ function typeText(textToType, callback, clearBefore = true) {
  * @param {function} callback La fonction à appeler une fois le texte disparu.
  */
 function fadeOutText(callback) {
-    textElement.style.transition = "opacity 0.6s ease-out"; // Définit la transition
-    textElement.style.opacity = 0; // Fait disparaître le texte
+    textElement.style.transition = "opacity 0.6s ease-out"; // Applique la transition
+    textElement.style.opacity = 0; // Démarre le fondu
+
     setTimeout(() => {
         const cursor = document.querySelector('.cursor');
-        if (cursor) cursor.style.display = 'none'; // Masque le curseur
+        if (cursor) cursor.style.display = 'none'; // Cache le curseur
         textElement.innerHTML = ""; // Vide le contenu
-        textElement.style.transition = ""; // Réinitialise la transition
-        textElement.style.opacity = 1; // Remet l'opacité à 1 pour la prochaine utilisation
-        callback(); // Appelle le callback
-    }, 600); // Correspond à la durée de la transition
+        textElement.style.transition = ""; // Réinitialise les styles
+        textElement.style.opacity = ""; // Nettoie l'opacité
+        callback(); // Appelle le callback final
+    }, 600);
 }
 
 /**
@@ -141,12 +142,14 @@ function fadeOutElement(element, callback) {
         callback();
         return;
     }
-    element.style.opacity = 0; // Fait disparaître l'élément
     element.style.transition = "opacity 0.6s ease-out"; // Définit la transition
+    element.style.opacity = 0; // Lance la transition
+
     setTimeout(() => {
+        element.classList.remove('show'); // Retire la classe qui pourrait forcer le display
         element.style.display = "none"; // Cache l'élément après la transition
-        element.style.transition = ""; // Réinitialise la transition
-        element.style.opacity = 1; // Remet l'opacité à 1 pour la prochaine utilisation
+        element.style.transition = ""; // Nettoie la transition
+        element.style.opacity = ""; // Réinitialise l'opacité (utile pour les réutilisations)
         callback();
     }, 600);
 }
