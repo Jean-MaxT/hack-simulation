@@ -178,7 +178,10 @@ body {
     outline: none;
 }
 
-#language-selection button:hover {
+#language-selection button:hover,
+#language-selection button:active,
+#choice-selection button:hover,
+#choice-selection button:active {
     background-color: white;
     color: black;
 }
