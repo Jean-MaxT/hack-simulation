@@ -206,8 +206,7 @@ body {
     align-items: center;
     transition: all 0.3s ease;
     text-align: center;
-    white-space: normal;
-    line-height: 1.2;
+    line-height: 1.2; /* Permet au texte de s'étaler */
 }
 
 #language-selection button:hover,
@@ -220,6 +219,7 @@ body {
     width: 200px;
     height: 60px;
     font-size: 1.5rem;
+    white-space: nowrap; /* Ajouté pour les boutons de langue, pour éviter des coupures inattendues sur certains navigateurs. */
 }
 
 #choice-selection button {
@@ -303,11 +303,11 @@ body {
 }
 
 .selfie-frame {
-    background-color: transparent; /* Pas de fond noir direct sur le cadre principal */
-    padding: 0; /* Pas de padding ici, on le gère sur l'image */
-    max-width: 550px; /* Agrandit le cadre pour la photo */
-    max-height: 550px; /* Rend le cadre plus grand et carré */
-    width: 90%;
+    background-color: transparent;
+    padding: 0;
+    max-width: 500px; /* Taille plus raisonnable pour l'ensemble */
+    max-height: 500px; /* Garde la forme carrée */
+    width: 85%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -317,35 +317,34 @@ body {
     border-radius: 15px;
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5); /* Effet de lumière autour du cadre */
+    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.5); /* Effet de lumière */
     transition: box-shadow 0.8s ease-out;
-    position: relative;
+    position: relative; /* Indispensable pour les enfants positionnés absolument */
 }
 
 #selfieContainer img.selfie-image {
     display: block;
-    width: 100%; /* L'image remplit la largeur disponible */
-    height: auto; /* Hauteur auto pour garder les proportions */
-    object-fit: cover; /* L'image couvrira bien la zone */
+    width: 100%;
+    height: 100%; /* L'image remplit la totalité du cadre principal */
+    object-fit: cover; /* Recouvre sans bandes noires, peut couper un peu */
     border-radius: 15px; /* Coins arrondis pour la photo */
     margin: 0;
-    border: none; /* Pas de bordure sur l'image */
-    box-shadow: none; /* Pas d'ombre sur l'image */
+    border: none;
+    box-shadow: none;
     padding: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Un léger fond derrière l'image si elle n'est pas carrée */
+    background-color: transparent; /* Assure pas de fond propre à l'image */
 }
 
 .selfie-message {
     font-size: 2.2rem;
     font-weight: bold;
     color: white;
-    margin-bottom: 0;
-    padding: 10px 20px; /* Plus de padding pour le texte */
-    position: absolute; /* Position absolue pour superposer */
-    top: 0; /* Positionnement en haut */
+    padding: 10px 20px;
+    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent pour le texte */
+    background-color: rgba(0, 0, 0, 0.6); /* Bande noire semi-transparente pour le texte */
     text-shadow: 0 0 10px black;
     z-index: 10;
     box-sizing: border-box;
@@ -354,13 +353,12 @@ body {
 .selfie-disclaimer {
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.8);
-    margin-top: 0;
-    padding: 10px 20px; /* Plus de padding pour le texte */
-    position: absolute; /* Position absolue pour superposer */
-    bottom: 0; /* Positionnement en bas */
+    padding: 10px 20px;
+    position: absolute;
+    bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent pour le texte */
+    background-color: rgba(0, 0, 0, 0.6); /* Bande noire semi-transparente pour le texte */
     text-shadow: 0 0 10px black;
     z-index: 10;
     box-sizing: border-box;
@@ -381,12 +379,11 @@ body {
         height: 50px;
         font-size: 1.2rem;
         padding: 10px 15px;
-        /* Assure que le texte est centré et que toute la surface est cliquable */
         display: flex;
         justify-content: center;
         align-items: center;
         text-align: center;
-        white-space: normal; /* Permet le retour à la ligne */
+        white-space: nowrap; /* Ajouté pour les boutons de langue sur mobile aussi */
     }
 
     #choice-selection {
