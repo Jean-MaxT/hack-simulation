@@ -84,7 +84,6 @@ body {
     100% { opacity: 0.2; }
 }
 
-/* --- Media Query générique (pour les textes et curseur) --- */
 @media (max-width: 768px) {
     #text {
         font-size: 2rem;
@@ -155,7 +154,7 @@ body {
     animation: glitchLogo 2.5s infinite steps(1);
 }
 
-/* --- Styles des conteneurs de boutons (langue et choix) --- */
+/* Styles des conteneurs de boutons (langue et choix) */
 #language-selection,
 #choice-selection {
     position: absolute;
@@ -163,35 +162,38 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
-    gap: 20px; /* Espace entre les boutons */
+    gap: 20px;
     z-index: 20;
-    opacity: 0; /* Masqué par défaut */
-    transition: opacity 0.5s ease-out;
     padding: 20px;
     box-sizing: border-box;
-    justify-content: center; /* Centrer les boutons horizontalement */
-    align-items: center; /* Centrer les éléments verticalement */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ajout pour le fondu d'apparition de la sélection de langue */
+#language-selection {
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
+#language-selection.show {
+    opacity: 1;
 }
 
 #language-selection {
-    flex-direction: row; /* Boutons de langue toujours côte à côte */
-    /* Pas de max-width ici pour la flexibilité initiale */
+    flex-direction: row;
 }
 
 #choice-selection {
-    flex-direction: row; /* Boutons de choix côte à côte */
-    flex-wrap: wrap; /* Permet aux boutons de passer à la ligne sur petits écrans */
-    max-width: 800px; /* Limite la largeur pour que les deux boutons côte à côte soient bien */
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 800px;
 }
 
-
-#language-selection.show,
 #choice-selection.show {
     opacity: 1;
 }
 
-/* --- Styles Génériques des boutons (communs à tous les boutons dans language-selection et choice-selection) --- */
-/* C'est ici que le style de base des boutons (hover inclus) est défini. */
+/* Styles Génériques des boutons */
 #language-selection button,
 #choice-selection button {
     padding: 15px 25px;
@@ -199,17 +201,16 @@ body {
     background-color: transparent;
     color: white;
     font-family: 'Bebas Neue', sans-serif;
-    /* Font size augmenté pour les boutons de choix */
-    font-size: 1.8rem; /* Augmenté */
+    font-size: 1.8rem;
     text-transform: uppercase;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease; /* Transition pour le hover */
+    transition: all 0.3s ease;
     text-align: center;
-    white-space: normal; /* Permet le retour à la ligne du texte */
-    line-height: 1.2; /* Espacement de ligne pour le texte multi-lignes */
+    white-space: normal;
+    line-height: 1.2;
 }
 
 /* Hover commun pour tous les boutons */
@@ -219,22 +220,21 @@ body {
     color: black;
 }
 
-/* --- Styles Spécifiques pour les boutons de langue --- */
+/* Styles Spécifiques pour les boutons de langue */
 #language-selection button {
-    width: 200px; /* Taille fixe pour les boutons de langue */
-    height: 60px; /* Taille fixe pour les boutons de langue */
-    white-space: nowrap; /* Empêche le retour à la ligne pour "Français", "Nederlands" */
-    font-size: 1.5rem; /* Taille de police originale pour les boutons de langue */
+    width: 200px;
+    height: 60px;
+    white-space: nowrap;
+    font-size: 1.5rem;
 }
 
-/* --- Styles Spécifiques pour les boutons de choix --- */
+/* Styles Spécifiques pour les boutons de choix */
 #choice-selection button {
-    flex-grow: 1; /* Permet aux boutons de grandir et prendre de la place égale */
-    min-width: 350px; /* Taille minimale pour le texte long sur 2 lignes */
-    min-height: 90px; /* Hauteur minimale pour que le texte ait de la place */
-    max-width: 45%; /* Environ la moitié du conteneur parent */
-    /* Font size déjà ajusté dans la règle générique pour tous les boutons */
-    padding: 20px 30px; /* Plus de padding pour l'espace */
+    flex-grow: 1;
+    min-width: 350px;
+    min-height: 90px;
+    max-width: 45%;
+    padding: 20px 30px;
 }
 
 .choice-prompt {
@@ -246,7 +246,7 @@ body {
     width: 100%;
 }
 
-/* --- Styles pour le résultat après choix --- */
+/* Styles pour le résultat après choix */
 #choice-result {
     position: absolute;
     top: 50%;
@@ -264,11 +264,11 @@ body {
     gap: 15px;
     max-width: 90%;
     width: auto;
-    padding: 30px; /* Padding pour le message */
+    padding: 30px;
     box-sizing: border-box;
     border-radius: 10px;
-    border: none; /* Pas de bordure pour le résultat lui-même */
-    box-shadow: none; /* Pas d'ombre pour le résultat lui-même */
+    border: none;
+    box-shadow: none;
 }
 
 #choice-result.show {
@@ -277,7 +277,7 @@ body {
 }
 
 #choice-result-symbol {
-    font-size: 8rem; /* SYMBOLES GRANDS */
+    font-size: 8rem;
     line-height: 1;
     margin-bottom: 10px;
 }
@@ -288,11 +288,11 @@ body {
     padding: 0 10px;
 }
 
-/* --- MEDIA QUERIES pour le responsive --- */
+/* MEDIA QUERIES pour le responsive */
 @media (max-width: 768px) {
     /* Boutons de langue sur mobile */
     #language-selection {
-        flex-direction: column; /* Revenir à la colonne sur mobile */
+        flex-direction: column;
         gap: 10px;
         width: 90%;
         align-items: center;
@@ -306,16 +306,16 @@ body {
 
     /* Boutons de choix sur mobile */
     #choice-selection {
-        flex-direction: column; /* Revenir à la colonne sur mobile */
+        flex-direction: column;
         gap: 15px;
-        max-width: unset; /* Supprimer la largeur max pour mobile */
+        max-width: unset;
     }
     #choice-selection button {
-        width: 100%; /* Sur mobile, prennent toute la largeur dispo */
-        max-width: 300px; /* Limite de largeur */
-        min-height: 70px; /* Ajuster la hauteur sur mobile */
-        font-size: 1.3rem; /* Ajuster la taille de police pour mobile */
-        padding: 15px 25px; /* Ajuster le padding */
+        width: 100%;
+        max-width: 300px;
+        min-height: 70px;
+        font-size: 1.3rem;
+        padding: 15px 25px;
     }
 
     .choice-prompt {
@@ -332,7 +332,7 @@ body {
     }
 }
 
-/* --- NOUVEAUX STYLES POUR LE SELFIE ET SON CADRE --- */
+/* NOUVEAUX STYLES POUR LE SELFIE ET SON CADRE */
 
 /* Styles pour le conteneur de la selfie, qui sert d'overlay plein écran */
 #selfieContainer {
@@ -343,56 +343,63 @@ body {
     height: 100vh;
     z-index: 9999;
     display: none;
-    flex-direction: column; /* Pour centrer le cadre verticalement */
-    align-items: center;    /* Pour centrer le cadre horizontalement */
-    justify-content: center; /* Pour centrer le cadre verticalement */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     color: white;
     text-align: center;
-    background-color: rgba(0, 0, 0, 0.7); /* Overlay semi-transparent */
-    transition: opacity 0.6s ease-out;
+    background-color: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out; /* Transition pour le fade-in/fade-out */
 }
 
-/* NOUVEAU : Styles pour le cadre intérieur de la selfie */
+/* Classe pour déclencher le fondu d'apparition du selfieContainer */
+#selfieContainer.show-selfie {
+    opacity: 1;
+}
+
+/* NOUVEAU : Styles pour le cadre intérieur de la selfie (maintenant juste un conteneur de contenu) */
 .selfie-frame {
-    background-color: black; /* Fond du cadre */
-    border: 2px solid white; /* Bordure blanche pour le cadre */
-    border-radius: 15px; /* Bords arrondis pour le cadre */
-    padding: 30px; /* Espacement intérieur du cadre */
-    max-width: 600px; /* Largeur maximale du cadre (similaire au conteneur de texte) */
-    width: 90%; /* Largeur responsive du cadre */
-    box-sizing: border-box; /* Inclut le padding et la bordure dans la largeur/hauteur */
+    background-color: black;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px; /* Espace entre les éléments à l'intérieur du cadre (message, image, disclaimer) */
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); /* Ombre plus prononcée pour le cadre */
+    gap: 15px;
 }
 
-/* Styles pour l'image à l'intérieur du cadre selfie */
+/* Styles pour l'image à l'intérieur du cadre selfie (maintenant avec le cadre) */
 #selfieContainer img.selfie-image {
-    display: block; /* Supprime l'espace blanc sous l'image */
-    max-width: 100%; /* L'image prend 100% de la largeur de son parent (.selfie-frame) */
-    height: auto; /* Maintient le ratio d'aspect de l'image */
-    border-radius: 10px; /* Bords légèrement arrondis pour l'image elle-même */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Légère ombre pour l'image */
-    margin: 0; /* Réinitialise les marges, le 'gap' du parent gère l'espacement */
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 0;
+
+    /* Styles du cadre autour de l'image */
+    border: 2px solid white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    padding: 5px; /* Petit espace entre l'image et le cadre */
 }
 
 /* Styles pour le message au-dessus de la photo */
 .selfie-message {
-    font-size: 2.2rem; /* Grande taille pour le message principal */
+    font-size: 2.2rem;
     font-weight: bold;
     color: white;
-    margin-bottom: 0; /* Le 'gap' du parent gère l'espacement */
-    padding: 0 10px; /* Padding pour éviter que le texte ne touche les bords sur mobile */
+    margin-bottom: 0;
+    padding: 0 10px;
 }
 
 /* Styles pour le disclaimer en dessous de la photo */
 .selfie-disclaimer {
-    font-size: 1.2rem; /* Taille plus petite pour le disclaimer */
-    color: rgba(255, 255, 255, 0.8); /* Couleur légèrement estompée */
-    margin-top: 0; /* Le 'gap' du parent gère l'espacement */
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 0;
     padding: 0 10px;
 }
 
@@ -400,7 +407,7 @@ body {
 @media (max-width: 768px) {
     .selfie-frame {
         padding: 20px;
-        max-width: 95%; /* Ajuste la largeur max du cadre sur les petits écrans */
+        max-width: 95%;
     }
     .selfie-message {
         font-size: 1.8rem;
@@ -408,5 +415,7 @@ body {
     .selfie-disclaimer {
         font-size: 1rem;
     }
-    /* L'image s'adaptera automatiquement à la largeur du cadre */
+    #selfieContainer img.selfie-image {
+        padding: 3px;
+    }
 }

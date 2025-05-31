@@ -1,12 +1,8 @@
-// Variable globale pour la langue sélectionnée
 let selectedLang = 'fr';
 
-// Références aux éléments DOM principaux
-const textElement = document.getElementById("content"); // Le <span> où le texte est tapé
-const textContainer = document.getElementById("text"); // La <div> parente du texte
+const textElement = document.getElementById("content");
+const textContainer = document.getElementById("text");
 
-// Récupération ou création des conteneurs de choix et de résultat
-// Ces éléments devraient déjà exister dans le HTML, mais cette vérification assure la robustesse
 let choiceSelection = document.getElementById('choice-selection');
 if (!choiceSelection) {
     choiceSelection = document.createElement('div');
@@ -22,17 +18,11 @@ if (!choiceResult) {
     document.body.appendChild(choiceResult);
 }
 
-/**
- * Récupère les informations sur l'appareil, le système d'exploitation et le navigateur de l'utilisateur.
- * Utilise User-Agent Client Hints si disponible, sinon fallback sur UAParser.js.
- * @returns {Promise<{device: string, browser: string, os: string}>} Un objet contenant les infos de l'appareil.
- */
 async function getDeviceInfo() {
     let device = "Appareil inconnu";
     let os = "Système inconnu";
     let browser = "Navigateur inconnu";
 
-    // Tentative d'utiliser User-Agent Client Hints pour des informations plus précises
     if (navigator.userAgentData) {
         try {
             const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['platformVersion', 'model']);
@@ -46,12 +36,10 @@ async function getDeviceInfo() {
                 const mainBrand = navigator.userAgentData.brands.find(brand => !brand.brand.includes('Chromium')) || navigator.userAgentData.brands[0];
                 browser = `${mainBrand.brand} ${mainBrand.version || ""}`.trim();
             } else if (navigator.userAgentData.ua) {
-                // Fallback si Client Hints ne donne pas de marque principale mais a un userAgentData.ua
                 const parser = new UAParser();
                 const result = parser.getResult();
                 browser = result.browser.name || "Navigateur inconnu";
             }
-            // Si des informations significatives ont été obtenues via Client Hints, les retourner
             if (device !== "Appareil inconnu" || os !== "Système inconnu") {
                 console.log("Infos appareil via Client Hints :", { device, os, browser });
                 return { device, browser, os };
@@ -61,7 +49,6 @@ async function getDeviceInfo() {
         }
     }
 
-    // Fallback sur UAParser.js si Client Hints n'est pas disponible ou échoue
     const parser = new UAParser();
     const result = parser.getResult();
 
@@ -85,12 +72,6 @@ async function getDeviceInfo() {
     return { device, browser, os };
 }
 
-/**
- * Simule l'écriture de texte lettre par lettre dans un élément.
- * @param {string} textToType Le texte à afficher.
- * @param {function} callback La fonction à appeler une fois le texte entièrement tapé.
- * @param {boolean} [clearBefore=true] Indique si le contenu de l'élément doit être effacé avant de taper.
- */
 function typeText(textToType, callback, clearBefore = true) {
     let index = 0;
     let initialContent = "";
@@ -100,179 +81,162 @@ function typeText(textToType, callback, clearBefore = true) {
         textElement.innerHTML = "";
     }
 
-    textElement.style.opacity = 1; // Assure que le texte est visible
+    textElement.style.opacity = 1;
 
     const cursor = document.querySelector('.cursor');
-    if (cursor) cursor.style.display = 'inline-block'; // Affiche le curseur
+    if (cursor) cursor.style.display = 'inline-block';
 
     const interval = setInterval(() => {
         textElement.innerHTML = initialContent + textToType.slice(0, index++);
         if (index > textToType.length) {
             clearInterval(interval);
-            callback(); // Appelle le callback une fois le texte tapé
+            callback();
         }
-    }, 30); // Délai entre chaque lettre
+    }, 30);
 }
 
-/**
- * Fait disparaître le texte avec une transition d'opacité.
- * @param {function} callback La fonction à appeler une fois le texte disparu.
- */
 function fadeOutText(callback) {
-    textElement.style.transition = "opacity 0.6s ease-out"; // Applique la transition
-    textElement.style.opacity = 0; // Démarre le fondu
+    textElement.style.transition = "opacity 0.6s ease-out";
+    textElement.style.opacity = 0;
 
     setTimeout(() => {
         const cursor = document.querySelector('.cursor');
-        if (cursor) cursor.style.display = 'none'; // Cache le curseur
-        textElement.innerHTML = ""; // Vide le contenu
-        textElement.style.transition = ""; // Réinitialise les styles
-        textElement.style.opacity = ""; // Nettoie l'opacité
-        callback(); // Appelle le callback final
+        if (cursor) cursor.style.display = 'none';
+        textElement.innerHTML = "";
+        textElement.style.transition = "";
+        textElement.style.opacity = "";
+        callback();
     }, 600);
 }
 
-/**
- * Fait disparaître un élément HTML avec une transition d'opacité.
- * @param {HTMLElement} element L'élément DOM à faire disparaître.
- * @param {function} callback La fonction à appeler une fois l'élément disparu.
- */
 function fadeOutElement(element, callback) {
     if (!element) {
         callback();
         return;
     }
-    element.style.transition = "opacity 0.6s ease-out"; // Définit la transition
-    element.style.opacity = 0; // Lance la transition
+    element.style.transition = "opacity 0.6s ease-out";
+    element.style.opacity = 0;
 
     setTimeout(() => {
-        element.classList.remove('show'); // Retire la classe qui pourrait forcer le display
-        element.style.display = "none"; // Cache l'élément après la transition
-        element.style.transition = ""; // Nettoie la transition
-        element.style.opacity = ""; // Réinitialise l'opacité (utile pour les réutilisations)
+        element.classList.remove('show');
+        element.classList.remove('show-selfie'); // Ajout pour le selfieContainer
+        element.style.display = "none";
+        element.style.transition = "";
+        element.style.opacity = "";
         callback();
     }, 600);
 }
 
-/**
- * Affiche une séquence de lignes de texte, une par one, avec des pauses et des fondus.
- * @param {string[]} lines Un tableau de chaînes de caractères à afficher séquentiellement.
- */
+// Nouvelle fonction pour faire apparaître un élément en fondu
+function fadeInElement(element, callback) {
+    if (!element) {
+        callback();
+        return;
+    }
+    element.style.display = "flex";
+    element.offsetHeight; // Force le reflow pour que le changement de display prenne effet
+    element.classList.add('show-selfie'); // Utilise la classe pour le fondu d'apparition
+    setTimeout(() => {
+        callback();
+    }, 800); // Durée qui correspond à la transition CSS
+}
+
 async function showLinesSequentially(lines) {
     for (let i = 0; i < lines.length; i++) {
         await new Promise(resolve => {
             typeText(lines[i], async () => {
-                await new Promise(readDelay => setTimeout(readDelay, 1500)); // Temps de lecture
+                await new Promise(readDelay => setTimeout(readDelay, 1500));
                 if (i < lines.length - 1) {
-                    fadeOutText(resolve); // Fait disparaître le texte si ce n'est pas la dernière ligne
+                    fadeOutText(resolve);
                 } else {
-                    resolve(); // Résout la promesse si c'est la dernière ligne
+                    resolve();
                 }
             });
         });
         if (i < lines.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500)); // Petite pause entre les fondus
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
     }
 }
 
-/**
- * Affiche plusieurs lignes de texte en les tapant, en ajoutant des sauts de ligne entre elles.
- * @param {string[]} lines Un tableau de chaînes de caractères à afficher.
- */
 async function typeMultiLines(lines) {
     for (let i = 0; i < lines.length; i++) {
         await new Promise(resolve => {
-            typeText(lines[i], resolve, i === 0); // Efface seulement avant la première ligne
+            typeText(lines[i], resolve, i === 0);
         });
         if (i < lines.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500)); // Pause entre les lignes
-            textElement.innerHTML += '<br>'; // Ajoute un saut de ligne
+            await new Promise(resolve => setTimeout(resolve, 500));
+            textElement.innerHTML += '<br>';
         }
     }
-    await new Promise(resolve => setTimeout(resolve, 500)); // Petite pause après la dernière ligne
+    await new Promise(resolve => setTimeout(resolve, 500));
 }
 
-/**
- * Affiche les boutons de choix "Protéger" ou "Ignorer" après la séquence d'animation.
- */
 async function showChoices() {
     console.log("showChoices: Démarrage");
-    fadeOutElement(textContainer, () => { // Masque le conteneur texte principal
+    fadeOutElement(textContainer, () => {
         console.log("showChoices: textContainer masqué.");
-        // Remplit le conteneur de choix avec le prompt et les boutons
         choiceSelection.innerHTML = `
             <p class="choice-prompt">${selectedLang === 'fr' ? "Maintenant que tu sais ça…" : "Nu je dit weet…"}</p>
             <button id="btn-protect">${selectedLang === 'fr' ? "Protéger mes données avec le DSP" : "Bescherm mijn gegevens met de DSP"}</button>
             <button id="btn-ignore">${selectedLang === 'fr' ? "Ignorer et espérer que ça n’arrive jamais" : "Negeer en hoop dat het nooit gebeurt"}</button>
         `;
 
-        // Ajoute les écouteurs d'événements aux nouveaux boutons
         const btnIgnore = choiceSelection.querySelector('#btn-ignore');
         const btnProtect = choiceSelection.querySelector('#btn-protect');
 
-        // S'assure de retirer les écouteurs précédents pour éviter les duplications
         if (btnIgnore) btnIgnore.removeEventListener('click', handleIgnore);
         if (btnProtect) btnProtect.removeEventListener('click', handleProtect);
 
         btnIgnore.addEventListener('click', handleIgnore);
         btnProtect.addEventListener('click', handleProtect);
 
-        choiceSelection.style.display = 'flex'; // Assure que le conteneur est en flex pour le layout
-        choiceSelection.classList.add('show'); // Rend la div des choix visible avec transition
+        choiceSelection.style.display = 'flex';
+        choiceSelection.classList.add('show');
         console.log("showChoices: Choix affichés");
     });
 }
 
-/**
- * Gère le choix "Ignorer".
- */
 async function handleIgnore() {
     console.log("handleIgnore: Choix Ignorer sélectionné");
 
-    fadeOutElement(choiceSelection, async () => { // Masque les boutons de choix
+    fadeOutElement(choiceSelection, async () => {
         console.log("handleIgnore: choiceSelection masqué.");
-        const symbol = '&#x2620;'; // Symbole de la tête de mort
+        const symbol = '&#x2620;';
         const message = selectedLang === 'fr' ? "Mauvaise idée, tu devrais aller voir un vendeur." : "Slecht idee, je zou een verkoper moeten spreken.";
 
         document.getElementById('choice-result-symbol').innerHTML = symbol;
-        document.getElementById('choice-result-symbol').style.color = 'red'; // Couleur rouge pour la tête de mort
+        document.getElementById('choice-result-symbol').style.color = 'red';
         document.getElementById('choice-result-message').textContent = message;
 
-        choiceResult.classList.remove('success', 'failure'); // Supprime les classes de succès/échec précédentes
+        choiceResult.classList.remove('success', 'failure');
 
-        choiceResult.style.display = 'flex'; // Assure que le conteneur est en flex pour le layout
-        choiceResult.classList.add('show'); // Affiche le résultat avec transition
+        choiceResult.style.display = 'flex';
+        choiceResult.classList.add('show');
         console.log("handleIgnore: Résultat affiché (Tête de mort)");
     });
 }
 
-/**
- * Gère le choix "Protéger".
- */
 async function handleProtect() {
     console.log("handleProtect: Choix Protéger sélectionné");
 
-    fadeOutElement(choiceSelection, async () => { // Masque les boutons de choix
+    fadeOutElement(choiceSelection, async () => {
         console.log("handleProtect: choiceSelection masqué.");
-        const symbol = '&#x1F6E1;'; // Symbole du bouclier (unicode emoji)
+        const symbol = '&#x1F6E1;';
         const message = selectedLang === 'fr' ? "Bonne idée, approche-toi d'un vendeur." : "Goed idee, spreek een verkoper aan.";
 
         document.getElementById('choice-result-symbol').innerHTML = symbol;
-        document.getElementById('choice-result-symbol').style.color = 'green'; // Couleur verte pour le bouclier
+        document.getElementById('choice-result-symbol').style.color = 'green';
         document.getElementById('choice-result-message').textContent = message;
 
-        choiceResult.classList.remove('success', 'failure'); // Supprime les classes de succès/échec précédentes
+        choiceResult.classList.remove('success', 'failure');
 
-        choiceResult.style.display = 'flex'; // Assure que le conteneur est en flex pour le layout
-        choiceResult.classList.add('show'); // Affiche le résultat avec transition
+        choiceResult.style.display = 'flex';
+        choiceResult.classList.add('show');
         console.log("handleProtect: Résultat affiché (Bouclier)");
     });
 }
 
-/**
- * Orchestre la séquence principale de l'animation : affichage des infos, selfie, puis introduction DSP.
- */
 async function showAnimation() {
     console.log("showAnimation: Démarrage de l'animation");
     const { device, browser, os } = await getDeviceInfo();
@@ -282,79 +246,78 @@ async function showAnimation() {
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
+        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
         ? ["Un hacker mettrait 30 secondes à faire pire.", "C’est pour ça qu’on a créé le Digital Service Pack."]
         : ["Een hacker zou erger doen in 30 seconden.", "Daarom hebben we de Digital Service Pack ontwikkeld."];
 
-    // S'assurer que le conteneur de texte est visible au début de chaque séquence de texte
     textContainer.style.display = "block";
-    textElement.innerHTML = ""; // Vider le contenu pour la première séquence
+    textElement.innerHTML = "";
 
     await showLinesSequentially(initialPhrases);
     await new Promise(resolve => fadeOutText(resolve));
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    textContainer.style.display = "block"; // S'assurer qu'il est visible pour la suite
+    textContainer.style.display = "block";
     await typeMultiLines(deviceInfoPhrases);
     await new Promise(resolve => fadeOutText(resolve));
 
     const selfieContainer = document.getElementById("selfieContainer");
-    const selfieDisplayed = await takeSelfie(); // Appel de la fonction takeSelfie modifiée
+    const selfieDisplayed = await takeSelfie();
 
     if (selfieDisplayed) {
         console.log("showAnimation: Selfie affiché. Attente...");
-        await new Promise(resolve => setTimeout(resolve, 4000)); // Photo affichée plus longtemps
-        await new Promise(resolve => fadeOutElement(selfieContainer, resolve)); // Utiliser la référence
+        await new Promise(resolve => setTimeout(resolve, 4000));
+        await new Promise(resolve => fadeOutElement(selfieContainer, () => {
+            selfieContainer.classList.remove('show-selfie');
+            selfieContainer.style.display = "none";
+            resolve();
+        }));
         console.log("showAnimation: Selfie masqué.");
     } else {
-        selfieContainer.style.display = "none";
-        console.log("showAnimation: Pas de selfie ou erreur caméra.");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => fadeOutElement(selfieContainer, () => {
+            selfieContainer.classList.remove('show-selfie');
+            selfieContainer.style.display = "none";
+            resolve();
+        }));
+        console.log("showAnimation: Pas de selfie ou erreur caméra, message masqué.");
     }
 
-    textContainer.style.display = "block"; // Afficher à nouveau le conteneur de texte pour les phrases suivantes
-    textElement.innerHTML = ""; // Vider le contenu pour la prochaine séquence
+    textContainer.style.display = "block";
+    textElement.innerHTML = "";
 
     await showLinesSequentially(introAfterPhrases);
     console.log("showAnimation: Phrases d'introduction DSP terminées.");
-    // Après les phrases introductives du DSP, masquer le texte principal et afficher les choix
     await new Promise(resolve => setTimeout(() => fadeOutText(() => {
-        showChoices(); // Appelle showChoices ici, qui gérera le display de textContainer
-    }), 1000)); // Attendre 1s avant de commencer le fade out et afficher les choix
+        showChoices();
+        resolve();
+    }), 1000));
     console.log("showAnimation: Transition vers les choix.");
 }
 
-/**
- * Configure les écouteurs d'événements pour les boutons de sélection de langue.
- */
 function setupLanguageButtons() {
-    // Rendre le conteneur de langue visible avec le fondu initial
     document.getElementById("language-selection").classList.add('show');
 
     document.getElementById("btn-fr").addEventListener("click", async () => {
         selectedLang = 'fr';
-        // Masquer le conteneur de langue avec fade out avant de lancer l'animation
         fadeOutElement(document.getElementById("language-selection"), startAnimation);
     });
 
     document.getElementById("btn-nl").addEventListener("click", async () => {
         selectedLang = 'nl';
-        // Masquer le conteneur de langue avec fade out avant de lancer l'animation
         fadeOutElement(document.getElementById("language-selection"), startAnimation);
     });
 }
 
-/**
- * Génère l'effet visuel "Matrix" en arrière-plan.
- */
 function generateMatrixEffect() {
     const matrixContainer = document.getElementById("matrix-container");
-    matrixContainer.innerHTML = ""; // Nettoie le conteneur avant de générer
+    matrixContainer.innerHTML = "";
 
-    const characters = "01"; // Caractères pour l'effet Matrix
-    const totalChars = 150; // Nombre total de caractères à générer
+    const characters = "01";
+    const totalChars = 150;
 
     for (let i = 0; i < totalChars; i++) {
         const span = document.createElement("span");
@@ -368,14 +331,9 @@ function generateMatrixEffect() {
     }
 }
 
-/**
- * Démarre l'animation principale après la sélection de la langue.
- * Effectue un nettoyage des éléments précédents.
- */
 async function startAnimation() {
     console.log("startAnimation: Démarrage (nettoyage précédent)");
 
-    // Réinitialiser la visibilité et le contenu des conteneurs
     textContainer.style.display = "none";
     textElement.innerHTML = "";
 
@@ -388,89 +346,92 @@ async function startAnimation() {
     const selfieContainer = document.getElementById("selfieContainer");
     if (selfieContainer) {
         selfieContainer.style.display = "none";
-        selfieContainer.innerHTML = ""; // Nettoie le contenu du conteneur selfie
+        selfieContainer.innerHTML = "";
     }
 
-    generateMatrixEffect(); // Lance l'effet Matrix
-    await showAnimation(); // Lance la séquence d'animation principale
+    generateMatrixEffect();
+    await showAnimation();
     console.log("startAnimation: Animation principale terminée.");
 }
 
-/**
- * Prend une photo du client via la webcam, l'affiche avec des messages,
- * et ne montre pas le flux vidéo en direct à l'utilisateur.
- * La photo est affichée dans un cadre centré, non plein écran.
- * @returns {Promise<boolean>} Vrai si la selfie a été prise et affichée, faux sinon.
- */
 async function takeSelfie() {
     const container = document.getElementById("selfieContainer");
     let selfieTaken = false;
 
-    // Nettoyer le conteneur avant de commencer pour éviter les résidus
     container.innerHTML = "";
 
     try {
-        // Ces styles sont maintenant principalement gérés par le CSS pour #selfieContainer
-        // On s'assure juste que le conteneur est visible pour la transition
-        container.style.display = "flex"; // S'assurer que le conteneur est visible
-        container.style.opacity = 1;
-
-        // Obtenir le flux vidéo de la caméra frontale
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         const video = document.createElement("video");
         video.srcObject = stream;
-        video.setAttribute("playsinline", true); // Important pour la lecture automatique sur iOS
-        await video.play(); // Démarrer la lecture pour que le stream soit actif et qu'une image soit disponible
+        video.setAttribute("playsinline", true);
 
-        // Attendre un très court instant pour que le flux vidéo soit stable et qu'une image soit prête
-        await new Promise(resolve => setTimeout(resolve, 300)); // Délai réduit pour une capture quasi instantanée
+        const tempVideoContainer = document.createElement('div');
+        tempVideoContainer.style.position = 'fixed';
+        tempVideoContainer.style.left = '-9999px';
+        tempVideoContainer.style.top = '-9999px';
+        tempVideoContainer.style.opacity = '0';
+        document.body.appendChild(tempVideoContainer);
+        tempVideoContainer.appendChild(video);
 
-        // Créer un élément canvas pour capturer l'image du flux vidéo
+        await new Promise(resolve => {
+            video.onloadedmetadata = () => {
+                video.play();
+                resolve();
+            };
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+
         const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth; // Assure que le canvas a la même résolution que la vidéo
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height); // Dessine l'image de la vidéo sur le canvas
+        const aspectRatio = video.videoWidth / video.videoHeight;
+        canvas.width = 640;
+        canvas.height = canvas.width / aspectRatio; 
 
-        // Arrêter le flux de la caméra immédiatement après la capture pour libérer les ressources
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageDataURL = canvas.toDataURL("image/png");
+
         stream.getTracks().forEach(track => track.stop());
+        tempVideoContainer.remove();
 
-        // Convertir l'image du canvas en URL de données (Base64)
-        const imgData = canvas.toDataURL("image/png");
+        const selfieFrame = document.createElement('div');
+        selfieFrame.className = 'selfie-frame';
 
-        // Messages à afficher au-dessus et en dessous de la photo, en fonction de la langue sélectionnée
-        const message = selectedLang === 'fr'
-            ? "Et ça, c’est ta tête quand tu réalises que tes infos sont pas si protégées…"
-            : "En dit is je gezicht als je beseft dat je gegevens niet zo veilig zijn…";
-        const disclaimer = selectedLang === 'fr'
-            ? "Rien n’est stocké, pas de panique."
-            : "Niets wordt opgeslagen, geen paniek.";
+        const selfieMessage = document.createElement('p');
+        selfieMessage.className = 'selfie-message';
+        selfieMessage.textContent = selectedLang === 'fr' ? "Regarde ce que nous avons trouvé..." : "Kijk wat we hebben gevonden...";
 
-        // Remplir le conteneur 'selfieContainer' avec le NOUVEAU CADRE (div.selfie-frame)
-        container.innerHTML = `
-            <div class="selfie-frame">
-                <p class="selfie-message">${message}</p>
-                <img src="${imgData}" alt="Selfie" class="selfie-image">
-                <p class="selfie-disclaimer">${disclaimer}</p>
-            </div>
-        `;
+        const selfieImage = document.createElement('img');
+        selfieImage.className = 'selfie-image';
+        selfieImage.src = imageDataURL;
+        selfieImage.alt = selectedLang === 'fr' ? "Photo de votre webcam" : "Foto van uw webcam";
 
-        // Force un reflow pour s'assurer que les styles CSS sont appliqués à l'image avant l'affichage
-        // (utile si des transitions ou animations CSS sont déclenchées à l'ajout de l'image)
-        const selfieImage = container.querySelector('.selfie-image');
-        if (selfieImage) void selfieImage.offsetWidth;
+        const selfieDisclaimer = document.createElement('p');
+        selfieDisclaimer.className = 'selfie-disclaimer';
+        selfieDisclaimer.innerHTML = selectedLang === 'fr' ? "Ne t'inquiète pas, cette photo n'est pas sauvegardée, c'est juste une <span class='highlight'>démonstration</span>." : "Geen zorgen, deze foto wordt niet opgeslagen, het is slechts een <span class='highlight'>demonstratie</span>.";
 
-        selfieTaken = true; // Indique que la selfie a été prise avec succès
+        selfieFrame.appendChild(selfieMessage);
+        selfieFrame.appendChild(selfieImage);
+        selfieFrame.appendChild(selfieDisclaimer);
+        container.appendChild(selfieFrame);
 
-    } catch (err) {
-        // Gérer les erreurs (ex: accès caméra refusé par l'utilisateur)
-        console.warn("Accès caméra refusé ou erreur :", err);
-        container.innerHTML = ""; // Nettoie le conteneur
-        container.style.display = "none"; // Masque le conteneur en cas d'erreur
+        await new Promise(resolve => fadeInElement(container, resolve));
+        selfieTaken = true;
+
+    } catch (error) {
+        console.error("Erreur lors de la prise de selfie :", error);
+        const noSelfieMessage = document.createElement('div');
+        noSelfieMessage.className = 'selfie-frame';
+        noSelfieMessage.innerHTML = `<p class="selfie-message" style="font-size: 1.8rem; margin-bottom: 15px;">${selectedLang === 'fr' ? "Impossible d'accéder à la caméra." : "Geen toegang tot camera."}</p><p class="selfie-disclaimer" style="font-size: 1rem;">${selectedLang === 'fr' ? "Mais un hacker pourrait le faire..." : "Maar een hacker zou het kunnen..."}</p>`;
+        container.appendChild(noSelfieMessage);
+        await new Promise(resolve => fadeInElement(container, resolve));
+        selfieTaken = false;
     }
-
-    return selfieTaken; // Retourne l'état de la prise de selfie
+    return selfieTaken;
 }
 
-// Initialisation de l'application : configure les boutons de sélection de langue au chargement de la page
-setupLanguageButtons();
+// Initialisation au chargement du DOM
+document.addEventListener("DOMContentLoaded", () => {
+    setupLanguageButtons();
+});
