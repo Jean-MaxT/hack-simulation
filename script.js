@@ -272,8 +272,8 @@ async function showChoices() {
     fadeOutElement(textContainer, () => {
         choiceSelection.innerHTML = `
             <p class="choice-prompt">${selectedLang === 'fr' ? "Maintenant que tu sais ça…" : "Nu je dit weet…"}</p>
-            <button id="btn-protect" type="button"><span>${selectedLang === 'fr' ? "Protéger mes données avec le DSP" : "Bescherm mijn gegevens met de DSP"}</span></button>
-            <button id="btn-ignore" type="button"><span>${selectedLang === 'fr' ? "Ignorer et espérer que ça n'arrive jamais" : "Negeer en hoop dat het nooit gebeurt"}</span></button>
+            <button id="btn-protect" type="button">${selectedLang === 'fr' ? "Protéger mes données avec le DSP" : "Bescherm mijn gegevens met de DSP"}</button>
+            <button id="btn-ignore" type="button">${selectedLang === 'fr' ? "Ignorer et espérer que ça n'arrive jamais" : "Negeer en hoop dat het nooit gebeurt"}</button>
         `;
 
         const btnIgnore = choiceSelection.querySelector('#btn-ignore');
@@ -325,7 +325,7 @@ async function showAnimation() {
         : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
 
     const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Navigateur : ${browser}`]
+        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
         : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
 
     const introAfterPhrases = selectedLang === 'fr'
@@ -388,34 +388,25 @@ function setupLanguageButtons() {
     const languageSelection = document.getElementById("language-selection");
     const btnFr = document.getElementById("btn-fr");
     const btnNl = document.getElementById("btn-nl");
+
+    if (!languageSelection || !btnFr || !btnNl) {
+        console.error("Un ou plusieurs éléments des boutons de langue sont introuvables.");
+        return;
+    }
     
     languageSelection.classList.add('show');
 
-    function handleLanguageClick(lang, event) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        
+    function handleLanguageSelection(lang, event) {
         btnFr.disabled = true;
         btnNl.disabled = true;
         
         selectedLang = lang;
+        
         fadeOutElement(languageSelection, startAnimation);
     }
-
-    function handleFrenchClick(e) {
-        handleLanguageClick('fr', e);
-    }
     
-    function handleDutchClick(e) {
-        handleLanguageClick('nl', e);
-    }
-    
-    btnFr.addEventListener("click", handleFrenchClick);
-    btnNl.addEventListener("click", handleDutchClick);
-    
-    btnFr.addEventListener("touchend", handleFrenchClick);
-    btnNl.addEventListener("touchend", handleDutchClick);
+    btnFr.addEventListener("click", (event) => handleLanguageSelection('fr', event));
+    btnNl.addEventListener("click", (event) => handleLanguageSelection('nl', event));
 }
 
 document.addEventListener("DOMContentLoaded", () => {

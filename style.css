@@ -84,33 +84,6 @@ body {
     100% { opacity: 0.2; }
 }
 
-@media (max-width: 768px) {
-    #text {
-        font-size: 2rem;
-        max-width: 90%;
-        margin-top: 0;
-    }
-
-    .cursor {
-        height: 24px;
-    }
-
-    .matrix span {
-        font-size: 1rem;
-    }
-
-    .matrix-number {
-        font-size: 1.2rem;
-    }
-    #text {
-        font-size: 1.8rem;
-    }
-
-    .cursor {
-        height: 20px;
-    }
-}
-
 .logo-no-glitch {
     width: 100px;
     height: 100px;
@@ -172,14 +145,11 @@ body {
 #language-selection {
     opacity: 0;
     transition: opacity 0.5s ease-in;
+    flex-direction: row;
 }
 
 #language-selection.show {
     opacity: 1;
-}
-
-#language-selection {
-    flex-direction: row;
 }
 
 #choice-selection {
@@ -194,53 +164,49 @@ body {
 
 #language-selection button,
 #choice-selection button {
-    padding: 15px 25px;
+    padding: 12px 20px;
     border: 2px solid white;
     background-color: transparent;
     color: white;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
     text-transform: uppercase;
-    display: flex;
-    justify-content: center;
-    transition: all 0.3s ease-in-out;
-}
-
-#language-selection button span,
-#choice-selection button span {
-    width: 100%;
-    height: 100%;
-    display: flex;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    text-align: center;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    pointer-events: none;
-}
-
-#language-selection button:hover,
-#language-selection button:focus,
-#language-selection button:focus-visible,
-#language-selection button:active,
-#choice-selection button:hover,
-#choice-selection button:focus,
-#choice-selection button:focus-visible,
-#choice-selection button:active {
-    background-color: white;
-    color: black;
+    white-space: nowrap;
 }
 
 #language-selection button {
-    width: 200px;
-    height: 60px;
-    font-size: 1.5rem;
-    white-space: nowrap;
+    font-size: 1.6rem;
+    min-width: 180px;
+    padding: 12px 25px;
 }
 
 #choice-selection button {
     flex-grow: 1;
-    min-width: 350px;
-    min-height: 90px;
+    min-width: 300px;
     max-width: 45%;
-    padding: 20px 30px;
+    font-size: 1.3rem;
+    padding: 15px 25px;
+    white-space: normal;
+}
+
+#language-selection button:hover,
+#language-selection button:focus,
+#choice-selection button:hover,
+#choice-selection button:focus {
+    background-color: white;
+    color: black;
+    outline: none;
+}
+
+#language-selection button:active,
+#choice-selection button:active {
+    background-color: #e0e0e0;
+    color: black;
 }
 
 .choice-prompt {
@@ -372,46 +338,55 @@ body {
 }
 
 @media (max-width: 768px) {
+    #text {
+        font-size: 1.8rem;
+        max-width: 90%;
+        margin-top: 0;
+    }
+
+    .cursor {
+        height: 20px;
+    }
+
+    .matrix span {
+        font-size: 1rem;
+    }
+
+    .matrix-number {
+        font-size: 1.2rem;
+    }
+
     #language-selection {
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
         width: 90%;
         align-items: center;
     }
     
-    #language-selection button:first-child {
+    #language-selection button#btn-fr {
         order: -1;
     }
     
     #language-selection button {
-        width: 150px;
-        height: 50px;
-        font-size: 1.2rem;
-        padding: 10px 15px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        white-space: nowrap;
+        width: 100%; 
+        max-width: 220px;
+        font-size: 1.4rem;
+        padding: 10px 20px;
     }
 
     #choice-selection {
         flex-direction: column;
         gap: 15px;
         max-width: unset;
+        width: 90%;
+        align-items: center;
     }
     
     #choice-selection button {
         width: 100%;
         max-width: 300px;
-        min-height: 70px;
         font-size: 1.3rem;
-        padding: 15px 25px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        white-space: normal;
+        padding: 15px 20px;
     }
 
     .choice-prompt {
