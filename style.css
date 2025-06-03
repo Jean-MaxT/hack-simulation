@@ -206,6 +206,16 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
+#language-selection button span,
+#choice-selection button span {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
 #language-selection button:hover,
 #language-selection button:focus,
 #language-selection button:focus-visible,
