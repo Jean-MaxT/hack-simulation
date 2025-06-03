@@ -201,31 +201,18 @@ body {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.8rem;
     text-transform: uppercase;
-    cursor: pointer;
     display: flex;
     justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-    text-align: center;
-    line-height: 1.2;
-    position: relative;
-    z-index: 21;
-}
-
-#language-selection button span,
-#choice-selection button span {
-    pointer-events: none;
-    display: block;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    transition: all 0.3s ease-in-out;
 }
 
 #language-selection button:hover,
+#language-selection button:focus,
+#language-selection button:focus-visible,
 #language-selection button:active,
 #choice-selection button:hover,
+#choice-selection button:focus,
+#choice-selection button:focus-visible,
 #choice-selection button:active {
     background-color: white;
     color: black;
