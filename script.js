@@ -386,11 +386,17 @@ async function startAnimation() {
 
 function setupLanguageButtons() {
     const languageSelection = document.getElementById("language-selection");
+
+    languageSelection.innerHTML = `
+        <button id="btn-fr" type="button" aria-label="Français">Français</button>
+        <button id="btn-nl" type="button" aria-label="Nederlands">Nederlands</button>
+    `;
+
     const btnFr = document.getElementById("btn-fr");
     const btnNl = document.getElementById("btn-nl");
 
     if (!languageSelection || !btnFr || !btnNl) {
-        console.error("Un ou plusieurs éléments des boutons de langue sont introuvables.");
+        console.error("Un ou plusieurs éléments des boutons de langue n'ont pas pu être créés ou trouvés dynamiquement.");
         return;
     }
     
