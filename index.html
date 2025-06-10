@@ -3,38 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FNAC Digital Security</title>
+    <title>Digital Security</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="66d9339e-9b63-40c9-907e-46eb659c0a4b"></script>
     <script defer src="https://unpkg.com/ua-parser-js@1.0.35/src/ua-parser.min.js"></script>
-    <link rel="preload" as="image" href="logo_fnac_glitch1.png">
-    <link rel="preload" as="image" href="logo_fnac_glitch2.png">
-    <link rel="preload" as="image" href="logo_fnac_glitch3.png">
 </head>
 <body>
-    <div class="matrix" id="matrix-container"></div>
-    
-    <div class="logo-no-glitch"></div>
-    <div class="logo-glitch" style="display: none;"></div>
 
-    <div id="language-selection">
-        <button id="btn-fr" type="button" aria-label="Français">Français</button>
-        <button id="btn-nl" type="button" aria-label="Nederlands">Nederlands</button>
+    <div id="matrix-container" class="screen"></div>
+
+    <div id="language-screen" class="screen">
+        <button data-lang="fr" type="button" aria-label="Français">Français</button>
+        <button data-lang="nl" type="button" aria-label="Nederlands">Nederlands</button>
     </div>
 
-    <div id="text" style="display: none;">
-        <span id="content" class="glitch"></span><span class="cursor"></span>
+    <div id="text-screen" class="screen">
+        <p id="text-content"></p><span class="cursor"></span>
     </div>
     
-    <div id="selfieContainer" style="margin-top: 20px;"></div>
+    <div id="selfie-screen" class="screen"></div>
 
-    <div id="choice-selection">
-    </div>
+    <div id="choice-screen" class="screen"></div>
     
-    <div id="choice-result">
-        <span id="choice-result-symbol"></span>
-        <span id="choice-result-message"></span>
+    <div id="result-screen" class="screen">
+        <span id="result-symbol"></span>
+        <span id="result-message"></span>
     </div>
 
     <script src="script.js"></script>

@@ -1,420 +1,187 @@
-let selectedLang = 'fr';
-
-const textElement = document.getElementById("content");
-const textContainer = document.getElementById("text");
-
-let choiceSelection = document.getElementById('choice-selection');
-if (!choiceSelection) {
-    choiceSelection = document.createElement('div');
-    choiceSelection.id = 'choice-selection';
-    document.body.appendChild(choiceSelection);
-}
-
-let choiceResult = document.getElementById('choice-result');
-if (!choiceResult) {
-    choiceResult = document.createElement('div');
-    choiceResult.id = 'choice-result';
-    choiceResult.innerHTML = '<span id="choice-result-symbol"></span><span id="choice-result-message"></span>';
-    document.body.appendChild(choiceResult);
-}
-
-async function getDeviceInfo() {
-    let device = "Appareil inconnu";
-    let os = "Système inconnu";
-    let browser = "Navigateur inconnu";
-
-    if (navigator.userAgentData) {
-        try {
-            const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['platformVersion', 'model']);
-            if (highEntropyValues.platform) {
-                os = `${highEntropyValues.platform} ${highEntropyValues.platformVersion || ""}`.trim();
-            }
-            if (highEntropyValues.model) {
-                device = highEntropyValues.model;
-            }
-            if (navigator.userAgentData.brands && navigator.userAgentData.brands.length > 0) {
-                const mainBrand = navigator.userAgentData.brands.find(brand => !brand.brand.includes('Chromium')) || navigator.userAgentData.brands[0];
-                browser = `${mainBrand.brand} ${mainBrand.version || ""}`.trim();
-            } else if (navigator.userAgentData.ua) {
-                const parser = new UAParser();
-                const result = parser.getResult();
-                browser = result.browser.name || "Navigateur inconnu";
-            }
-            if (device !== "Appareil inconnu" || os !== "Système inconnu") {
-                return { device, browser, os };
-            }
-        } catch (error) {
-            console.warn("Erreur lors de la récupération des User-Agent Client Hints :", error);
+document.addEventListener("DOMContentLoaded", () => {
+    const config = {
+        fr: {
+            initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
+            deviceInfo: (device, os, browser) => [ `APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}` ],
+            finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
+            selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
+            selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
+            choicePrompt: "Maintenant que tu sais ça...",
+            protectButton: "Protéger mes données avec le DSP",
+            ignoreButton: "Ignorer et espérer que ça n'arrive jamais",
+            protectResult: "Bonne idée, approche-toi d'un vendeur.",
+            ignoreResult: "Mauvaise idée, tu devrais aller voir un vendeur."
+        },
+        nl: {
+            initialPhrases: ["Denk je dat je beschermd bent?", "En toch, dit is wat we van je toestel hebben gehaald…"],
+            deviceInfo: (device, os, browser) => [ `TOESTEL: ${device}`, `SYSTEEM: ${os}`, `BROWSER: ${browser}` ],
+            finalPhrases: ["Een hacker zou in 30 seconden erger doen.", "Daarom hebben we het Digital Service Pack ontwikkeld."],
+            selfieMessage: "En dat is jouw gezicht als je beseft dat je gegevens toegankelijk zijn…",
+            selfieDisclaimer: "Wees gerust, er wordt niets opgeslagen.",
+            choicePrompt: "Nu je dit weet…",
+            protectButton: "Mijn gegevens beschermen met de DSP",
+            ignoreButton: "Negeren en hopen dat het nooit gebeurt",
+            protectResult: "Goed idee, spreek een verkoper aan.",
+            ignoreResult: "Slecht idee, je kan beter een verkoper aanspreken."
         }
-    }
+    };
 
-    const parser = new UAParser();
-    const result = parser.getResult();
+    const dom = {
+        screens: {
+            matrix: document.getElementById('matrix-container'),
+            language: document.getElementById('language-screen'),
+            text: document.getElementById('text-screen'),
+            selfie: document.getElementById('selfie-screen'),
+            choice: document.getElementById('choice-screen'),
+            result: document.getElementById('result-screen'),
+        },
+        textContent: document.getElementById('text-content'),
+        cursor: document.querySelector('.cursor'),
+        resultSymbol: document.getElementById('result-symbol'),
+        resultMessage: document.getElementById('result-message'),
+    };
 
-    if (result.device.vendor && result.device.model) {
-        device = `${result.device.vendor} ${result.device.model}`;
-    } else if (result.device.model) {
-        device = result.device.model;
-    } else if (result.os.name) {
-        const osName = result.os.name.toLowerCase();
-        if (osName.includes("android")) device = "Appareil Android";
-        else if (osName.includes("ios")) device = "iPhone";
-        else if (osName.includes("windows")) device = "Appareil Windows";
-        else if (osName.includes("mac os")) device = "Mac";
-        else device = result.os.name;
-    }
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    os = result.os.name ? `${result.os.name} ${result.os.version || ""}`.trim() : "Système inconnu";
-    browser = result.browser.name || "Navigateur inconnu";
+    const showScreen = (element) => element.classList.add('is-visible');
+    const hideScreen = async (element) => {
+        element.classList.remove('is-visible');
+        await delay(600);
+    };
 
-    return { device, browser, os };
-}
-
-function typeText(textToType, callback, clearBefore = true) {
-    let index = 0;
-    let initialContent = "";
-    if (!clearBefore) {
-        initialContent = textElement.innerHTML;
-    } else {
-        textElement.innerHTML = "";
-    }
-
-    textElement.style.opacity = 1;
-
-    const cursor = document.querySelector('.cursor');
-    if (cursor) cursor.style.display = 'inline-block';
-
-    const interval = setInterval(() => {
-        textElement.innerHTML = initialContent + textToType.slice(0, index++);
-        if (index > textToType.length) {
-            clearInterval(interval);
-            callback();
-        }
-    }, 30);
-}
-
-function fadeOutText(callback) {
-    textElement.style.transition = "opacity 0.6s ease-out";
-    textElement.style.opacity = 0;
-
-    setTimeout(() => {
-        const cursor = document.querySelector('.cursor');
-        if (cursor) cursor.style.display = 'none';
-        textElement.innerHTML = "";
-        textElement.style.transition = "";
-        textElement.style.opacity = 1;
-        callback();
-    }, 600);
-}
-
-function fadeOutElement(element, callback) {
-    if (!element) {
-        callback();
-        return;
-    }
-    element.style.opacity = 0;
-    element.style.transition = "opacity 0.6s ease-out";
-    setTimeout(() => {
-        element.style.display = "none";
-        element.style.transition = "";
-        element.style.opacity = 1;
-        element.classList.remove('show');
-        element.classList.remove('show-selfie');
-        callback();
-    }, 600);
-}
-
-function fadeInElement(element, callback) {
-    if (!element) {
-        callback();
-        return;
-    }
-    element.style.display = "flex";
-    element.offsetHeight;
-    element.classList.add('show-selfie');
-    setTimeout(() => {
-        callback();
-    }, 800);
-}
-
-async function showLinesSequentially(lines) {
-    for (let i = 0; i < lines.length; i++) {
-        await new Promise(resolve => {
-            typeText(lines[i], async () => {
-                await new Promise(readDelay => setTimeout(readDelay, 1500));
-                if (i < lines.length - 1) {
-                    fadeOutText(resolve);
+    const typeText = (text) => {
+        return new Promise(resolve => {
+            let i = 0;
+            dom.textContent.innerHTML = "";
+            dom.cursor.style.display = 'inline-block';
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    dom.textContent.innerHTML += text.charAt(i);
+                    i++;
                 } else {
+                    clearInterval(interval);
+                    dom.cursor.style.display = 'none';
                     resolve();
                 }
-            });
+            }, 30);
         });
-        if (i < lines.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
-    }
-}
+    };
 
-async function typeMultiLines(lines) {
-    for (let i = 0; i < lines.length; i++) {
-        await new Promise(resolve => {
-            typeText(lines[i], resolve, i === 0);
-        });
-        if (i < lines.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            textElement.innerHTML += '<br>';
-        }
-    }
-    await new Promise(resolve => setTimeout(resolve, 500));
-}
-
-async function takeSelfie() {
-    const container = document.getElementById("selfieContainer");
-    let selfieTaken = false;
-
-    container.innerHTML = "";
-
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        const video = document.createElement("video");
-        video.srcObject = stream;
-        video.setAttribute("playsinline", true);
-
-        const tempVideoContainer = document.createElement('div');
-        tempVideoContainer.style.position = 'fixed';
-        tempVideoContainer.style.left = '-9999px';
-        tempVideoContainer.style.top = '-9999px';
-        tempVideoContainer.style.opacity = '0';
-        document.body.appendChild(tempVideoContainer);
-        tempVideoContainer.appendChild(video);
-
-        await new Promise(resolve => {
-            video.onloadedmetadata = () => {
-                video.play();
-                resolve();
+    const getDeviceInfo = async () => {
+        try {
+            const parser = new UAParser();
+            const result = parser.getResult();
+            let device = `${result.device.vendor || ''} ${result.device.model || ''}`.trim() || 'Appareil générique';
+            if (device === 'Appareil générique') {
+                 if (result.os.name?.toLowerCase().includes('android')) device = 'Appareil Android';
+                 if (result.os.name?.toLowerCase().includes('ios')) device = 'iPhone';
+            }
+            return {
+                device,
+                os: `${result.os.name || ''} ${result.os.version || ''}`.trim() || 'OS Inconnu',
+                browser: result.browser.name || 'Navigateur Inconnu'
             };
+        } catch (e) { return { device: 'Appareil', os: 'Inconnu', browser: 'Inconnu' }; }
+    };
+
+    const runExperience = async (lang) => {
+        const texts = config[lang];
+
+        showScreen(dom.screens.matrix);
+        await delay(100);
+        for (let i = 0; i < 100; i++) {
+            const char = document.createElement("span");
+            char.className = "matrix-number";
+            char.textContent = Math.round(Math.random());
+            char.style.left = `${Math.random() * 100}%`;
+            char.style.top = `${Math.random() * 100}%`;
+            char.style.animationDelay = `${Math.random() * 2}s`;
+            dom.screens.matrix.appendChild(char);
+        }
+        
+        for (const phrase of texts.initialPhrases) {
+            showScreen(dom.screens.text);
+            await typeText(phrase);
+            await delay(1500);
+            await hideScreen(dom.screens.text);
+        }
+
+        const deviceInfo = await getDeviceInfo();
+        const infoLines = texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser);
+        showScreen(dom.screens.text);
+        dom.screens.text.style.textAlign = 'left';
+        for (let i = 0; i < infoLines.length; i++) {
+            await typeText(infoLines[i]);
+            if (i < infoLines.length - 1) dom.textContent.innerHTML += '<br>';
+            await delay(500);
+        }
+        await delay(4000);
+        await hideScreen(dom.screens.text);
+        dom.screens.text.style.textAlign = 'center';
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            const video = document.createElement("video");
+            video.srcObject = stream;
+            video.onloadeddata = () => video.play();
+            await delay(500);
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0);
+            stream.getTracks().forEach(track => track.stop());
+            
+            dom.screens.selfie.innerHTML = `
+                <div class="selfie-frame">
+                    <p class="selfie-message">${texts.selfieMessage}</p>
+                    <img src="${canvas.toDataURL("image/jpeg")}" alt="Selfie" class="selfie-image"/>
+                    <p class="selfie-disclaimer">${texts.selfieDisclaimer}</p>
+                </div>`;
+            showScreen(dom.screens.selfie);
+            await delay(4000);
+            await hideScreen(dom.screens.selfie);
+        } catch (error) { console.warn("Selfie impossible:", error); }
+
+        for (const phrase of texts.finalPhrases) {
+            showScreen(dom.screens.text);
+            await typeText(phrase);
+            await delay(1500);
+            await hideScreen(dom.screens.text);
+        }
+
+        dom.screens.choice.innerHTML = `
+            <p class="choice-prompt">${texts.choicePrompt}</p>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                <button data-choice="protect">${texts.protectButton}</button>
+                <button data-choice="ignore">${texts.ignoreButton}</button>
+            </div>`;
+        showScreen(dom.screens.choice);
+        
+        dom.screens.choice.addEventListener('click', async (e) => {
+            if (e.target.tagName !== 'BUTTON') return;
+            const choice = e.target.dataset.choice;
+            const isProtect = choice === 'protect';
+            
+            await hideScreen(dom.screens.choice);
+            
+            dom.resultSymbol.innerHTML = isProtect ? '&#x1F6E1;' : '&#x2620;';
+            dom.resultSymbol.style.color = isProtect ? '#2ecc71' : '#e74c3c';
+            dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
+            showScreen(dom.screens.result);
+        }, { once: true });
+    };
+
+    const init = () => {
+        showScreen(dom.screens.language);
+        dom.screens.language.addEventListener('click', async (e) => {
+            if (e.target.tagName !== 'BUTTON') return;
+            const lang = e.target.dataset.lang;
+            if (!lang) return;
+            dom.screens.language.querySelectorAll('button').forEach(b => b.disabled = true);
+            await hideScreen(dom.screens.language);
+            runExperience(lang);
         });
+    };
 
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const context = canvas.getContext("2d");
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        stream.getTracks().forEach(track => track.stop());
-        tempVideoContainer.remove();
-
-        const imageDataURL = canvas.toDataURL("image/png");
-
-        const selfieMessageText = selectedLang === 'fr'
-            ? "Et ça, c'est ta tête quand tu réalises que tes infos sont pas si protégées…"
-            : "En dit is je gezicht als je beseft dat je gegevens niet zo veilig zijn…";
-        const selfieDisclaimerText = selectedLang === 'fr'
-            ? "Rien n'est stocké, pas de panique."
-            : "Niets wordt opgeslagen, geen paniek.";
-
-        const selfieFrame = document.createElement('div');
-        selfieFrame.className = 'selfie-frame';
-
-        const selfieMessage = document.createElement('div');
-        selfieMessage.className = 'selfie-message';
-        selfieMessage.textContent = selfieMessageText;
-
-        const selfieImage = document.createElement('img');
-        selfieImage.className = 'selfie-image';
-        selfieImage.src = imageDataURL;
-        selfieImage.alt = selectedLang === 'fr' ? "Selfie de votre webcam" : "Webcam selfie";
-
-        const selfieDisclaimer = document.createElement('div');
-        selfieDisclaimer.className = 'selfie-disclaimer';
-        selfieDisclaimer.textContent = selfieDisclaimerText;
-
-        selfieFrame.appendChild(selfieMessage);
-        selfieFrame.appendChild(selfieImage);
-        selfieFrame.appendChild(selfieDisclaimer);
-        container.appendChild(selfieFrame);
-
-        await new Promise(resolve => fadeInElement(container, resolve));
-        selfieTaken = true;
-
-    } catch (error) {
-        console.warn("Erreur lors de la prise de selfie :", error);
-        container.innerHTML = "";
-        container.style.display = "none";
-        selfieTaken = false;
-    }
-
-    return selfieTaken;
-}
-
-function generateMatrixEffect() {
-    const matrixContainer = document.getElementById("matrix-container");
-    matrixContainer.innerHTML = "";
-
-    const characters = "01";
-    const totalChars = 150;
-
-    for (let i = 0; i < totalChars; i++) {
-        const span = document.createElement("span");
-        span.classList.add("matrix-number");
-        span.textContent = characters[Math.floor(Math.random() * characters.length)];
-        span.style.left = `${Math.random() * 100}%`;
-        span.style.top = `${Math.random() * 100}%`;
-        span.style.animationDelay = `${Math.random() * 2}s`;
-        span.style.animationDuration = `${Math.random() * 3 + 1}s`;
-        matrixContainer.appendChild(span);
-    }
-}
-
-async function showChoices() {
-    fadeOutElement(textContainer, () => {
-        choiceSelection.innerHTML = `
-            <p class="choice-prompt">${selectedLang === 'fr' ? "Maintenant que tu sais ça…" : "Nu je dit weet…"}</p>
-            <button id="btn-protect" type="button">${selectedLang === 'fr' ? "Protéger mes données avec le DSP" : "Bescherm mijn gegevens met de DSP"}</button>
-            <button id="btn-ignore" type="button">${selectedLang === 'fr' ? "Ignorer et espérer que ça n'arrive jamais" : "Negeer en hoop dat het nooit gebeurt"}</button>
-        `;
-
-        const btnIgnore = choiceSelection.querySelector('#btn-ignore');
-        const btnProtect = choiceSelection.querySelector('#btn-protect');
-
-        btnIgnore.addEventListener('click', handleIgnore);
-        btnProtect.addEventListener('click', handleProtect);
-
-        choiceSelection.style.display = 'flex';
-        choiceSelection.classList.add('show');
-    });
-}
-
-async function handleIgnore() {
-    fadeOutElement(choiceSelection, async () => {
-        const symbol = '&#x2620;';
-        const message = selectedLang === 'fr' ? "Mauvaise idée, tu devrais aller voir un vendeur." : "Slecht idee, je zou een verkoper moeten spreken.";
-
-        document.getElementById('choice-result-symbol').innerHTML = symbol;
-        document.getElementById('choice-result-symbol').style.color = 'red';
-        document.getElementById('choice-result-message').textContent = message;
-
-        choiceResult.classList.remove('success', 'failure');
-        choiceResult.style.display = 'flex';
-        choiceResult.classList.add('show');
-    });
-}
-
-async function handleProtect() {
-    fadeOutElement(choiceSelection, async () => {
-        const symbol = '&#x1F6E1;';
-        const message = selectedLang === 'fr' ? "Bonne idée, approche-toi d'un vendeur." : "Goed idee, spreek een verkoper aan.";
-
-        document.getElementById('choice-result-symbol').innerHTML = symbol;
-        document.getElementById('choice-result-symbol').style.color = 'green';
-        document.getElementById('choice-result-message').textContent = message;
-
-        choiceResult.classList.remove('success', 'failure');
-        choiceResult.style.display = 'flex';
-        choiceResult.classList.add('show');
-    });
-}
-
-async function showAnimation() {
-    const { device, browser, os } = await getDeviceInfo();
-
-    const initialPhrases = selectedLang === 'fr'
-        ? ["Tu penses être protégé ?", "Et pourtant voilà ce qu'on a récupéré de ton appareil…"]
-        : ["Denk je dat je beschermd bent?", "Dit hebben we gevonden:"];
-
-    const deviceInfoPhrases = selectedLang === 'fr'
-        ? [`Identifiant Appareil : ${device}`, `Système : ${os}`, `Mapsur : ${browser}`]
-        : [`Apparaat: ${device}`, `Systeem: ${os}`, `Browser: ${browser}`];
-
-    const introAfterPhrases = selectedLang === 'fr'
-        ? ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."]
-        : ["Een hacker zou erger doen in 30 seconden.", "Daarom hebben we de Digital Service Pack ontwikkeld."];
-
-    textContainer.style.display = "block";
-    textElement.innerHTML = "";
-
-    await showLinesSequentially(initialPhrases);
-    await new Promise(resolve => fadeOutText(resolve));
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    textContainer.style.display = "block";
-    await typeMultiLines(deviceInfoPhrases);
-    await new Promise(resolve => fadeOutText(resolve));
-
-    const selfieContainer = document.getElementById("selfieContainer");
-    const selfieDisplayed = await takeSelfie();
-
-    if (selfieDisplayed) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        await new Promise(resolve => fadeOutElement(selfieContainer, () => {
-            selfieContainer.innerHTML = "";
-            resolve();
-        }));
-    }
-
-    textContainer.style.display = "block";
-    textElement.innerHTML = "";
-
-    await showLinesSequentially(introAfterPhrases);
-    await new Promise(resolve => setTimeout(() => fadeOutText(() => {
-        showChoices();
-        resolve();
-    }), 1000));
-}
-
-async function startAnimation() {
-    textContainer.style.display = "none";
-    textElement.innerHTML = "";
-
-    choiceSelection.classList.remove('show');
-    choiceSelection.style.display = "none";
-
-    choiceResult.classList.remove('show', 'success', 'failure');
-    choiceResult.style.display = "none";
-
-    const selfieContainer = document.getElementById("selfieContainer");
-    if (selfieContainer) {
-        selfieContainer.style.display = "none";
-        selfieContainer.innerHTML = "";
-    }
-
-    generateMatrixEffect();
-    await showAnimation();
-}
-
-function setupLanguageButtons() {
-    const languageSelection = document.getElementById("language-selection");
-
-    languageSelection.innerHTML = `
-        <button id="btn-fr" type="button" aria-label="Français">Français</button>
-        <button id="btn-nl" type="button" aria-label="Nederlands">Nederlands</button>
-    `;
-
-    const btnFr = document.getElementById("btn-fr");
-    const btnNl = document.getElementById("btn-nl");
-
-    if (!languageSelection || !btnFr || !btnNl) {
-        console.error("Un ou plusieurs éléments des boutons de langue n'ont pas pu être créés ou trouvés dynamiquement.");
-        return;
-    }
-    
-    languageSelection.classList.add('show');
-
-    function handleLanguageSelection(lang, event) {
-        btnFr.disabled = true;
-        btnNl.disabled = true;
-        
-        selectedLang = lang;
-        
-        fadeOutElement(languageSelection, startAnimation);
-    }
-    
-    btnFr.addEventListener("click", (event) => handleLanguageSelection('fr', event));
-    btnNl.addEventListener("click", (event) => handleLanguageSelection('nl', event));
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    setupLanguageButtons();
+    init();
 });

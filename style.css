@@ -1,43 +1,75 @@
+/* --- CONFIGURATION GÉNÉRALE --- */
 body {
     background-color: black;
     color: white;
     font-family: 'Bebas Neue', sans-serif;
-    text-align: center;
+    margin: 0;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    position: relative;
 }
 
-#text {
+/* --- SYSTÈME D'AFFICHAGE DES ÉCRANS --- */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    
+    /* Logique de fondu */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease-in-out;
+}
+
+.screen.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* --- EFFET MATRIX --- */
+#matrix-container {
+    z-index: 1;
+}
+
+.matrix-number {
+    position: absolute;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    animation: flicker 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes flicker {
+    from { opacity: 0.1; }
+    to { opacity: 0.8; }
+}
+
+/* --- ÉCRAN DE TEXTE --- */
+#text-screen {
+    z-index: 10;
     font-size: 2.7rem;
     font-weight: bold;
-    position: relative;
-    width: 90%;
-    max-width: 600px;
+    max-width: 700px;
     line-height: 1.3;
-    z-index: 2;
-}
-
-.highlight {
-    color: #ebb200;
-}
-
-.fade-out {
-    opacity: 0;
-    transition: opacity 0.6s ease-out;
+    text-align: center;
 }
 
 .cursor {
-    display: inline-block;
+    display: none; /* Contrôlé par JS */
     width: 8px;
     height: 30px;
     background: white;
-    margin-left: 5px;
+    margin-left: 8px;
     animation: blink 0.7s infinite;
 }
 
@@ -45,390 +77,76 @@ body {
     50% { opacity: 0; }
 }
 
-.matrix {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.matrix span {
-    position: absolute;
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: bold;
-    opacity: 0;
-    animation: matrixAnim 0.5s linear infinite;
-}
-
-@keyframes matrixAnim {
-    0% { opacity: 0; transform: translateY(0px); }
-    50% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(20px); }
-}
-
-.matrix-number {
-    position: absolute;
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: bold;
-    animation: flicker 1s infinite alternate ease-in-out;
-}
-
-@keyframes flicker {
-    0% { opacity: 0.2; }
-    50% { opacity: 1; }
-    100% { opacity: 0.2; }
-}
-
-.logo-no-glitch {
-    width: 100px;
-    height: 100px;
-    background-image: url('logo_fnac.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 10;
-}
-
-@keyframes glitchLogo {
-    0%, 100% {
-        background-image: url('logo_fnac.png');
-    }
-    92.5% {
-        background-image: url('logo_fnac_glitch1.png');
-    }
-    95% {
-        background-image: url('logo_fnac_glitch2.png');
-    }
-    97.5% {
-        background-image: url('logo_fnac_glitch3.png');
-    }
-}
-
-.logo-glitch {
-    width: 100px;
-    height: 100px;
-    background-image: url('logo_fnac.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 10;
-    display: none;
-    animation: glitchLogo 2.5s infinite steps(1);
-}
-
-#language-selection,
-#choice-selection {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    gap: 20px;
+/* --- BOUTONS (LANGUES ET CHOIX) --- */
+#language-screen, #choice-screen {
     z-index: 20;
-    padding: 20px;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
 }
 
-#language-selection {
-    opacity: 0;
-    transition: opacity 0.5s ease-in;
-    flex-direction: row;
-}
-
-#language-selection.show {
-    opacity: 1;
-}
-
-#choice-selection {
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-width: 800px;
-}
-
-#choice-selection.show {
-    opacity: 1;
-}
-
-#language-selection button,
-#choice-selection button {
-    padding: 12px 20px;
-    border: 2px solid white;
+#language-screen button, #choice-screen button {
     background-color: transparent;
+    border: 2px solid white;
     color: white;
     font-family: 'Bebas Neue', sans-serif;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-    text-align: center;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    white-space: nowrap;
-    position: relative;
-    z-index: 1;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-#language-selection button {
+    transition: background-color 0.2s, color 0.2s;
     font-size: 1.6rem;
-    min-width: 180px;
-    padding: 12px 25px;
+    padding: 14px 28px;
+    min-width: 200px;
 }
 
-#choice-selection button {
-    flex-grow: 1;
+#choice-screen button {
     min-width: 300px;
-    max-width: 45%;
-    font-size: 1.3rem;
-    padding: 15px 25px;
     white-space: normal;
 }
 
-#language-selection button:hover,
-#language-selection button:focus,
-#choice-selection button:hover,
-#choice-selection button:focus {
+#language-screen button:hover, #choice-screen button:hover {
     background-color: white;
     color: black;
-    outline: none;
 }
 
-#language-selection button:active,
-#choice-selection button:active {
-    background-color: #e0e0e0;
-    color: black;
+/* --- ÉCRAN SELFIE --- */
+#selfie-screen {
+    z-index: 30;
+    background-color: rgba(0, 0, 0, 0.5);
 }
-
-.choice-prompt {
-    font-size: 2.2rem;
-    font-weight: bold;
-    margin-bottom: 25px;
-    color: white;
-    text-align: center;
-    width: 100%;
-}
-
-#choice-result {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-weight: bold;
-    text-align: center;
-    z-index: 20;
-    opacity: 0;
-    transition: opacity 0.8s ease-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    max-width: 90%;
-    width: auto;
-    padding: 30px;
-    box-sizing: border-box;
-    border-radius: 10px;
-    border: none;
-    box-shadow: none;
-}
-
-#choice-result.show {
-    opacity: 1;
-    display: flex;
-}
-
-#choice-result-symbol {
-    font-size: 8rem;
-    line-height: 1;
-    margin-bottom: 10px;
-}
-
-#choice-result-message {
-    font-size: 2.2rem;
-    font-weight: normal;
-    padding: 0 10px;
-}
-
-#selfieContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    text-align: center;
-    background-color: transparent;
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
-}
-
-#selfieContainer.show-selfie {
-    opacity: 1;
-}
-
 .selfie-frame {
-    background-color: transparent;
-    padding: 0;
-    max-width: 500px;
-    max-height: 500px;
-    width: 85%;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 20px;
-    border-radius: 15px;
-    overflow: visible;
-    transition: box-shadow 0.8s ease-out;
-    position: relative;
-}
-
-.selfie-message {
-    font-size: 2.2rem;
-    font-weight: bold;
-    color: white;
-    padding: 15px 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    background-color: rgba(0, 0, 0, 0.7);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    order: 1;
-    z-index: 10;
-}
-
-#selfieContainer img.selfie-image {
-    display: block;
-    width: 100%;
+    width: 90%;
     max-width: 400px;
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: cover;
+}
+.selfie-message {
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+.selfie-image {
+    width: 100%;
     border-radius: 10px;
-    margin: 0;
-    box-shadow: 0 0px 10px 0 rgba(250, 249, 249, 0.63), 0 0px 30px 0 rgba(250, 250, 250, 0.61);
-    order: 2;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 }
-
 .selfie-disclaimer {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    padding: 10px 15px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
-    margin-top: 10px;
-    order: 3;
-    z-index: 10;
+    font-size: 1rem;
 }
 
+/* --- ÉCRAN RÉSULTAT --- */
+#result-screen {
+    z-index: 20;
+}
+#result-symbol {
+    font-size: 7rem;
+    line-height: 1;
+}
+#result-message {
+    font-size: 2.2rem;
+    max-width: 500px;
+}
+
+/* --- RESPONSIVE DESIGN --- */
 @media (max-width: 768px) {
-    #text {
-        font-size: 1.8rem;
-        max-width: 90%;
-        margin-top: 0;
-    }
-
-    .cursor {
-        height: 20px;
-    }
-
-    .matrix span {
-        font-size: 1rem;
-    }
-
-    .matrix-number {
-        font-size: 1.2rem;
-    }
-
-    #language-selection {
-        flex-direction: column;
-        gap: 15px;
-        width: 90%;
-        align-items: center;
-    }
-    
-    #language-selection button#btn-fr {
-        order: -1;
-    }
-    
-    #language-selection button {
-        width: 100%; 
-        max-width: 220px;
-        font-size: 1.4rem;
-        padding: 10px 20px;
-    }
-
-    #choice-selection {
-        flex-direction: column;
-        gap: 15px;
-        max-width: unset;
-        width: 90%;
-        align-items: center;
-    }
-    
-    #choice-selection button {
-        width: 100%;
-        max-width: 300px;
-        font-size: 1.3rem;
-        padding: 15px 20px;
-    }
-
-    .choice-prompt {
-        font-size: 1.8rem;
-    }
-    
-    #choice-result {
-        font-size: 2.5rem;
-    }
-    
-    #choice-result-symbol {
-        font-size: 5rem;
-    }
-    
-    #choice-result-message {
-        font-size: 1.5rem;
-    }
-
-    .selfie-frame {
-        padding: 0;
-        max-width: 95%;
-        width: 90%;
-        gap: 15px;
-    }
-    
-    .selfie-message {
-        font-size: 1.6rem;
-        padding: 12px 15px;
-    }
-    
-    .selfie-disclaimer {
-        font-size: 0.9rem;
-        padding: 8px 12px;
-    }
-    
-    #selfieContainer img.selfie-image {
-        max-width: 300px;
-    }
+    #text-screen { font-size: 1.8rem; }
+    #language-screen { flex-direction: column; }
+    #choice-screen div { flex-direction: column; }
 }
