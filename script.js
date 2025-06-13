@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`],
+            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `NAVIGATEUR : ${browser}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
             protectButton: "Protéger mes données avec le DSP",
             ignoreButton: "Ignorer et espérer que ça n'arrive jamais",
             protectResult: "Bonne idée, approche-toi d'un vendeur.",
-            ignoreResult: "Mauvaise idée, tu devrais aller voir un vendeur.",
-            genericDeviceName: "Cet appareil"
+            ignoreResult: "Mauvaise idée, tu devrais aller voir un vendeur."
         },
         nl: {
             initialPhrases: ["Denk je dat je beschermd bent?", "En toch, dit is wat we van je toestel hebben gehaald…"],
@@ -23,8 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             protectButton: "Mijn gegevens beschermen met de DSP",
             ignoreButton: "Negeren en hopen dat het nooit gebeurt",
             protectResult: "Goed idee, spreek een verkoper aan.",
-            ignoreResult: "Slecht idee, je kan beter een verkoper aanspreken.",
-            genericDeviceName: "Dit toestel"
+            ignoreResult: "Slecht idee, je kan beter een verkoper aanspreken."
         }
     };
 
@@ -45,11 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const show = (element) => {
         if (!element) return;
         element.style.display = 'flex';
-        requestAnimationFrame(() => element.classList.add('visible'));
+        setTimeout(() => {
+            element.classList.add('visible');
+        }, 20);
     };
 
     const hide = (element, callback) => {
-        if (!element) {
+        if (!element || !element.classList.contains('visible')) {
             if (callback) callback();
             return;
         }
@@ -59,8 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (callback) callback();
         }, 600);
     };
-
-    // Fonction de frappe promise-based pour un meilleur contrôle avec async/await
+    
     const typeText = (text, element, append = false) => {
         return new Promise(resolve => {
             if (!append) {
@@ -75,26 +74,35 @@ document.addEventListener("DOMContentLoaded", () => {
                     clearInterval(interval);
                     resolve();
                 }
-            }, 30); // Vitesse de frappe réglée à 30ms
+            }, 30);
         });
     };
     
     const getDeviceInfo = () => {
         try {
             const parser = new UAParser();
-            const device = parser.getDevice();
-            const os = parser.getOS();
-            const browser = parser.getBrowser();
-            
-            // Sur desktop, le modèle est souvent vide. On se rabat sur le nom générique.
-            const deviceName = `${device.vendor || ''} ${device.model || ''}`.trim() || config[selectedLang].genericDeviceName;
-            const osName = `${os.name || ''} ${os.version || ''}`.trim() || 'OS Inconnu';
-            const browserName = browser.name || 'Navigateur Inconnu';
+            const result = parser.getResult();
+            const osName = result.os.name || "Inconnu";
+            const osVersion = result.os.version || "";
+            const deviceVendor = result.device.vendor || "";
+            const deviceModel = result.device.model || "";
 
-            return { device: deviceName, os: osName, browser: browserName };
-        } catch (e) {
-            console.error("Erreur détection appareil:", e);
-            return { device: config[selectedLang].genericDeviceName, os: 'Inconnu', browser: 'Inconnu' };
+            let device = `${deviceVendor} ${deviceModel}`.trim();
+            if (!device) {
+                if (osName.toLowerCase().includes("android")) device = "Appareil Android";
+                else if (osName.toLowerCase().includes("ios")) device = "iPhone";
+                else if (osName.toLowerCase().includes("windows")) device = "Appareil Windows";
+                else if (osName.toLowerCase().includes("mac os")) device = "Mac";
+                else device = "Appareil";
+            }
+
+            return {
+                device,
+                os: `${osName} ${osVersion}`.trim(),
+                browser: `${result.browser.name || ''} ${result.browser.version || ''}`.trim() || "Inconnu"
+            };
+        } catch (error) {
+            return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
         }
     };
 
@@ -102,27 +110,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const texts = config[selectedLang];
         const deviceInfo = getDeviceInfo();
 
-        // Fonction pour afficher des phrases l'une après l'autre (en effaçant la précédente)
         const showLinesSequentially = async (lines, onComplete) => {
             show(dom.text);
             for (const line of lines) {
                 await typeText(line, dom.textContent);
-                await new Promise(res => setTimeout(res, 1200)); // Pause entre les lignes
+                await new Promise(res => setTimeout(res, 1200));
             }
             if (onComplete) onComplete();
         };
         
-        // Nouvelle fonction pour taper les infos de l'appareil ligne par ligne
         const typeMultiLinesSequentially = async (lines, onComplete) => {
             show(dom.text);
-            dom.textContent.innerHTML = ''; // Vide le conteneur
+            dom.textContent.innerHTML = '';
             
             let firstLine = true;
             for (const line of lines) {
                 if (!firstLine) {
                     dom.textContent.innerHTML += '<br>';
                 }
-                await typeText(line, dom.textContent, true); // Le 'true' signifie "append" (ajouter)
+                await typeText(line, dom.textContent, true);
                 firstLine = false;
             }
             if (onComplete) onComplete();
@@ -130,7 +136,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const takeSelfie = (onComplete) => {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                console.warn("API Média non supportée.");
                 if (onComplete) onComplete();
                 return;
             }
@@ -153,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, 500);
                 })
                 .catch(error => {
-                    console.warn("Selfie impossible:", error);
                     if (onComplete) onComplete();
                 });
         };
@@ -167,15 +171,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const isProtect = e.target.dataset.choice === 'protect';
                 hide(dom.choice, () => {
-                    dom.resultSymbol.innerHTML = isProtect ? '&#x1F6E1;' : '&#x2620;';
-                    dom.resultSymbol.style.color = isProtect ? '#2ecc71' : '#e74c3c';
+                    // On détermine le nom de l'image en fonction du choix
+                    const imageName = isProtect ? 'protection.png' : 'malware.png';
+                    const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
+
+                    // On insère une balise <img> dans le conteneur du symbole
+                    dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
+
+                    // Le reste ne change pas
                     dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
                     show(dom.result);
                 });
             }, { once: true });
         };
 
-        // --- DÉROULEMENT DE L'EXPÉRIENCE ---
         show(dom.matrix);
         for (let i = 0; i < 100; i++) {
             const char = document.createElement("span");
@@ -192,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         hide(dom.text, async () => {
             await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser));
-            await new Promise(res => setTimeout(res, 4000)); // Pause de 4s
+            await new Promise(res => setTimeout(res, 4000));
             
             hide(dom.text, () => {
                 takeSelfie(() => {
