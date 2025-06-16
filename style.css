@@ -133,8 +133,7 @@ body {
 }
 
 #result-symbol {
-    /* Cet élément contiendra maintenant une image */
-    margin-bottom: 20px; /* Espace entre l'image et le texte */
+    margin-bottom: 20px;
 }
 
 #result-message {
@@ -142,12 +141,10 @@ body {
     max-width: 500px;
 }
 
-/* Nouvelle classe pour styliser les images de résultat */
 .result-icon {
-    height: 80px;  /* Hauteur fixe pour les icônes */
-    width: auto;   /* Largeur automatique pour garder les proportions */
+    height: 100px;
+    width: auto;
 }
-
 
 .selfie-frame {
     display: flex;

@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `NAVIGATEUR : ${browser}`],
+            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -77,31 +77,44 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 30);
         });
     };
-    
+
     const getDeviceInfo = () => {
+        if (typeof UAParser === 'undefined') {
+            console.error("La bibliothèque UAParser n'est pas chargée !");
+            return { device: "Erreur", os: "Bibliothèque", browser: "Manquante" };
+        }
+
         try {
             const parser = new UAParser();
             const result = parser.getResult();
-            const osName = result.os.name || "Inconnu";
-            const osVersion = result.os.version || "";
-            const deviceVendor = result.device.vendor || "";
-            const deviceModel = result.device.model || "";
 
+            const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
+            const osVersion = (result.os && result.os.version) ? result.os.version : "";
+            
+            const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
+            const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
+            
+            const deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
+            const deviceModel = (result.device && result.device.model) ? result.device.model : "";
+            
             let device = `${deviceVendor} ${deviceModel}`.trim();
+            
             if (!device) {
-                if (osName.toLowerCase().includes("android")) device = "Appareil Android";
-                else if (osName.toLowerCase().includes("ios")) device = "iPhone";
-                else if (osName.toLowerCase().includes("windows")) device = "Appareil Windows";
-                else if (osName.toLowerCase().includes("mac os")) device = "Mac";
+                if (osName.includes("Android")) device = "Appareil Android";
+                else if (osName.includes("iOS")) device = "iPhone/iPad";
+                else if (osName.includes("Windows")) device = "PC Windows";
+                else if (osName.includes("Mac OS")) device = "Mac";
+                else if (result.device && result.device.type) device = result.device.type;
                 else device = "Appareil";
             }
 
             return {
-                device,
+                device: device,
                 os: `${osName} ${osVersion}`.trim(),
-                browser: `${result.browser.name || ''} ${result.browser.version || ''}`.trim() || "Inconnu"
+                browser: `${browserName} ${browserVersion}`.trim()
             };
         } catch (error) {
+            console.error("Erreur inattendue dans getDeviceInfo:", error);
             return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
         }
     };
@@ -158,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, 500);
                 })
                 .catch(error => {
+                    console.warn("Accès caméra refusé ou impossible:", error);
                     if (onComplete) onComplete();
                 });
         };
@@ -171,14 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const isProtect = e.target.dataset.choice === 'protect';
                 hide(dom.choice, () => {
-                    // On détermine le nom de l'image en fonction du choix
-                    const imageName = isProtect ? 'protection.png' : 'malware.png';
+                    const imageName = isProtect ? 'protection.png' : 'malware.png'; 
                     const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
 
-                    // On insère une balise <img> dans le conteneur du symbole
                     dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
 
-                    // Le reste ne change pas
                     dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
                     show(dom.result);
                 });
