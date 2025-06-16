@@ -87,18 +87,25 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const parser = new UAParser();
             const result = parser.getResult();
-
+            
             const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
             const osVersion = (result.os && result.os.version) ? result.os.version : "";
             
             const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
             const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
             
-            const deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
-            const deviceModel = (result.device && result.device.model) ? result.device.model : "";
+            let deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
+            let deviceModel = (result.device && result.device.model) ? result.device.model : "";
+            
+            // --- AMÉLIORATION ICI ---
+            // Si la marque est un nom étrange (ex: une seule ou deux lettres), on l'ignore.
+            if (deviceVendor.length <= 2) {
+                deviceVendor = "";
+            }
             
             let device = `${deviceVendor} ${deviceModel}`.trim();
             
+            // Si, après nettoyage, le nom de l'appareil est vide, on utilise nos descriptions par défaut.
             if (!device) {
                 if (osName.includes("Android")) device = "Appareil Android";
                 else if (osName.includes("iOS")) device = "iPhone/iPad";
