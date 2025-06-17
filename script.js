@@ -84,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = parser.getResult();
             
             const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
-            const osVersion = (result.os && result.os.version) ? result.os.version : "";
             const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
             const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
             let deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
@@ -107,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             return {
                 device: device,
-                os: `${osName} ${osVersion}`.trim(),
+                os: osName,
                 browser: `${browserName} ${browserVersion}`.trim()
             };
         } catch (error) {
@@ -119,16 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const texts = config[selectedLang];
         const deviceInfo = getDeviceInfo();
 
-        const showLinesSequentially = async (lines, onComplete) => {
-            show(dom.text);
+        const showLinesSequentially = async (lines) => {
             for (const line of lines) {
+                show(dom.text);
                 await typeText(line, dom.textContent);
-                await new Promise(res => setTimeout(res, 1200));
+                await new Promise(res => setTimeout(res, 2500));
+                await new Promise(resolve => hide(dom.text, resolve));
+                await new Promise(res => setTimeout(res, 300));
             }
-            if (onComplete) onComplete();
         };
         
-        const typeMultiLinesSequentially = async (lines, onComplete) => {
+        const typeMultiLinesSequentially = async (lines) => {
             show(dom.text);
             dom.textContent.innerHTML = '';
             
@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 await typeText(line, dom.textContent, true);
                 firstLine = false;
             }
-            if (onComplete) onComplete();
         };
 
         const takeSelfie = (onComplete) => {
@@ -205,16 +204,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await showLinesSequentially(texts.initialPhrases);
         
-        hide(dom.text, async () => {
-            await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser));
-            await new Promise(res => setTimeout(res, 4000));
-            
-            hide(dom.text, () => {
-                takeSelfie(() => {
-                    hide(dom.selfie, async () => {
-                        await showLinesSequentially(texts.finalPhrases);
-                        hide(dom.text, showFinalChoices);
-                    });
+        await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser));
+        await new Promise(res => setTimeout(res, 4000));
+        
+        hide(dom.text, () => {
+            takeSelfie(() => {
+                hide(dom.selfie, async () => {
+                    await showLinesSequentially(texts.finalPhrases);
+                    showFinalChoices();
                 });
             });
         });
