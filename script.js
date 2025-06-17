@@ -77,35 +77,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 30);
         });
     };
-
+    
     const getDeviceInfo = () => {
-        if (typeof UAParser === 'undefined') {
-            console.error("La bibliothèque UAParser n'est pas chargée !");
-            return { device: "Erreur", os: "Bibliothèque", browser: "Manquante" };
-        }
-
         try {
             const parser = new UAParser();
             const result = parser.getResult();
             
             const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
             const osVersion = (result.os && result.os.version) ? result.os.version : "";
-            
             const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
             const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
-            
             let deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
             let deviceModel = (result.device && result.device.model) ? result.device.model : "";
             
-            // --- AMÉLIORATION ICI ---
-            // Si la marque est un nom étrange (ex: une seule ou deux lettres), on l'ignore.
             if (deviceVendor.length <= 2) {
                 deviceVendor = "";
             }
             
             let device = `${deviceVendor} ${deviceModel}`.trim();
             
-            // Si, après nettoyage, le nom de l'appareil est vide, on utilise nos descriptions par défaut.
             if (!device) {
                 if (osName.includes("Android")) device = "Appareil Android";
                 else if (osName.includes("iOS")) device = "iPhone/iPad";
@@ -121,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 browser: `${browserName} ${browserVersion}`.trim()
             };
         } catch (error) {
-            console.error("Erreur inattendue dans getDeviceInfo:", error);
             return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
         }
     };
@@ -177,8 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (onComplete) setTimeout(onComplete, 4000);
                     }, 500);
                 })
-                .catch(error => {
-                    console.warn("Accès caméra refusé ou impossible:", error);
+                .catch(() => {
                     if (onComplete) onComplete();
                 });
         };
@@ -192,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const isProtect = e.target.dataset.choice === 'protect';
                 hide(dom.choice, () => {
-                    const imageName = isProtect ? 'protection.png' : 'malware.png'; 
+                    const imageName = isProtect ? 'protection.png' : 'malware.png';
                     const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
 
                     dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
