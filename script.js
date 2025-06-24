@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `NAVIGATEUR : ${browser}`],
-            // Ajout des nouvelles phrases pour les infos supplémentaires
+            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`],
             extraInfo: (battery, isp) => [`BATTERIE : ${battery}`, `FOURNISSEUR : ${isp}`],
+            // Ajout d'une phrase pour l'effet gyroscopique
+            gyroscopePhrase: ["On peut même sentir tes moindres gestes..."],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -17,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
         nl: {
             initialPhrases: ["Denk je dat je beschermd bent?", "En toch, dit is wat we van je toestel hebben gehaald…"],
             deviceInfo: (device, os, browser) => [`TOESTEL: ${device}`, `SYSTEEM: ${os}`, `BROWSER: ${browser}`],
-            // Ajout des nouvelles phrases en néerlandais
             extraInfo: (battery, isp) => [`BATTERIJ: ${battery}`, `PROVIDER: ${isp}`],
+            gyroscopePhrase: ["We kunnen zelfs je kleinste bewegingen voelen..."],
             finalPhrases: ["Een hacker zou in 30 seconden erger doen.", "Daarom hebben we het Digital Service Pack ontwikkeld."],
             selfieMessage: "En dat is jouw gezicht als je beseft dat je gegevens toegankelijk zijn…",
             selfieDisclaimer: "Wees gerust, er wordt niets opgeslagen.",
@@ -43,6 +44,29 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     let selectedLang = 'fr';
+    
+    // --- GESTION DE L'EFFET GYROSCOPIQUE ---
+    const handleOrientation = (event) => {
+        const x = event.beta;  // Rotation sur l'axe X (-180 à 180)
+        const y = event.gamma; // Rotation sur l'axe Y (-90 à 90)
+        
+        const constraint = 20;
+        const rotateY = Math.min(Math.max(y, -constraint), constraint);
+        const rotateX = Math.min(Math.max(x, -constraint), constraint) * -1; // Inversé pour un effet naturel
+        
+        dom.text.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    };
+
+    const startGyroEffect = () => {
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+    };
+
+    const stopGyroEffect = () => {
+        window.removeEventListener('deviceorientation', handleOrientation);
+        dom.text.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    };
 
     const show = (element) => {
         if (!element) return;
@@ -108,60 +132,51 @@ document.addEventListener("DOMContentLoaded", () => {
                 else device = "Appareil";
             }
 
-            return {
-                device: device,
-                os: osName,
-                browser: `${browserName} ${browserVersion}`.trim()
-            };
+            return { device: device, os: osName, browser: `${browserName} ${browserVersion}`.trim() };
         } catch (error) {
             return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
         }
     };
 
-    // NOUVELLE FONCTION pour récupérer la batterie et le FAI
     const getExtraInfo = async () => {
         let batteryInfo = "Non détectée";
         let ispInfo = "Non détecté";
 
-        // Récupérer le niveau de batterie
         if ('getBattery' in navigator) {
             try {
                 const battery = await navigator.getBattery();
                 const level = Math.round(battery.level * 100);
                 const charging = battery.charging ? "(en charge)" : "";
                 batteryInfo = `${level}% ${charging}`.trim();
-            } catch (error) {
-                // L'API a peut-être échoué, on garde la valeur par défaut
-            }
+            } catch (error) {}
         }
 
-        // Récupérer le fournisseur d'accès internet (FAI)
         try {
-            const response = await fetch('https://ip-api.com/json/?fields=isp');
+            const response = await fetch('https://ip-api.com/json/?fields=status,message,isp');
             const data = await response.json();
-            if (data && data.isp) {
+            if (data && data.status === 'success' && data.isp) {
                 ispInfo = data.isp;
             }
-        } catch (error) {
-            // L'appel a échoué (pas de connexion, etc.), on garde la valeur par défaut
-        }
+        } catch (error) {}
 
-        return {
-            battery: batteryInfo,
-            isp: ispInfo
-        };
+        return { battery: batteryInfo, isp: ispInfo };
     };
 
     const runExperience = async () => {
         const texts = config[selectedLang];
-        // Récupération de TOUTES les informations en même temps
         const deviceInfo = getDeviceInfo();
         const extraInfo = await getExtraInfo();
 
-        const showLinesSequentially = async (lines) => {
-            for (const line of lines) {
+        const showLinesSequentially = async (lines, holdLastLine = false) => {
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
                 show(dom.text);
                 await typeText(line, dom.textContent);
+                
+                if (holdLastLine && i === lines.length - 1) {
+                    return;
+                }
+                
                 await new Promise(res => setTimeout(res, 2500));
                 await new Promise(resolve => hide(dom.text, resolve));
                 await new Promise(res => setTimeout(res, 300));
@@ -174,9 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             let firstLine = true;
             for (const line of lines) {
-                if (!firstLine) {
-                    dom.textContent.innerHTML += '<br>';
-                }
+                if (!firstLine) { dom.textContent.innerHTML += '<br>'; }
                 await typeText(line, dom.textContent, true);
                 firstLine = false;
             }
@@ -184,8 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const takeSelfie = (onComplete) => {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (onComplete) onComplete();
-                return;
+                if (onComplete) onComplete(); return;
             }
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
                 .then(stream => {
@@ -205,9 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (onComplete) setTimeout(onComplete, 4000);
                     }, 500);
                 })
-                .catch(() => {
-                    if (onComplete) onComplete();
-                });
+                .catch(() => { if (onComplete) onComplete(); });
         };
 
         const showFinalChoices = () => {
@@ -216,14 +226,15 @@ document.addEventListener("DOMContentLoaded", () => {
             
             dom.choice.addEventListener('click', (e) => {
                 if (e.target.tagName !== 'BUTTON') return;
+                stopGyroEffect();
                 
                 const isProtect = e.target.dataset.choice === 'protect';
+                hide(dom.text);
                 hide(dom.choice, () => {
                     const imageName = isProtect ? 'protection.png' : 'malware.png';
                     const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
 
                     dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
-
                     dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
                     show(dom.result);
                 });
@@ -244,18 +255,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await showLinesSequentially(texts.initialPhrases);
         
-        // Combinaison de toutes les informations à afficher
         const allInfoLines = [
             ...texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser),
             ...texts.extraInfo(extraInfo.battery, extraInfo.isp)
         ];
-
         await typeMultiLinesSequentially(allInfoLines);
         await new Promise(res => setTimeout(res, 4000));
         
         hide(dom.text, () => {
             takeSelfie(() => {
                 hide(dom.selfie, async () => {
+                    await showLinesSequentially(texts.gyroscopePhrase, true);
+                    startGyroEffect();
+                    await new Promise(res => setTimeout(res, 3000));
                     await showLinesSequentially(texts.finalPhrases);
                     showFinalChoices();
                 });
