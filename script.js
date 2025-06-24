@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const beta = event.beta;
         const gamma = event.gamma;
         
-        const movementStrength = 20;
+        const movementStrength = 40;
         const bgMovementFactor = 0.5;
 
         const x = (gamma / 90) * movementStrength; 
