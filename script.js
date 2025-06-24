@@ -42,21 +42,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const foregroundElements = [dom.text, dom.selfie, dom.choice, dom.result];
 
     const handleOrientation = (event) => {
-        const beta = event.beta;  // Inclinaison avant/arrière
-        const gamma = event.gamma; // Inclinaison gauche/droite
+        const beta = event.beta;
+        const gamma = event.gamma;
         
-        const movementStrength = 20; // Pixels de déplacement max
-        const bgMovementFactor = 0.5; // Le fond bouge 2x moins que le premier plan
+        const movementStrength = 20;
+        const bgMovementFactor = 0.5;
 
         const x = (gamma / 90) * movementStrength; 
         const y = (beta / 90) * movementStrength;
 
-        // Appliquer le mouvement au premier plan
         foregroundElements.forEach(el => {
-            el.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, 0)`;
+            // Applique le mouvement uniquement si l'élément est visible
+            if (el.classList.contains('visible')) {
+                el.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, 0)`;
+            }
         });
         
-        // Appliquer le mouvement opposé et réduit à l'arrière-plan
         dom.matrix.style.transform = `translate3d(${-x * bgMovementFactor}px, ${-y * bgMovementFactor}px, 0)`;
     };
 
@@ -150,8 +151,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const deviceInfo = getDeviceInfo();
         const batteryInfo = await getBatteryInfo();
 
-        show(dom.matrix);
         startGyroEffect();
+        
+        // --- CORRECTION : La boucle pour générer la matrice est restaurée ici ---
+        show(dom.matrix);
+        for (let i = 0; i < 100; i++) {
+            const char = document.createElement("span");
+            char.className = "matrix-number";
+            char.textContent = Math.round(Math.random());
+            char.style.left = `${Math.random() * 100}%`;
+            char.style.top = `${Math.random() * 100}%`;
+            char.style.animationDelay = `${Math.random() * 2}s`;
+            char.style.fontSize = `${Math.random() * 1.5 + 0.5}rem`;
+            dom.matrix.appendChild(char);
+        }
 
         const showLinesSequentially = async (lines) => {
             for (const line of lines) {
