@@ -8,26 +8,28 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="matrix-container" class="matrix"></div>
+    <div id="parallax-container">
+        <div id="matrix-container" class="matrix"></div>
 
-    <div id="language-selection">
-        <button id="btn-fr" type="button" aria-label="Français" data-lang="fr">Français</button>
-        <button id="btn-nl" type="button" aria-label="Nederlands" data-lang="nl">Nederlands</button>
-    </div>
+        <div id="language-selection">
+            <button id="btn-fr" type="button" aria-label="Français" data-lang="fr">Français</button>
+            <button id="btn-nl" type="button" aria-label="Nederlands" data-lang="nl">Nederlands</button>
+        </div>
 
-    <div id="text">
-        <span id="content"></span>
+        <div id="text">
+            <span id="content"></span>
+        </div>
+        
+        <div id="selfie-container"></div>
+
+        <div id="choice-selection"></div>
+        
+        <div id="result-container">
+            <span id="result-symbol"></span>
+            <span id="result-message"></span>
+        </div>
     </div>
     
-    <div id="selfie-container"></div>
-
-    <div id="choice-selection"></div>
-    
-    <div id="result-container">
-        <span id="result-symbol"></span>
-        <span id="result-message"></span>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/ua-parser-js/dist/ua-parser.min.js"></script>
     <script src="script.js"></script>
 </body>

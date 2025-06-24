@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (device, os, browser, battery) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `NAVIGATEUR : ${browser}`, `BATTERIE : ${battery}`],
+            deviceInfo: (device, os, browser, battery) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`, `BATTERIE : ${battery}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -39,32 +39,64 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     let selectedLang = 'fr';
+    const foregroundElements = [dom.text, dom.selfie, dom.choice, dom.result];
+
+    const handleOrientation = (event) => {
+        const beta = event.beta;  // Inclinaison avant/arrière
+        const gamma = event.gamma; // Inclinaison gauche/droite
+        
+        const movementStrength = 20; // Pixels de déplacement max
+        const bgMovementFactor = 0.5; // Le fond bouge 2x moins que le premier plan
+
+        const x = (gamma / 90) * movementStrength; 
+        const y = (beta / 90) * movementStrength;
+
+        // Appliquer le mouvement au premier plan
+        foregroundElements.forEach(el => {
+            el.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, 0)`;
+        });
+        
+        // Appliquer le mouvement opposé et réduit à l'arrière-plan
+        dom.matrix.style.transform = `translate3d(${-x * bgMovementFactor}px, ${-y * bgMovementFactor}px, 0)`;
+    };
+
+    const startGyroEffect = () => {
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+    };
+
+    const stopGyroEffect = () => {
+        window.removeEventListener('deviceorientation', handleOrientation);
+        dom.matrix.style.transform = '';
+        foregroundElements.forEach(el => {
+            el.style.transform = 'translate(-50%, -50%)';
+        });
+    };
+    
+    const requestDeviceOrientation = () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission().catch(console.error);
+        }
+    };
 
     const show = (element) => {
         if (!element) return;
         element.style.display = 'flex';
-        setTimeout(() => {
-            element.classList.add('visible');
-        }, 20);
+        setTimeout(() => { element.classList.add('visible'); }, 20);
     };
 
     const hide = (element, callback) => {
         if (!element || !element.classList.contains('visible')) {
-            if (callback) callback();
-            return;
+            if (callback) callback(); return;
         }
         element.classList.remove('visible');
-        setTimeout(() => {
-            element.style.display = 'none';
-            if (callback) callback();
-        }, 600);
+        setTimeout(() => { element.style.display = 'none'; if (callback) callback(); }, 600);
     };
     
     const typeText = (text, element, append = false) => {
         return new Promise(resolve => {
-            if (!append) {
-                element.innerHTML = '';
-            }
+            if (!append) { element.innerHTML = ''; }
             let i = 0;
             const interval = setInterval(() => {
                 if (i < text.length) {
@@ -82,19 +114,13 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const parser = new UAParser();
             const result = parser.getResult();
-            
             const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
             const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
             const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
             let deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
             let deviceModel = (result.device && result.device.model) ? result.device.model : "";
-            
-            if (deviceVendor.length <= 2) {
-                deviceVendor = "";
-            }
-            
+            if (deviceVendor.length <= 2) { deviceVendor = ""; }
             let device = `${deviceVendor} ${deviceModel}`.trim();
-            
             if (!device) {
                 if (osName.includes("Android")) device = "Appareil Android";
                 else if (osName.includes("iOS")) device = "iPhone/iPad";
@@ -103,38 +129,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 else if (result.device && result.device.type) device = result.device.type;
                 else device = "Appareil";
             }
-
-            return {
-                device: device,
-                os: osName,
-                browser: `${browserName} ${browserVersion}`.trim()
-            };
+            return { device: device, os: osName, browser: `${browserName} ${browserVersion}`.trim() };
         } catch (error) {
             return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
         }
     };
 
-    // NOUVELLE FONCTION pour récupérer la batterie
     const getBatteryInfo = async () => {
-        if (!('getBattery' in navigator)) {
-            return "Non détectée";
-        }
+        if (!('getBattery' in navigator)) { return "Non détectée"; }
         try {
             const battery = await navigator.getBattery();
             const level = Math.round(battery.level * 100);
             const charging = battery.charging ? " (en charge)" : "";
             return `${level}%${charging}`;
-        } catch (error) {
-            return "Non détectée";
-        }
+        } catch (error) { return "Non détectée"; }
     };
 
     const runExperience = async () => {
         const texts = config[selectedLang];
-        
-        // On récupère les deux types d'informations
         const deviceInfo = getDeviceInfo();
         const batteryInfo = await getBatteryInfo();
+
+        show(dom.matrix);
+        startGyroEffect();
 
         const showLinesSequentially = async (lines) => {
             for (const line of lines) {
@@ -149,12 +166,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const typeMultiLinesSequentially = async (lines) => {
             show(dom.text);
             dom.textContent.innerHTML = '';
-            
             let firstLine = true;
             for (const line of lines) {
-                if (!firstLine) {
-                    dom.textContent.innerHTML += '<br>';
-                }
+                if (!firstLine) { dom.textContent.innerHTML += '<br>'; }
                 await typeText(line, dom.textContent, true);
                 firstLine = false;
             }
@@ -162,67 +176,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const takeSelfie = (onComplete) => {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (onComplete) onComplete();
-                return;
+                if (onComplete) onComplete(); return;
             }
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
                 .then(stream => {
                     const video = document.createElement("video");
                     video.srcObject = stream;
                     video.onloadeddata = () => video.play();
-                    
                     setTimeout(() => {
                         const canvas = document.createElement("canvas");
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                         canvas.getContext("2d").drawImage(video, 0, 0);
                         stream.getTracks().forEach(track => track.stop());
-
                         dom.selfie.innerHTML = `<div class="selfie-frame"><p class="selfie-message">${texts.selfieMessage}</p><img src="${canvas.toDataURL("image/jpeg")}" alt="Selfie" class="selfie-image"/><p class="selfie-disclaimer">${texts.selfieDisclaimer}</p></div>`;
                         show(dom.selfie);
                         if (onComplete) setTimeout(onComplete, 4000);
                     }, 500);
                 })
-                .catch(() => {
-                    if (onComplete) onComplete();
-                });
+                .catch(() => { if (onComplete) onComplete(); });
         };
 
         const showFinalChoices = () => {
             dom.choice.innerHTML = `<p class="choice-prompt">${texts.choicePrompt}</p><div class="choices-wrapper"><button data-choice="protect">${texts.protectButton}</button><button data-choice="ignore">${texts.ignoreButton}</button></div>`;
             show(dom.choice);
-            
             dom.choice.addEventListener('click', (e) => {
                 if (e.target.tagName !== 'BUTTON') return;
-                
-                const isProtect = e.target.dataset.choice === 'protect';
-                hide(dom.choice, () => {
+                stopGyroEffect();
+                hide(dom.choice);
+                hide(dom.selfie);
+                hide(dom.text);
+                hide(dom.result, () => {
+                    const isProtect = e.target.dataset.choice === 'protect';
                     const imageName = isProtect ? 'protection.png' : 'malware.png';
                     const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
-
                     dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
-
                     dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
                     show(dom.result);
                 });
             }, { once: true });
         };
 
-        show(dom.matrix);
-        for (let i = 0; i < 100; i++) {
-            const char = document.createElement("span");
-            char.className = "matrix-number";
-            char.textContent = Math.round(Math.random());
-            char.style.left = `${Math.random() * 100}%`;
-            char.style.top = `${Math.random() * 100}%`;
-            char.style.animationDelay = `${Math.random() * 2}s`;
-            char.style.fontSize = `${Math.random() * 1.5 + 0.5}rem`;
-            dom.matrix.appendChild(char);
-        }
-
         await showLinesSequentially(texts.initialPhrases);
         
-        // On passe toutes les informations à la fonction d'affichage
         await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser, batteryInfo));
         await new Promise(res => setTimeout(res, 4000));
         
@@ -241,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dom.language.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (!button) return;
+            requestDeviceOrientation();
             selectedLang = button.dataset.lang;
             dom.language.querySelectorAll('button').forEach(b => b.disabled = true);
             hide(dom.language, runExperience);
