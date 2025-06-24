@@ -2,7 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`],
+            deviceInfo: (device, os, browser) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `NAVIGATEUR : ${browser}`],
+            // Ajout des nouvelles phrases pour les infos supplémentaires
+            extraInfo: (battery, isp) => [`BATTERIE : ${battery}`, `FOURNISSEUR : ${isp}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -15,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
         nl: {
             initialPhrases: ["Denk je dat je beschermd bent?", "En toch, dit is wat we van je toestel hebben gehaald…"],
             deviceInfo: (device, os, browser) => [`TOESTEL: ${device}`, `SYSTEEM: ${os}`, `BROWSER: ${browser}`],
+            // Ajout des nouvelles phrases en néerlandais
+            extraInfo: (battery, isp) => [`BATTERIJ: ${battery}`, `PROVIDER: ${isp}`],
             finalPhrases: ["Een hacker zou in 30 seconden erger doen.", "Daarom hebben we het Digital Service Pack ontwikkeld."],
             selfieMessage: "En dat is jouw gezicht als je beseft dat je gegevens toegankelijk zijn…",
             selfieDisclaimer: "Wees gerust, er wordt niets opgeslagen.",
@@ -114,9 +118,45 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // NOUVELLE FONCTION pour récupérer la batterie et le FAI
+    const getExtraInfo = async () => {
+        let batteryInfo = "Non détectée";
+        let ispInfo = "Non détecté";
+
+        // Récupérer le niveau de batterie
+        if ('getBattery' in navigator) {
+            try {
+                const battery = await navigator.getBattery();
+                const level = Math.round(battery.level * 100);
+                const charging = battery.charging ? "(en charge)" : "";
+                batteryInfo = `${level}% ${charging}`.trim();
+            } catch (error) {
+                // L'API a peut-être échoué, on garde la valeur par défaut
+            }
+        }
+
+        // Récupérer le fournisseur d'accès internet (FAI)
+        try {
+            const response = await fetch('https://ip-api.com/json/?fields=isp');
+            const data = await response.json();
+            if (data && data.isp) {
+                ispInfo = data.isp;
+            }
+        } catch (error) {
+            // L'appel a échoué (pas de connexion, etc.), on garde la valeur par défaut
+        }
+
+        return {
+            battery: batteryInfo,
+            isp: ispInfo
+        };
+    };
+
     const runExperience = async () => {
         const texts = config[selectedLang];
+        // Récupération de TOUTES les informations en même temps
         const deviceInfo = getDeviceInfo();
+        const extraInfo = await getExtraInfo();
 
         const showLinesSequentially = async (lines) => {
             for (const line of lines) {
@@ -204,7 +244,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await showLinesSequentially(texts.initialPhrases);
         
-        await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser));
+        // Combinaison de toutes les informations à afficher
+        const allInfoLines = [
+            ...texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser),
+            ...texts.extraInfo(extraInfo.battery, extraInfo.isp)
+        ];
+
+        await typeMultiLinesSequentially(allInfoLines);
         await new Promise(res => setTimeout(res, 4000));
         
         hide(dom.text, () => {
