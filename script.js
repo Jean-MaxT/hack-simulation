@@ -39,65 +39,32 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     let selectedLang = 'fr';
-    const foregroundElements = [dom.text, dom.selfie, dom.choice, dom.result];
-
-    const handleOrientation = (event) => {
-        const beta = event.beta;
-        const gamma = event.gamma;
-        
-        const movementStrength = 40;
-        const bgMovementFactor = 0.5;
-
-        const x = (gamma / 90) * movementStrength; 
-        const y = (beta / 90) * movementStrength;
-
-        foregroundElements.forEach(el => {
-            // Applique le mouvement uniquement si l'élément est visible
-            if (el.classList.contains('visible')) {
-                el.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, 0)`;
-            }
-        });
-        
-        dom.matrix.style.transform = `translate3d(${-x * bgMovementFactor}px, ${-y * bgMovementFactor}px, 0)`;
-    };
-
-    const startGyroEffect = () => {
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientation);
-        }
-    };
-
-    const stopGyroEffect = () => {
-        window.removeEventListener('deviceorientation', handleOrientation);
-        dom.matrix.style.transform = '';
-        foregroundElements.forEach(el => {
-            el.style.transform = 'translate(-50%, -50%)';
-        });
-    };
-    
-    const requestDeviceOrientation = () => {
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission().catch(console.error);
-        }
-    };
 
     const show = (element) => {
         if (!element) return;
         element.style.display = 'flex';
-        setTimeout(() => { element.classList.add('visible'); }, 20);
+        setTimeout(() => {
+            element.classList.add('visible');
+        }, 20);
     };
 
     const hide = (element, callback) => {
         if (!element || !element.classList.contains('visible')) {
-            if (callback) callback(); return;
+            if (callback) callback();
+            return;
         }
         element.classList.remove('visible');
-        setTimeout(() => { element.style.display = 'none'; if (callback) callback(); }, 600);
+        setTimeout(() => {
+            element.style.display = 'none';
+            if (callback) callback();
+        }, 600);
     };
     
     const typeText = (text, element, append = false) => {
         return new Promise(resolve => {
-            if (!append) { element.innerHTML = ''; }
+            if (!append) {
+                element.innerHTML = '';
+            }
             let i = 0;
             const interval = setInterval(() => {
                 if (i < text.length) {
@@ -115,56 +82,62 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const parser = new UAParser();
             const result = parser.getResult();
+            
             const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
             const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
             const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
             let deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
-            let deviceModel = (result.device && result.device.model) ? result.device.model : "";
-            if (deviceVendor.length <= 2) { deviceVendor = ""; }
-            let device = `${deviceVendor} ${deviceModel}`.trim();
-            if (!device) {
-                if (osName.includes("Android")) device = "Appareil Android";
-                else if (osName.includes("iOS")) device = "iPhone/iPad";
-                else if (osName.includes("Windows")) device = "PC Windows";
-                else if (osName.includes("Mac OS")) device = "Mac";
-                else if (result.device && result.device.type) device = result.device.type;
-                else device = "Appareil";
+            
+            let finalDeviceName = "";
+
+            // Priorité 1: On essaie d'obtenir une marque de confiance (plus de 2 lettres)
+            if (deviceVendor && deviceVendor.length > 2) {
+                finalDeviceName = deviceVendor;
+            } 
+            
+            // Priorité 2 (Plan B): Si on n'a rien trouvé, on se base sur l'OS
+            if (!finalDeviceName) {
+                if (osName.includes("Android")) {
+                    finalDeviceName = "Appareil Android";
+                } else if (osName.includes("iOS")) {
+                    finalDeviceName = "iPhone"; // Pour Apple, on peut être plus précis
+                } else if (osName.includes("Windows")) {
+                    finalDeviceName = "PC Windows";
+                } else if (osName.includes("Mac OS")) {
+                    finalDeviceName = "Mac";
+                } else {
+                    finalDeviceName = "Appareil"; // Dernier recours
+                }
             }
-            return { device: device, os: osName, browser: `${browserName} ${browserVersion}`.trim() };
+
+            return {
+                device: finalDeviceName,
+                os: osName,
+                browser: `${browserName} ${browserVersion}`.trim()
+            };
         } catch (error) {
             return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
         }
     };
 
     const getBatteryInfo = async () => {
-        if (!('getBattery' in navigator)) { return "Non détectée"; }
+        if (!('getBattery' in navigator)) {
+            return "Non détectée";
+        }
         try {
             const battery = await navigator.getBattery();
             const level = Math.round(battery.level * 100);
             const charging = battery.charging ? " (en charge)" : "";
             return `${level}%${charging}`;
-        } catch (error) { return "Non détectée"; }
+        } catch (error) {
+            return "Non détectée";
+        }
     };
 
     const runExperience = async () => {
         const texts = config[selectedLang];
         const deviceInfo = getDeviceInfo();
         const batteryInfo = await getBatteryInfo();
-
-        startGyroEffect();
-        
-        // --- CORRECTION : La boucle pour générer la matrice est restaurée ici ---
-        show(dom.matrix);
-        for (let i = 0; i < 100; i++) {
-            const char = document.createElement("span");
-            char.className = "matrix-number";
-            char.textContent = Math.round(Math.random());
-            char.style.left = `${Math.random() * 100}%`;
-            char.style.top = `${Math.random() * 100}%`;
-            char.style.animationDelay = `${Math.random() * 2}s`;
-            char.style.fontSize = `${Math.random() * 1.5 + 0.5}rem`;
-            dom.matrix.appendChild(char);
-        }
 
         const showLinesSequentially = async (lines) => {
             for (const line of lines) {
@@ -179,9 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const typeMultiLinesSequentially = async (lines) => {
             show(dom.text);
             dom.textContent.innerHTML = '';
+            
             let firstLine = true;
             for (const line of lines) {
-                if (!firstLine) { dom.textContent.innerHTML += '<br>'; }
+                if (!firstLine) {
+                    dom.textContent.innerHTML += '<br>';
+                }
                 await typeText(line, dom.textContent, true);
                 firstLine = false;
             }
@@ -189,46 +165,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const takeSelfie = (onComplete) => {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (onComplete) onComplete(); return;
+                if (onComplete) onComplete();
+                return;
             }
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
                 .then(stream => {
                     const video = document.createElement("video");
                     video.srcObject = stream;
                     video.onloadeddata = () => video.play();
+                    
                     setTimeout(() => {
                         const canvas = document.createElement("canvas");
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                         canvas.getContext("2d").drawImage(video, 0, 0);
                         stream.getTracks().forEach(track => track.stop());
+
                         dom.selfie.innerHTML = `<div class="selfie-frame"><p class="selfie-message">${texts.selfieMessage}</p><img src="${canvas.toDataURL("image/jpeg")}" alt="Selfie" class="selfie-image"/><p class="selfie-disclaimer">${texts.selfieDisclaimer}</p></div>`;
                         show(dom.selfie);
                         if (onComplete) setTimeout(onComplete, 4000);
                     }, 500);
                 })
-                .catch(() => { if (onComplete) onComplete(); });
+                .catch(() => {
+                    if (onComplete) onComplete();
+                });
         };
 
         const showFinalChoices = () => {
             dom.choice.innerHTML = `<p class="choice-prompt">${texts.choicePrompt}</p><div class="choices-wrapper"><button data-choice="protect">${texts.protectButton}</button><button data-choice="ignore">${texts.ignoreButton}</button></div>`;
             show(dom.choice);
+            
             dom.choice.addEventListener('click', (e) => {
                 if (e.target.tagName !== 'BUTTON') return;
-                stopGyroEffect();
-                hide(dom.choice);
-                hide(dom.selfie);
-                hide(dom.text);
-                hide(dom.result, () => {
-                    const isProtect = e.target.dataset.choice === 'protect';
+                
+                const isProtect = e.target.dataset.choice === 'protect';
+                hide(dom.choice, () => {
                     const imageName = isProtect ? 'protection.png' : 'malware.png';
                     const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
+
                     dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
+
                     dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
                     show(dom.result);
                 });
             }, { once: true });
         };
+
+        show(dom.matrix);
+        for (let i = 0; i < 100; i++) {
+            const char = document.createElement("span");
+            char.className = "matrix-number";
+            char.textContent = Math.round(Math.random());
+            char.style.left = `${Math.random() * 100}%`;
+            char.style.top = `${Math.random() * 100}%`;
+            char.style.animationDelay = `${Math.random() * 2}s`;
+            char.style.fontSize = `${Math.random() * 1.5 + 0.5}rem`;
+            dom.matrix.appendChild(char);
+        }
 
         await showLinesSequentially(texts.initialPhrases);
         
@@ -250,7 +243,6 @@ document.addEventListener("DOMContentLoaded", () => {
         dom.language.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (!button) return;
-            requestDeviceOrientation();
             selectedLang = button.dataset.lang;
             dom.language.querySelectorAll('button').forEach(b => b.disabled = true);
             hide(dom.language, runExperience);
