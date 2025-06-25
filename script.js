@@ -90,18 +90,16 @@ document.addEventListener("DOMContentLoaded", () => {
             let brand = (result.device && result.device.vendor) ? result.device.vendor : "";
             let model = (result.device && result.device.model) ? result.device.model : "Inconnu";
 
-            if (brand.toUpperCase() === 'K') {
+            // Règle de correction pour les cas comme Xiaomi
+            if (model.toUpperCase() === 'K' && !brand) {
                 brand = 'Xiaomi';
             }
 
+            // Si, après correction, la marque est toujours vide, on met "Inconnue"
             if (!brand) {
-                if (osName.includes("iOS")) {
-                    brand = "Apple";
-                } else {
-                    brand = "Marque inconnue";
-                }
+                brand = "Inconnue";
             }
-
+            
             return {
                 brand: brand,
                 model: model,
@@ -218,7 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await showLinesSequentially(texts.initialPhrases);
         
-        // On passe maintenant les 5 informations à la fonction d'affichage
         await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.brand, deviceInfo.model, deviceInfo.os, deviceInfo.browser, batteryInfo));
         await new Promise(res => setTimeout(res, 4000));
         
