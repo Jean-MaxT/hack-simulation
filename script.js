@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (device, os, browser, battery) => [`APPAREIL : ${device}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`, `BATTERIE : ${battery}`],
+            deviceInfo: (brand, model, os, browser, battery) => [`MARQUE : ${brand}`, `MODÈLE : ${model}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`, `BATTERIE : ${battery}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         nl: {
             initialPhrases: ["Denk je dat je beschermd bent?", "En toch, dit is wat we van je toestel hebben gehaald…"],
-            deviceInfo: (device, os, browser, battery) => [`TOESTEL: ${device}`, `SYSTEEM: ${os}`, `BROWSER: ${browser}`, `BATTERIJ: ${battery}`],
+            deviceInfo: (brand, model, os, browser, battery) => [`MERK: ${brand}`, `MODEL: ${model}`, `SYSTEEM: ${os}`, `BROWSER: ${browser}`, `BATTERIJ: ${battery}`],
             finalPhrases: ["Een hacker zou in 30 seconden erger doen.", "Daarom hebben we het Digital Service Pack ontwikkeld."],
             selfieMessage: "En dat is jouw gezicht als je beseft dat je gegevens toegankelijk zijn…",
             selfieDisclaimer: "Wees gerust, er wordt niets opgeslagen.",
@@ -86,37 +86,30 @@ document.addEventListener("DOMContentLoaded", () => {
             const osName = (result.os && result.os.name) ? result.os.name : "OS Inconnu";
             const browserName = (result.browser && result.browser.name) ? result.browser.name : "Navigateur Inconnu";
             const browserVersion = (result.browser && result.browser.major) ? result.browser.major : "";
-            let deviceVendor = (result.device && result.device.vendor) ? result.device.vendor : "";
             
-            let finalDeviceName = "";
+            let brand = (result.device && result.device.vendor) ? result.device.vendor : "";
+            let model = (result.device && result.device.model) ? result.device.model : "Inconnu";
 
-            // Priorité 1: On essaie d'obtenir une marque de confiance (plus de 2 lettres)
-            if (deviceVendor && deviceVendor.length > 2) {
-                finalDeviceName = deviceVendor;
-            } 
-            
-            // Priorité 2 (Plan B): Si on n'a rien trouvé, on se base sur l'OS
-            if (!finalDeviceName) {
-                if (osName.includes("Android")) {
-                    finalDeviceName = "Appareil Android";
-                } else if (osName.includes("iOS")) {
-                    finalDeviceName = "iPhone"; // Pour Apple, on peut être plus précis
-                } else if (osName.includes("Windows")) {
-                    finalDeviceName = "PC Windows";
-                } else if (osName.includes("Mac OS")) {
-                    finalDeviceName = "Mac";
+            if (brand.toUpperCase() === 'K') {
+                brand = 'Xiaomi';
+            }
+
+            if (!brand) {
+                if (osName.includes("iOS")) {
+                    brand = "Apple";
                 } else {
-                    finalDeviceName = "Appareil"; // Dernier recours
+                    brand = "Marque inconnue";
                 }
             }
 
             return {
-                device: finalDeviceName,
+                brand: brand,
+                model: model,
                 os: osName,
                 browser: `${browserName} ${browserVersion}`.trim()
             };
         } catch (error) {
-            return { device: "Appareil", os: "Inconnu", browser: "Inconnu" };
+            return { brand: "Inconnu", model: "Inconnu", os: "Inconnu", browser: "Inconnu" };
         }
     };
 
@@ -225,7 +218,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await showLinesSequentially(texts.initialPhrases);
         
-        await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.device, deviceInfo.os, deviceInfo.browser, batteryInfo));
+        // On passe maintenant les 5 informations à la fonction d'affichage
+        await typeMultiLinesSequentially(texts.deviceInfo(deviceInfo.brand, deviceInfo.model, deviceInfo.os, deviceInfo.browser, batteryInfo));
         await new Promise(res => setTimeout(res, 4000));
         
         hide(dom.text, () => {
