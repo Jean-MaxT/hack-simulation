@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (brand, model, os, browser, battery) => [`MARQUE : ${brand}`, `MODÈLE : ${model}`, `SYSTÈME : ${os}`, `MapsUR : ${browser}`, `BATTERIE : ${battery}`],
+            deviceInfo: (brand, model, os, browser, battery) => [`MARQUE : ${brand}`, `MODÈLE : ${model}`, `SYSTÈME : ${os}`, `Navigateur : ${browser}`, `BATTERIE : ${battery}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
             selfieMessage: "En dat is jouw gezicht als je beseft dat je gegevens toegankelijk zijn…",
             selfieDisclaimer: "Wees gerust, er wordt niets opgeslagen.",
             choicePrompt: "Nu je dit weet…",
-            protectButton: "Mijn gegevens beschermen met de DSP",
+            protectButton: "Bescherm mijn gegevens met de DSP",
             ignoreButton: "Negeren en hopen dat het nooit gebeurt",
             protectResult: "Goed idee, spreek een verkoper aan.",
             ignoreResult: "Slecht idee, je kan beter een verkoper aanspreken."
@@ -90,12 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
             let brand = (result.device && result.device.vendor) ? result.device.vendor : "";
             let model = (result.device && result.device.model) ? result.device.model : "Inconnu";
 
-            // Règle de correction pour les cas comme Xiaomi
             if (model.toUpperCase() === 'K' && !brand) {
                 brand = 'Xiaomi';
             }
 
-            // Si, après correction, la marque est toujours vide, on met "Inconnue"
             if (!brand) {
                 brand = "Inconnue";
             }
