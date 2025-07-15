@@ -122,16 +122,15 @@ document.addEventListener("DOMContentLoaded", () => {
             return "Non détectée";
         }
     };
-
-    const requestCameraPermission = () => {
+    
+    const requestCameraPermission = async () => {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    stream.getTracks().forEach(track => track.stop());
-                })
-                .catch(err => {
-                    console.warn("Permission caméra refusée au démarrage.");
-                });
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop());
+            } catch (err) {
+                console.warn("Permission caméra refusée au démarrage.");
+            }
         }
     };
 
@@ -206,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     const altText = isProtect ? 'Icône de protection' : 'Icône de malware';
 
                     dom.resultSymbol.innerHTML = `<img src="${imageName}" alt="${altText}" class="result-icon">`;
-
                     dom.resultMessage.textContent = isProtect ? texts.protectResult : texts.ignoreResult;
                     show(dom.result);
                 });
@@ -242,14 +240,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const init = () => {
         show(dom.language);
-        dom.language.addEventListener('click', (e) => {
+        dom.language.addEventListener('click', async (e) => {
             const button = e.target.closest('button');
             if (!button) return;
-
-            requestCameraPermission();
-
+            
             selectedLang = button.dataset.lang;
             dom.language.querySelectorAll('button').forEach(b => b.disabled = true);
+
+            await requestCameraPermission();
+            
             hide(dom.language, runExperience);
         });
     };
