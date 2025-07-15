@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = {
         fr: {
             initialPhrases: ["Tu penses être protégé ?", "Et pourtant, voilà ce qu'on a récupéré sur ton appareil…"],
-            deviceInfo: (brand, model, os, browser, battery) => [`MARQUE : ${brand}`, `MODÈLE : ${model}`, `SYSTÈME : ${os}`, `Navigateur : ${browser}`, `BATTERIE : ${battery}`],
+            deviceInfo: (brand, model, os, browser, battery) => [`MARQUE : ${brand}`, `MODÈLE : ${model}`, `SYSTÈME : ${os}`, `NAVIGATEUR : ${browser}`, `BATTERIE : ${battery}`],
             finalPhrases: ["Un hacker mettrait 30 secondes à faire pire.", "C'est pour ça qu'on a créé le Digital Service Pack."],
             selfieMessage: "Et ça, c'est ta tête quand tu réalises que tes infos sont accessibles…",
             selfieDisclaimer: "Rassure-toi, rien n'est enregistré.",
@@ -123,8 +123,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    const requestCameraPermission = () => {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    stream.getTracks().forEach(track => track.stop());
+                })
+                .catch(err => {
+                    console.warn("Permission caméra refusée au démarrage.");
+                });
+        }
+    };
+
     const runExperience = async () => {
         const texts = config[selectedLang];
+        
         const deviceInfo = getDeviceInfo();
         const batteryInfo = await getBatteryInfo();
 
@@ -232,6 +245,9 @@ document.addEventListener("DOMContentLoaded", () => {
         dom.language.addEventListener('click', (e) => {
             const button = e.target.closest('button');
             if (!button) return;
+
+            requestCameraPermission();
+
             selectedLang = button.dataset.lang;
             dom.language.querySelectorAll('button').forEach(b => b.disabled = true);
             hide(dom.language, runExperience);
