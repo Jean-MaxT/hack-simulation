@@ -135,17 +135,27 @@ body {
     flex-wrap: wrap;
 }
 
+/* MODIFIÉ : Style de la carte de résultat */
+#result-container {
+    background-color: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px 40px;
+    max-width: 450px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
 #result-symbol {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 #result-message {
-    font-size: 2.2rem;
-    max-width: 500px;
+    font-size: 2rem;
 }
 
 .result-icon {
-    height: 100px;
+    height: 80px;
     width: auto;
 }
 
