@@ -135,14 +135,15 @@ body {
     flex-wrap: wrap;
 }
 
-/* MODIFIÉ : Style de la carte de résultat */
 #result-container {
     background-color: rgba(30, 30, 30, 0.6);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    padding: 30px 40px;
+    padding: 30px;
+    width: 85%;
     max-width: 450px;
+    box-sizing: border-box
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
 }
 
